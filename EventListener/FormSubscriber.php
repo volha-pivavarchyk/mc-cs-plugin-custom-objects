@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
-use Http\Discovery\Exception;
 use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldCollectEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
 use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Crate\FieldCrate;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
-use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
@@ -45,9 +43,6 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @throws NotFoundException
-     */
     public function onFieldCollect(FieldCollectEvent $event): void
     {
         try {
@@ -57,31 +52,32 @@ class FormSubscriber implements EventSubscriberInterface
             return;
         }
 
-        foreach ($object->getCustomFields() as $field) {
-            $items = $this->customItemModel->fetchCustomItemsForObject($object);
-            $list  = $this->getCustomFieldValues($field, $items);
+        $items = $this->customItemModel->fetchCustomItemsForObject($object);
 
+        foreach ($object->getCustomFields() as $field) {
+            $list = $this->getCustomFieldValues($field, $items);
             $event->appendField(new FieldCrate($field->getAlias(), $field->getName(), $field->getType(), ['list' => $list]));
         }
     }
 
-    private function getCustomFieldValues(CustomField $field, array $items): ?array
+    private function getCustomFieldValues(CustomField $field, array $items): array
     {
-        $list = array_map(
-            function ($item) use ($field) {
-                $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($item);
+        $list = [];
 
-                foreach ($itemWithCustomFieldValues->getCustomFieldValues() as $customFieldValue) {
+        array_walk(
+            $items,
+            function ($item) use ($field, &$list) {
+                $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($item);
+                $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
+
+                foreach ($itemCustomFieldsValues as $customFieldValue) {
                     if ($field->getAlias() === $customFieldValue->getCustomField()->getAlias()) {
-                        $value = $customFieldValue->getValue();
+                        $list[$item->getName()] = $customFieldValue->getValue();
                     }
                 }
-
-                return $value ?? null;
-            },
-            $items
+            }
         );
 
-        return array_filter($list, fn ($elem) => isset($elem) ?? false);
+        return $list ?? [];
     }
 }

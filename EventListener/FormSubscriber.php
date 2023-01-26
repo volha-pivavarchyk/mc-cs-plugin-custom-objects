@@ -64,15 +64,48 @@ class FormSubscriber implements EventSubscriberInterface
     {
         $list = [];
 
+//        array_walk(
+//            $items,
+//            function ($item) use ($field, &$list) {
+//                $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($item);
+//                $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
+//
+//                foreach ($itemCustomFieldsValues as $customFieldValue) {
+//                    if ($field->getAlias() === $customFieldValue->getCustomField()->getAlias()) {
+//                        $list[$item->getName()] = $customFieldValue->getValue();
+//                    }
+//                }
+//            }
+//        );
+//
+//        return $list ?? [];
+
         array_walk(
             $items,
             function ($item) use ($field, &$list) {
                 $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($item);
                 $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
 
-                foreach ($itemCustomFieldsValues as $customFieldValue) {
-                    if ($field->getAlias() === $customFieldValue->getCustomField()->getAlias()) {
-                        $list[$item->getName()] = $customFieldValue->getValue();
+                $object = [];
+                foreach ($itemCustomFieldsValues as $itemCustomFieldValue) {
+                    $object[$itemCustomFieldValue->getCustomField()->getName()] = $itemCustomFieldValue->getValue();
+                }
+                $itemName = $itemCustomFieldsValues->first()->getCustomItem()->getName();
+                $object   = [
+                    $itemName => $object,
+                ];
+
+                foreach ($itemCustomFieldsValues as $itemCustomFieldValue) {
+                    if ($field->getAlias() === $itemCustomFieldValue->getCustomField()->getAlias()) {
+                        $result = [
+                            'selected' => [
+                                $item->getName() => [
+                                    $itemCustomFieldValue->getCustomField()->getName() => $itemCustomFieldValue->getValue()
+                                ],
+                            ],
+                            'object' => $object,
+                        ];
+                        $list[serialize($result)] = $itemCustomFieldValue->getValue();
                     }
                 }
             }

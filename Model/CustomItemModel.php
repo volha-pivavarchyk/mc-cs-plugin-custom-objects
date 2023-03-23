@@ -248,6 +248,48 @@ class CustomItemModel extends FormModel
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function fetchCustomItemsForObjectForContact(CustomObject $customObject, ?int $contactId): array
+    {
+//        $q = $this->entityManager
+//            ->createQueryBuilder()
+//            ->select(CustomItem::TABLE_ALIAS.'.customObject')
+//            ->from('MauticCampaignBundle:Campaign', $this->getTableAlias(), $this->getTableAlias().'.id')
+//            ->leftJoin($this->getTableAlias().'.category', 'cat');
+//
+//        if (!empty($args['joinLists'])) {
+//            $q->leftJoin($this->getTableAlias().'.lists', 'l');
+//        }
+//
+//        if (!empty($args['joinForms'])) {
+//            $q->leftJoin($this->getTableAlias().'.forms', 'f');
+//        }
+//
+//        $args['qb'] = $q;
+//
+//        return parent::getEntities($args);
+//
+//        return $this->fetchEntities([
+//            'filter' => [
+//                'force' => [
+//                    [
+//                        'column' => CustomItem::TABLE_ALIAS.'.customObject',
+//                        'value'  => $customObject->getId(),
+//                        'expr'   => 'eq',
+//                    ],
+//                    [
+//                        'column' => CustomItem::TABLE_ALIAS.'.isPublished',
+//                        'value'  => true,
+//                        'expr'   => 'eq',
+//                    ],
+//                ],
+//            ],
+//            'ignore_paginator' => true,
+//        ]);
+    }
+
+    /**
      * @param array<string, mixed> $args
      *
      * @return array<string, mixed>

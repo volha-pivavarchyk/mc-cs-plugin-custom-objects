@@ -9,6 +9,7 @@ use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class CancelController extends CommonController
@@ -27,15 +28,20 @@ class CancelController extends CommonController
      * @var CustomItemModel
      */
     private $customItemModel;
+    private RequestStack $requestStack;
 
     public function __construct(
         SessionProviderFactory $sessionProviderFactory,
         CustomItemRouteProvider $routeProvider,
-        CustomItemModel $customItemModel
+        CustomItemModel $customItemModel,
+        RequestStack $requestStack
     ) {
         $this->sessionProviderFactory = $sessionProviderFactory;
         $this->routeProvider          = $routeProvider;
         $this->customItemModel        = $customItemModel;
+        
+        $this->requestStack           = $requestStack;
+        parent::setRequestStack($requestStack);
     }
 
     /**

@@ -15,9 +15,9 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class FormController extends CommonController
@@ -56,6 +56,7 @@ class FormController extends CommonController
      * @var CustomObjectRouteProvider
      */
     private $objectRouteProvider;
+    private RequestStack $requestStack;
 
     public function __construct(
         FormFactoryInterface $formFactory,
@@ -64,7 +65,8 @@ class FormController extends CommonController
         CustomFieldPermissionProvider $permissionProvider,
         CustomFieldRouteProvider $fieldRouteProvider,
         CustomObjectModel $customObjectModel,
-        CustomObjectRouteProvider $objectRouteProvider
+        CustomObjectRouteProvider $objectRouteProvider,
+        RequestStack $requestStack
     ) {
         $this->formFactory             = $formFactory;
         $this->customFieldModel        = $customFieldModel;
@@ -73,6 +75,9 @@ class FormController extends CommonController
         $this->fieldRouteProvider      = $fieldRouteProvider;
         $this->customObjectModel       = $customObjectModel;
         $this->objectRouteProvider     = $objectRouteProvider;
+
+        $this->requestStack           = $requestStack;
+        parent::setRequestStack($requestStack);
     }
 
     public function renderFormAction(Request $request): Response

@@ -104,7 +104,7 @@
     <!-- start: tab-content -->
     <div class="tab-content pa-md">
         <div class="tab-pane active bdr-w-0 page-list" id="contacts-container">
-            <?php echo $contacts; ?>
+            {{ contacts|raw }}
         </div>
         {{ customContent('tabs.content', mauticTemplateVars is defined ? mauticTemplateVars : []) }}
     </div>

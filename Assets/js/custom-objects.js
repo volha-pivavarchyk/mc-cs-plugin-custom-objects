@@ -136,6 +136,8 @@ CustomObjects = {
     },
 
     reloadItemsTable(customObjectId, currentEntityId, currentEntityType, tabId) {
+        console.log('111111111111111111111');
+        console.log(customObjectId, currentEntityId, currentEntityType, tabId);
         CustomObjects.reloadItems(customObjectId, currentEntityId, currentEntityType, 0, '#'+tabId+'-container .custom-item-list');
     },
 

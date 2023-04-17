@@ -51,8 +51,6 @@ class FormSubscriber implements EventSubscriberInterface
         }
 
         $items = $this->customItemModel->fetchCustomItemsForObject($object);
-
-
         if (count($items) > 0) {
             foreach ($items as $item) {
                 $list[$item->getName()] = $item->getName();

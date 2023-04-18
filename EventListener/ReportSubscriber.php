@@ -440,7 +440,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
             $customItemTableAlias  = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
 
-            $colCustomObjectName   = sprintf('`%s`.`name`', $customItemTableAlias);
+            $colCustomObjectName   = sprintf('`%s`.`id`', $customItemTableAlias);
             $colMappedField        = sprintf('`%s`.`%s`', $prefixFormResultTable, $field->getAlias());
             $colCustomItemObjectId = sprintf('`%s`.`custom_object_id`', $customItemTableAlias);
             $colCustomObjectId     = sprintf('%s', $customObject->getId());

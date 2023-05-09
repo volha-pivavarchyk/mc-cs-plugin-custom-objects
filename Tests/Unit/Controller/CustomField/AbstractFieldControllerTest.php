@@ -39,7 +39,16 @@ abstract class AbstractFieldControllerTest extends ControllerTestCase
         $query = $this->createMock(ParameterBag::class);
         $query->method('get')
             ->willReturn($fieldId);
+        $query->method('all')
+            ->willReturn($map);
         $request->query = $query;
+
+        $post  = $this->createMock(ParameterBag::class);
+        $post->method('get')
+            ->willReturn($fieldId);
+        $post->method('all')
+            ->willReturn($map);
+        $request->request = $post;
 
         return $request;
     }

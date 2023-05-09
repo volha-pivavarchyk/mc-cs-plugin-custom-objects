@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomField;
 
+use Mautic\CoreBundle\Translation\Translator;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomField\FormController;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomFieldFactory;
@@ -18,6 +19,7 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class FormControllerTest extends AbstractFieldControllerTest
@@ -45,20 +47,18 @@ class FormControllerTest extends AbstractFieldControllerTest
         $this->objectRouteProvider = $this->createMock(CustomObjectRouteProvider::class);
         $this->form                = $this->createMock(FormInterface::class);
 
-        $this->formController = new FormController(
-            $this->formFactory,
-            $this->customFieldModel,
-            $this->customFieldFactory,
-            $this->permissionProvider,
-            $this->fieldRouteProvider,
-            $this->customObjectModel,
-            $this->objectRouteProvider
-        );
+        $this->translator          = $this->createMock(Translator::class);
+
+        $this->formController = new FormController();
+        $this->formController->setTranslator($this->translator);
 
         $this->addSymfonyDependencies($this->formController);
+        $this->container->get('http_kernel')->expects($this->once())
+            ->method('handle')
+            ->willreturn(null);
     }
 
-    public function testRenderFormIfCustomFieldNotFound(): void
+    public function testRenderFormIfCustomFieldNotFoundFormController(): void
     {
         $objectId   = 1;
         $fieldId    = 2;
@@ -66,7 +66,15 @@ class FormControllerTest extends AbstractFieldControllerTest
         $panelId    = null;
         $panelCount = null;
 
-        $request = $this->createRequestMock($objectId, $fieldId, $fieldType, $panelId, $panelCount);
+        $request      = $this->createRequestMock($objectId, $fieldId, $fieldType, $panelId, $panelCount);
+        $request->expects($this->once())
+            ->method('duplicate')
+            ->willReturn($request);
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->expects($this->any())
+            ->method('getCurrentRequest')
+            ->willReturn($request);
 
         $this->customFieldModel->expects($this->once())
             ->method('fetchEntity')
@@ -75,7 +83,26 @@ class FormControllerTest extends AbstractFieldControllerTest
         $this->permissionProvider->expects($this->never())
             ->method('canEdit');
 
-        $this->formController->renderFormAction($request);
+        $this->translator->expects($this->once())
+            ->method('trans')
+            ->with(
+                'not found message',
+                [
+                    '%url%' => null,
+                ]
+            )
+            ->willReturn('not found message');
+
+        $this->formController->renderFormAction(
+            $requestStack,
+            $this->formFactory,
+            $this->customFieldModel,
+            $this->customFieldFactory,
+            $this->permissionProvider,
+            $this->fieldRouteProvider,
+            $this->customObjectModel,
+            $this->objectRouteProvider
+        );
     }
 
     public function testRenderFormIfCustomFieldAccessDenied(): void

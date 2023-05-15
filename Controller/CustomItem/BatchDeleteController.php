@@ -12,13 +12,13 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class BatchDeleteController extends CommonController
 {
     public function deleteAction(
-        Request $request,
+        RequestStack $requestStack,
         CustomItemModel $customItemModel,
         SessionProviderFactory $sessionProviderFactory,
         CustomItemPermissionProvider $permissionProvider,
@@ -26,6 +26,9 @@ class BatchDeleteController extends CommonController
         FlashBag $flashBag,
         int $objectId
     ): Response {
+        $this->setRequestStack($requestStack);
+
+        $request  = $requestStack->getCurrentRequest();
         $itemIds  = json_decode($request->get('ids', '[]'), true);
         $page     = $sessionProviderFactory->createItemProvider($objectId)->getPage();
         $notFound = [];

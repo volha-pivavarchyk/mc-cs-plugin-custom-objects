@@ -12,11 +12,13 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeleteController extends CommonController
 {
     public function deleteAction(
+        RequestStack $requestStack,
         CustomItemModel $customItemModel,
         SessionProviderFactory $sessionProviderFactory,
         FlashBag $flashBag,
@@ -25,6 +27,8 @@ class DeleteController extends CommonController
         int $objectId,
         int $itemId
     ): Response {
+        $this->setRequestStack($requestStack);
+
         try {
             $customItem = $customItemModel->fetchEntity($itemId);
             $permissionProvider->canDelete($customItem);

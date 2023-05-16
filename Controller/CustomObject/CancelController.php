@@ -8,16 +8,19 @@ use Mautic\CoreBundle\Controller\CommonController;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class CancelController extends CommonController
 {
     public function cancelAction(
+        RequestStack $requestStack,
         SessionProviderFactory $sessionProviderFactory,
-        CustomObjectModel $customObjectModel,
         CustomObjectRouteProvider $routeProvider,
-        int $objectId
+        CustomObjectModel $customObjectModel,
+        ?int $objectId
     ): Response {
+        $this->setRequestStack($requestStack);
         $page = $sessionProviderFactory->createObjectProvider()->getPage();
 
         if ($objectId) {

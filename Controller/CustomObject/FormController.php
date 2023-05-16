@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Controller\CustomObject;
 
 use Mautic\CoreBundle\Controller\AbstractFormController;
+use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
@@ -16,10 +18,18 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldTypeProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class FormController extends AbstractFormController
 {
+    public function __construct(CorePermissions $security, UserHelper $userHelper, RequestStack $requestStack)
+    {
+        $this->setRequestStack($requestStack);
+
+        parent::__construct($security, $userHelper);
+    }
+
     public function newAction(
         CustomObjectPermissionProvider $permissionProvider,
         FormFactoryInterface $formFactory,

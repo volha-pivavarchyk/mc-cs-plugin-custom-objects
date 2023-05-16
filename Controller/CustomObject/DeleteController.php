@@ -15,11 +15,13 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeleteController extends CommonController
 {
     public function deleteAction(
+        RequestStack $requestStack,
         SessionProviderFactory $sessionProviderFactory,
         CustomObjectModel $customObjectModel,
         FlashBag $flashBag,
@@ -27,6 +29,8 @@ class DeleteController extends CommonController
         EventDispatcherInterface $eventDispatcher,
         int $objectId
     ): Response {
+        $this->setRequestStack($requestStack);
+
         $controller = 'MauticPlugin\CustomObjectsBundle\Controller\CustomObject\ListController:listAction';
         $page       = [
             'page' => $sessionProviderFactory->createObjectProvider()->getPage(),

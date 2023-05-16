@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Controller\CustomObject;
 
 use Mautic\CoreBundle\Controller\AbstractFormController;
+use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\CoreBundle\Service\FlashBag;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
@@ -22,12 +24,19 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class SaveController extends AbstractFormController
 {
+    public function __construct(CorePermissions $security, UserHelper $userHelper, RequestStack $requestStack)
+    {
+        $this->setRequestStack($requestStack);
+
+        parent::__construct($security, $userHelper);
+    }
+
     public function saveAction(
-        Request $request,
         FlashBag $flashBag,
         FormFactoryInterface $formFactory,
         CustomObjectModel $customObjectModel,
@@ -40,6 +49,8 @@ class SaveController extends AbstractFormController
         LockFlashMessageHelper $lockFlashMessageHelper,
         ?int $objectId = null
     ): Response {
+        $request = $this->getCurrentRequest();
+
         try {
             $customObject = $objectId ? $customObjectModel->fetchEntity($objectId) : new CustomObject();
             if ($customObject->isNew()) {

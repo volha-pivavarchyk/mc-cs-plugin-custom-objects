@@ -27,7 +27,7 @@
                         {{ form_row(form.custom_field_values) }}
                         {{ form_row(form.contact_id) }}
                     </div>
-                    {% if customObject.getRelationshipObject() is not empty and form.contact_id.value is not empty %}
+                    {% if customObject.getRelationshipObject() is not empty and form.contact_id.vars.value is not empty %}
                         <div class="col-md-6">
                             <div class="panel panel-default">
                                 <div class="panel-heading">

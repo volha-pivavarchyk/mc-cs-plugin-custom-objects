@@ -3,13 +3,13 @@
 ?>
 <div class="row">
     <div class="col-xs-4">
-        <?php echo $view['form']->row($form['field']); ?>
+        {{ form_row(field) }}
     </div>
     <div class="col-xs-4">
-        <?php echo $view['form']->row($form['operator']); ?>
+        {{ form_row(operator) }}
     </div>
     <div class="col-xs-4">
-        <?php echo $view['form']->row($form['value']); ?>
+        {{ form_row(value) }}
     </div>
 </div>
 <script>CustomObjects.initCustomFieldConditions()</script>

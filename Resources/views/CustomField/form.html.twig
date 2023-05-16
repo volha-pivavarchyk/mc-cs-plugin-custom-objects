@@ -1,5 +1,5 @@
 {% set title = customField.id ? customField.label : customField.typeObject.name %}
-{% set showProperties = form.options or customField.typeObject.placeholder %}
+{% set showProperties = form.options is defined or customField.typeObject.usePlaceholder() %}
 
 {% block content %}
     <div class="bundle-form">
@@ -34,7 +34,7 @@
 
                     <div class="row">
                         <div class="col-md-6" >
-                            {{ form_label(form, label) }}
+                            {{ form_row(form.label) }}
                         </div>
                         <div class="col-md-6 chosen-showInCustomObjectDetailList">
                             {{ form_row(form.showInCustomObjectDetailList) }}

@@ -6,6 +6,7 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Mautic\FormBundle\Model\FieldModel;
 use Mautic\LeadBundle\Model\CompanyReportData;
 use Mautic\LeadBundle\Report\FieldsBuilder;
 use Mautic\ReportBundle\Event\ColumnCollectEvent;
@@ -66,13 +67,22 @@ class ReportSubscriber implements EventSubscriberInterface
      */
     private $translator;
 
-    public function __construct(CustomObjectRepository $customObjectRepository, FieldsBuilder $fieldsBuilder, CompanyReportData $companyReportData, ReportHelper $reportHelper, TranslatorInterface $translator)
-    {
+    private FieldModel $fieldModel;
+
+    public function __construct(
+        CustomObjectRepository $customObjectRepository,
+        FieldsBuilder $fieldsBuilder,
+        CompanyReportData $companyReportData,
+        ReportHelper $reportHelper,
+        TranslatorInterface $translator,
+        FieldModel $fieldModel
+    ) {
         $this->customObjectRepository = $customObjectRepository;
         $this->fieldsBuilder          = $fieldsBuilder;
         $this->companyReportData      = $companyReportData;
         $this->reportHelper           = $reportHelper;
         $this->translator             = $translator;
+        $this->fieldModel             = $fieldModel;
     }
 
     private function getCustomObjects(): ArrayCollection
@@ -125,7 +135,7 @@ class ReportSubscriber implements EventSubscriberInterface
             ReportEvents::ON_COLUMN_COLLECT  => ['onColumnCollect', 0],
             ReportEvents::REPORT_ON_GENERATE => [
                 ['onReportGenerate', 0],
-                ['onReportSubmissionResultGenerate', -1],
+                ['onFormResultReportGenerate', -1],
             ],
         ];
     }
@@ -232,19 +242,20 @@ class ReportSubscriber implements EventSubscriberInterface
 
         $customObject        = $this->customObjectRepository->findOneBy(['alias' => $object]);
         $properties          = $event->getProperties();
-        $customFieldsColumns = (new ReportColumnsBuilder($customObject))->getColumns();
+        $customItemTableAlias = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
+        $customObjectColumns  = $this->getCustomObjectColumns($customObject, $customItemTableAlias.'.');
 
         array_walk(
-            $customFieldsColumns,
+            $customObjectColumns,
             function (&$item, $index) use ($customObject, $properties) {
                 $item['idCustomObject'] = $customObject->getId();
-                $item['fieldAlias']     = $properties['fieldAlias'] ?? '';
+                $item                   = array_merge($item, $properties);
             }
         );
 
         $columns = array_merge(
             $columns ?? [],
-            $this->addPrefixToColumnLabel($customFieldsColumns, $customObject->getNameSingular()),
+            $this->addPrefixToColumnLabel($customObjectColumns, $customObject->getNameSingular()),
             $parentCustomObjectColumns ?? []
         );
 
@@ -260,7 +271,7 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $companyColumns = $this->companyReportData->getCompanyData();
         // We don't need this column because we fetch company/lead relationships via custom objects
-        unset($companyColumns['companies_lead.is_primary']);
+        unset($companyColumns['companies_lead.is_primary'], $companyColumns['companies_lead.date_added']);
 
         return $companyColumns;
     }
@@ -399,44 +410,50 @@ class ReportSubscriber implements EventSubscriberInterface
         $parentCustomObjectReportColumnsBuilder->joinReportColumns($queryBuilder, static::PARENT_CUSTOM_ITEM_TABLE_ALIAS);
     }
 
-    public function onReportSubmissionResultGenerate(ReportGeneratorEvent $event): void
+    public function onFormResultReportGenerate(ReportGeneratorEvent $event): void
     {
         $contextFormResult     = 'form.results';
         $prefixFormResultTable = 'fr';
-
         $context               = $event->getContext();
 
         if (!str_starts_with($context, $contextFormResult)) {
             return;
         }
 
-        $columns = array_filter(
+        $addedCustomObjects = [];
+        $columns            = array_filter(
             $event->getOptions()['columns'],
-            fn ($elem) => isset($elem['idCustomObject']),
+            function ($elem) use (&$addedCustomObjects) {
+                // left one column for each custom object
+                $addToColumnList    = key_exists('idCustomObject', $elem) && !in_array($elem['idCustomObject'], $addedCustomObjects);
+                $addedCustomObjects[] = $elem['idCustomObject'] ?? '';
+
+                return $addToColumnList;
+            }
         );
 
         $queryBuilder = $event->getQueryBuilder();
 
-        $addedCustomObjects = [];
         foreach ($columns as $column) {
-            $customObject = $this->customObjectRepository->find($column['idCustomObject']);
-            if (!in_array($column['idCustomObject'], $addedCustomObjects)) {
-                $customItemTablePrefix = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId().'_'.$column['fieldAlias'];
-                $joinCondition  = sprintf(
-                    '`%s`.`%s` = `%s`.`name` AND `%s`.`custom_object_id` = %s',
-                    $prefixFormResultTable,
-                    $column['fieldAlias'],
-                    $customItemTablePrefix,
-                    $customItemTablePrefix,
-                    $customObject->getId()
-                );
-                $queryBuilder->leftJoin($prefixFormResultTable, CustomItem::TABLE_NAME, $customItemTablePrefix, $joinCondition);
-                $addedCustomObjects[] = $column['idCustomObject'];
+            $customObject          = $this->customObjectRepository->find($column['idCustomObject']);
+            $field                 = $this->fieldModel->getEntity($column['idFormField']);
 
-                $reportColumnsBuilder = new ReportColumnsBuilder($customObject);
-                $reportColumnsBuilder->setFilterColumnsCallback([$event, 'usesColumn']);
-                $reportColumnsBuilder->joinReportColumns($queryBuilder, $customItemTablePrefix);
-            }
+            $customItemTableAlias  = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
+
+            $colCustomObjectName   = sprintf('`%s`.`id`', $customItemTableAlias);
+            $colMappedField        = sprintf('`%s`.`%s`', $prefixFormResultTable, $field->getAlias());
+            $colCustomItemObjectId = sprintf('`%s`.`custom_object_id`', $customItemTableAlias);
+            $colCustomObjectId     = sprintf('%s', $customObject->getId());
+
+            $joinCondition         = $this->fieldModel->hasChoices($field)
+                ? "{$colMappedField} LIKE CONCAT('%', {$colCustomObjectName}, '%') AND {$colCustomItemObjectId} = {$colCustomObjectId}"
+                : "{$colMappedField} = {$colCustomObjectName} AND {$colCustomItemObjectId} = {$colCustomObjectId}";
+            $queryBuilder->leftJoin($prefixFormResultTable, CustomItem::TABLE_NAME, $customItemTableAlias, $joinCondition);
+
+            $addedCustomObjects[]  = $column['idCustomObject'];
+            $reportColumnsBuilder  = new ReportColumnsBuilder($customObject);
+            $reportColumnsBuilder->setFilterColumnsCallback([$event, 'usesColumn']);
+            $reportColumnsBuilder->joinReportColumns($queryBuilder, $customItemTableAlias);
         }
     }
 }

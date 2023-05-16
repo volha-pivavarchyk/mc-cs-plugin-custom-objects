@@ -6,6 +6,7 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldCollectEvent;
+use Mautic\FormBundle\Event\FieldDisplayEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
 use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Crate\FieldCrate;
@@ -13,24 +14,37 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
+use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
+use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 class FormSubscriber implements EventSubscriberInterface
 {
     private CustomObjectModel $customObjectModel;
     private CustomItemModel $customItemModel;
+    private CustomItemXrefContactRepository $customItemXrefContactRepository;
 
-    public function __construct(CustomObjectModel $customObjectModel, CustomItemModel $customItemModel)
-    {
-        $this->customObjectModel = $customObjectModel;
-        $this->customItemModel   = $customItemModel;
+    private RouterInterface $router;
+
+    public function __construct(
+        CustomObjectModel $customObjectModel,
+        CustomItemModel $customItemModel,
+        CustomItemXrefContactRepository $customItemXrefContactRepository,
+        RouterInterface $router
+    ) {
+        $this->customObjectModel               = $customObjectModel;
+        $this->customItemModel                 = $customItemModel;
+        $this->customItemXrefContactRepository = $customItemXrefContactRepository;
+        $this->router                          = $router;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            FormEvents::ON_OBJECT_COLLECT => ['onObjectCollect', 0],
-            FormEvents::ON_FIELD_COLLECT  => ['onFieldCollect', 0],
+            FormEvents::ON_OBJECT_COLLECT      => ['onObjectCollect', 0],
+            FormEvents::ON_FIELD_COLLECT       => ['onFieldCollect', 0],
+            FormEvents::ON_FIELD_DISPLAY_EVENT => ['onFieldDisplay', 0],
         ];
     }
 
@@ -52,10 +66,59 @@ class FormSubscriber implements EventSubscriberInterface
 
         $items = $this->customItemModel->fetchCustomItemsForObject($object);
 
-        foreach ($object->getCustomFields() as $field) {
+        if ($event->isAssigned()) {
+            $contactId = $event->getLead()?->getId();
+
+            $items = array_filter(
+                $items,
+                function ($item) use ($contactId) {
+                    $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
+                    $ids = array_column($ids, 'contact_id');
+                    return in_array($contactId, $ids);
+                }
+            );
+
+            $event->removeFields();
+        }
+
+        if (count($items) > 0) {
+            foreach ($items as $item) {
+                $list[$item->getId()] = $item->getName();
+            }
+
+            $event->appendField(new FieldCrate($object->getAlias(), 'Name', 'text', ['list' => $list ?? []]));
+        }
+
+        foreach ($object->getCustomFields()->getValues() as $field) {
             $list = $this->getCustomFieldValues($field, $items);
             $event->appendField(new FieldCrate($field->getAlias(), $field->getName(), $field->getType(), ['list' => $list]));
         }
+    }
+
+    public function onFieldDisplay(FieldDisplayEvent $event): void
+    {
+        try {
+            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
+        } catch (NotFoundException $e) {
+            // Do nothing if the custom object doesn't exist.
+            return;
+        }
+
+        $ids   = explode(',', $event->getValue());
+        $value = '';
+
+        foreach ($ids as $id) {
+            $item = $this->customItemModel->getEntity($id);
+            if ($item) {
+                $viewParameters = [
+                    'objectId' => $object->getId(),
+                    'itemId' => $item->getId(),
+                ];
+                $route = $this->router->generate(CustomItemRouteProvider::ROUTE_VIEW, $viewParameters);
+                $value .= '<a href="' . $route . '" class="label label-success mr-5"> '.$item->getId().'</a>';
+            }
+        }
+        $event->setValue($value);
     }
 
     /**
@@ -73,7 +136,7 @@ class FormSubscriber implements EventSubscriberInterface
 
                 foreach ($itemCustomFieldsValues as $customFieldValue) {
                     if ($field->getAlias() === $customFieldValue->getCustomField()->getAlias()) {
-                        $list[$item->getName()] = $customFieldValue->getValue();
+                        $list[$item->getId()] = $customFieldValue->getValue();
                     }
                 }
             }

@@ -14,7 +14,6 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomItemXrefContactModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,7 +31,7 @@ class ViewController extends CommonController
         int $itemId
     ): Response {
         $this->setRequestStack($requestStack);
-        $request = $requestStack->getCurrentRequest();
+        $request = $this->getCurrentRequest();
 
         try {
             $customItem = $customItemModel->fetchEntity($itemId);

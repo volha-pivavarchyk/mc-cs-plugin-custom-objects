@@ -27,8 +27,8 @@ class BatchDeleteController extends CommonController
         int $objectId
     ): Response {
         $this->setRequestStack($requestStack);
+        $request  = $this->getCurrentRequest();
 
-        $request  = $requestStack->getCurrentRequest();
         $itemIds  = json_decode($request->get('ids', '[]'), true);
         $page     = $sessionProviderFactory->createItemProvider($objectId)->getPage();
         $notFound = [];

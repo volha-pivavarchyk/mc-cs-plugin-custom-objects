@@ -15,7 +15,6 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,7 +31,7 @@ class ListController extends CommonController
         int $page = 1
     ): Response {
         $this->setRequestStack($requestStack);
-        $request = $requestStack->getCurrentRequest();
+        $request = $this->getCurrentRequest();
 
         try {
             $permissionProvider->canViewAtAll($objectId);

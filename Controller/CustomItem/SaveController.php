@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Controller\CustomItem;
 
 use Mautic\CoreBundle\Controller\AbstractFormController;
-use Mautic\CoreBundle\Helper\UserHelper;
-use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\CoreBundle\Service\FlashBag;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
@@ -37,7 +35,7 @@ class SaveController extends AbstractFormController
         ?int $itemId = null
     ): Response {
         $this->setRequestStack($requestStack);
-        $request        = $requestStack->getCurrentRequest();
+        $request        = $this->getCurrentRequest();
 
         $customItemData = $request->request->get('custom_item');
         $contactId      = intval($customItemData['contact_id'] ?? 0);

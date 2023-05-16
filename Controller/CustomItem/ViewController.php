@@ -15,12 +15,13 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class ViewController extends CommonController
 {
     public function viewAction(
-        Request $request,
+        RequestStack $requestStack,
         FormFactoryInterface $formFactory,
         CustomItemModel $customItemModel,
         CustomItemXrefContactModel $customItemXrefContactModel,
@@ -30,6 +31,9 @@ class ViewController extends CommonController
         int $objectId,
         int $itemId
     ): Response {
+        $this->setRequestStack($requestStack);
+        $request = $requestStack->getCurrentRequest();
+
         try {
             $customItem = $customItemModel->fetchEntity($itemId);
             $permissionProvider->canView($customItem);

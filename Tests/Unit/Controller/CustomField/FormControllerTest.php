@@ -32,7 +32,6 @@ class FormControllerTest extends AbstractFieldControllerTest
     private $customObjectModel;
     private $objectRouteProvider;
     private $form;
-    private $security;
     private $formController;
 
     protected function setUp(): void
@@ -49,7 +48,6 @@ class FormControllerTest extends AbstractFieldControllerTest
         $this->form                = $this->createMock(FormInterface::class);
 
         $this->translator          = $this->createMock(Translator::class);
-        $this->security            = $this->createMock(CorePermissions::class);
 
         $this->formController      = new FormController();
         $this->formController->setTranslator($this->translator);

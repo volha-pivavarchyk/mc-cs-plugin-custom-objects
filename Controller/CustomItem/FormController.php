@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Controller\CustomItem;
 
 use Mautic\CoreBundle\Controller\AbstractFormController;
+use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
@@ -15,10 +17,18 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class FormController extends AbstractFormController
 {
+    public function __construct(CorePermissions $security, UserHelper $userHelper, RequestStack $requestStack)
+    {
+        $this->setRequestStack($requestStack);
+
+        parent::__construct($security, $userHelper);
+    }
+
     public function newAction(
         FormFactoryInterface $formFactory,
         CustomItemRouteProvider $routeProvider,
@@ -43,8 +53,8 @@ class FormController extends AbstractFormController
 
     public function newWithRedirectToContactAction(
         FormFactoryInterface $formFactory,
-        CustomItemModel $customItemModel,
         CustomItemRouteProvider $routeProvider,
+        CustomItemModel $customItemModel,
         CustomObjectModel $customObjectModel,
         CustomItemPermissionProvider $permissionProvider,
         int $objectId,
@@ -90,8 +100,8 @@ class FormController extends AbstractFormController
 
     public function editAction(
         FormFactoryInterface $formFactory,
-        CustomItemModel $customItemModel,
         CustomItemRouteProvider $routeProvider,
+        CustomItemModel $customItemModel,
         LockFlashMessageHelper $lockFlashMessageHelper,
         CustomItemPermissionProvider $permissionProvider,
         int $objectId,
@@ -128,8 +138,8 @@ class FormController extends AbstractFormController
 
     public function editWithRedirectToContactAction(
         FormFactoryInterface $formFactory,
-        CustomItemModel $customItemModel,
         CustomItemRouteProvider $routeProvider,
+        CustomItemModel $customItemModel,
         LockFlashMessageHelper $lockFlashMessageHelper,
         CustomItemPermissionProvider $permissionProvider,
         int $objectId,
@@ -176,8 +186,8 @@ class FormController extends AbstractFormController
 
     public function cloneAction(
         FormFactoryInterface $formFactory,
-        CustomItemModel $customItemModel,
         CustomItemRouteProvider $routeProvider,
+        CustomItemModel $customItemModel,
         CustomItemPermissionProvider $permissionProvider,
         int $objectId,
         int $itemId

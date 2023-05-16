@@ -43,7 +43,6 @@ class BatchDeleteControllerTest extends ControllerTestCase
     {
         parent::setUp();
 
-        $this->requestStack           = $this->createMock(RequestStack::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);

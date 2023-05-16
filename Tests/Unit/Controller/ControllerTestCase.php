@@ -10,6 +10,7 @@ use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\UserHelper;
 use Mautic\CoreBundle\Model\NotificationModel;
 use Mautic\CoreBundle\Security\Permissions\CorePermissions;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -45,9 +46,26 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
     protected $container;
 
     /**
-     * @var UserHelper
+     * @var MockObject|CorePermissions
+     */
+    protected $security;
+
+    /**
+     * @var MockObject|UserHelper
      */
     protected $userHelper;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->security   = $this->createMock(CorePermissions::class);
+        $this->userHelper = $this->createMock(UserHelper::class);
+        $this->container  = $this->createMock(ContainerInterface::class);
+        $this->router     = $this->createMock(RouterInterface::class);
+    }
+
+
 
     protected function addSymfonyDependencies(CommonController $controller): void
     {
@@ -55,23 +73,23 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
         $request      = empty($this->request) ? $this->createMock(Request::class) : $this->request;
         $session      = empty($this->session) ? $this->createMock(Session::class) : $this->session;
 
-        $this->container   = $this->createMock(ContainerInterface::class);
+//        $this->container   = $this->createMock(ContainerInterface::class);
         $httpKernel        = $this->createMock(HttpKernel::class);
         $response          = $this->createMock(Response::class);
         $twig              = $this->createMock(Environment::class);
         $modelFactory      = $this->createMock(ModelFactory::class);
         $notificationModel = $this->createMock(NotificationModel::class);
-        $security          = $this->createMock(CorePermissions::class);
+//        $security          = $this->createMock(CorePermissions::class);
         $translator        = $this->createMock(TranslatorInterface::class);
-        $this->router      = $this->createMock(RouterInterface::class);
-        $this->userHelper  = $this->createMock(UserHelper::class);
+//        $this->router      = $this->createMock(RouterInterface::class);
+//        $this->userHelper  = $this->createMock(UserHelper::class);
 
         $this->container->method('get')->willReturnMap([
             ['request_stack', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestStack],
             ['http_kernel', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $httpKernel],
             ['mautic.model.factory', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $modelFactory],
             ['session', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $session],
-            ['mautic.security', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $security],
+            ['mautic.security', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->security],
             ['router', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->router],
             ['mautic.helper.user', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->userHelper],
             ['twig', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twig],

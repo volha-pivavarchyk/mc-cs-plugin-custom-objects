@@ -65,8 +65,8 @@ class DeleteController extends CommonController
         }
 
         $customObjectEvent = new CustomObjectEvent($customObject);
-        $customObjectEvent->setFlashBag($flashBag);
-        $eventDispatcher->dispatch(CustomObjectEvents::ON_CUSTOM_OBJECT_USER_PRE_DELETE, $customObjectEvent);
+        $customObjectEvent->setFlashBag($this->flashBag);
+        $this->eventDispatcher->dispatch($customObjectEvent, CustomObjectEvents::ON_CUSTOM_OBJECT_USER_PRE_DELETE);
 
         return $this->forward(
             $controller,

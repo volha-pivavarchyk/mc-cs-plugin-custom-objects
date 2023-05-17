@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Mautic\CoreBundle\Controller\CommonController;
 use Mautic\CoreBundle\Factory\ModelFactory;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
@@ -11,7 +12,7 @@ use Mautic\CoreBundle\Helper\UserHelper;
 use Mautic\CoreBundle\Model\NotificationModel;
 use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -22,7 +23,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 use Twig\Environment;
 
@@ -57,17 +57,23 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
      */
     protected $userHelper;
 
+    /**
+     * @var MockObject|ManagerRegistry
+     */
+    protected $managerRegistry;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->security   = $this->createMock(CorePermissions::class);
-        $this->userHelper = $this->createMock(UserHelper::class);
-        $this->container  = $this->createMock(ContainerInterface::class);
-        $this->router     = $this->createMock(RouterInterface::class);
+        $this->security        = $this->createMock(CorePermissions::class);
+        $this->userHelper      = $this->createMock(UserHelper::class);
+        $this->container       = $this->createMock(ContainerInterface::class);
+        $this->router          = $this->createMock(RouterInterface::class);
+        $this->managerRegistry = $this->createMock(ManagerRegistry::class);
     }
 
-    protected function addSymfonyDependencies(CommonController|Controller $controller): void
+    protected function addSymfonyDependencies(AbstractController $controller): void
     {
         $requestStack = empty($this->requestStack) ? $this->createMock(RequestStack::class) : $this->requestStack;
         $request      = empty($this->request) ? $this->createMock(Request::class) : $this->request;

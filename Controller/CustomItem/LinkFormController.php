@@ -25,45 +25,6 @@ use UnexpectedValueException;
 
 class LinkFormController extends AbstractFormController
 {
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
-
-    /**
-     * @var CustomItemModel
-     */
-    private $customItemModel;
-
-    /**
-     * @var CustomItemPermissionProvider
-     */
-    private $permissionProvider;
-
-    /**
-     * @var FlashBag
-     */
-    private $flashBag;
-
-    /**
-     * @var CustomItemRouteProvider
-     */
-    private $routeProvider;
-
-    public function __construct(
-        FormFactoryInterface $formFactory,
-        CustomItemModel $customItemModel,
-        CustomItemPermissionProvider $permissionProvider,
-        CustomItemRouteProvider $customItemRouteProvider,
-        FlashBag $flashBag
-    ) {
-        $formFactory        = $formFactory;
-        $customItemModel    = $customItemModel;
-        $permissionProvider = $permissionProvider;
-        $customItemRouteProvider      = $customItemRouteProvider;
-        $flashBag           = $flashBag;
-    }
-
     public function formAction(
         FormFactoryInterface $formFactory,
         CustomItemModel $customItemModel,

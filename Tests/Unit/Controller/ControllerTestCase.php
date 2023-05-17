@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 use Twig\Environment;
 
 /**

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Controller\CustomObject;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Mautic\CoreBundle\Controller\AbstractFormController;
+use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
@@ -15,136 +18,142 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldTypeProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class FormController extends AbstractFormController
 {
-    /**
-     * @var FormFactory
-     */
-    private $formFactory;
-
-    /**
-     * @var CustomObjectModel
-     */
-    private $customObjectModel;
-
-    /**
-     * @var CustomFieldModel
-     */
-    private $customFieldModel;
-
-    /**
-     * @var CustomObjectPermissionProvider
-     */
-    private $permissionProvider;
-
-    /**
-     * @var CustomObjectRouteProvider
-     */
-    private $routeProvider;
-
-    /**
-     * @var CustomFieldTypeProvider
-     */
-    private $customFieldTypeProvider;
-
-    /**
-     * @var LockFlashMessageHelper
-     */
-    private $lockFlashMessageHelper;
-
     public function __construct(
-        FormFactory $formFactory,
-        CustomObjectModel $customObjectModel,
-        CustomFieldModel $customFieldModel,
-        CustomObjectPermissionProvider $permissionProvider,
-        CustomObjectRouteProvider $routeProvider,
-        CustomFieldTypeProvider $customFieldTypeProvider,
-        LockFlashMessageHelper $lockFlashMessageHelper
+        CorePermissions $security,
+        UserHelper $userHelper,
+        ManagerRegistry $managerRegistry,
+        RequestStack $requestStack
     ) {
-        $this->formFactory             = $formFactory;
-        $this->customObjectModel       = $customObjectModel;
-        $this->customFieldModel        = $customFieldModel;
-        $this->permissionProvider      = $permissionProvider;
-        $this->routeProvider           = $routeProvider;
-        $this->customFieldTypeProvider = $customFieldTypeProvider;
-        $this->lockFlashMessageHelper  = $lockFlashMessageHelper;
+        $this->setRequestStack($requestStack);
+
+        parent::__construct($security, $userHelper, $managerRegistry);
     }
 
-    public function newAction(): Response
-    {
+    public function newAction(
+        CustomObjectPermissionProvider $permissionProvider,
+        FormFactoryInterface $formFactory,
+        CustomObjectRouteProvider $routeProvider,
+        CustomFieldTypeProvider $customFieldTypeProvider,
+        CustomFieldModel $customFieldModel
+    ): Response {
         try {
-            $this->permissionProvider->canCreate();
+            $permissionProvider->canCreate();
             $customObject = new CustomObject();
         } catch (ForbiddenException $e) {
             return $this->accessDenied(false, $e->getMessage());
         }
 
-        return $this->renderForm($customObject, $this->routeProvider->buildNewRoute());
+        return $this->renderCustomObjectForm(
+            $formFactory,
+            $routeProvider,
+            $customFieldTypeProvider,
+            $customFieldModel,
+            $customObject,
+            $routeProvider->buildNewRoute()
+        );
     }
 
-    public function editAction(int $objectId): Response
-    {
+    public function editAction(
+        CustomObjectModel $customObjectModel,
+        CustomObjectPermissionProvider $permissionProvider,
+        LockFlashMessageHelper $lockFlashMessageHelper,
+        FormFactoryInterface $formFactory,
+        CustomObjectRouteProvider $routeProvider,
+        CustomFieldTypeProvider $customFieldTypeProvider,
+        CustomFieldModel $customFieldModel,
+        int $objectId
+    ): Response {
         try {
-            $customObject = $this->customObjectModel->fetchEntity($objectId);
-            $this->permissionProvider->canEdit($customObject);
+            $customObject = $customObjectModel->fetchEntity($objectId);
+            $permissionProvider->canEdit($customObject);
         } catch (NotFoundException $e) {
             return $this->notFound($e->getMessage());
         } catch (ForbiddenException $e) {
             return $this->accessDenied(false, $e->getMessage());
         }
 
-        if ($this->customObjectModel->isLocked($customObject)) {
-            $this->lockFlashMessageHelper->addFlash(
+        if ($customObjectModel->isLocked($customObject)) {
+            $lockFlashMessageHelper->addFlash(
                 $customObject,
-                $this->routeProvider->buildEditRoute($objectId),
+                $routeProvider->buildEditRoute($objectId),
                 $this->canEdit($customObject),
                 'custom.object'
             );
 
-            return $this->redirect($this->routeProvider->buildViewRoute($objectId));
+            return $this->redirect($routeProvider->buildViewRoute($objectId));
         }
 
-        $this->customObjectModel->lockEntity($customObject);
+        $customObjectModel->lockEntity($customObject);
 
-        return $this->renderForm($customObject, $this->routeProvider->buildEditRoute($objectId));
+        return $this->renderCustomObjectForm(
+            $formFactory,
+            $routeProvider,
+            $customFieldTypeProvider,
+            $customFieldModel,
+            $customObject,
+            $routeProvider->buildEditRoute($objectId)
+        );
     }
 
-    public function cloneAction(int $objectId): Response
-    {
+    public function cloneAction(
+        CustomObjectModel $customObjectModel,
+        CustomObjectPermissionProvider $permissionProvider,
+        FormFactoryInterface $formFactory,
+        CustomObjectRouteProvider $routeProvider,
+        CustomFieldTypeProvider $customFieldTypeProvider,
+        CustomFieldModel $customFieldModel,
+        int $objectId
+    ): Response {
         try {
-            $customObject = clone $this->customObjectModel->fetchEntity($objectId);
-            $this->permissionProvider->canClone($customObject);
+            $customObject = clone $customObjectModel->fetchEntity($objectId);
+            $permissionProvider->canClone($customObject);
         } catch (NotFoundException $e) {
             return $this->notFound($e->getMessage());
         } catch (ForbiddenException $e) {
             return $this->accessDenied(false, $e->getMessage());
         }
 
-        return $this->renderForm($customObject, $this->routeProvider->buildCloneRoute($objectId));
+        return $this->renderCustomObjectForm(
+            $formFactory,
+            $routeProvider,
+            $customFieldTypeProvider,
+            $customFieldModel,
+            $customObject,
+            $routeProvider->buildCloneRoute($objectId)
+        );
     }
 
-    private function renderForm(CustomObject $customObject, string $route): Response
-    {
-        $form = $this->formFactory->create(
+    private function renderCustomObjectForm(
+        FormFactoryInterface $formFactory,
+        CustomObjectRouteProvider $routeProvider,
+        CustomFieldTypeProvider $customFieldTypeProvider,
+        CustomFieldModel $customFieldModel,
+        CustomObject $customObject,
+        string $route
+    ): Response {
+        $form = $formFactory->create(
             CustomObjectType::class,
             $customObject,
-            ['action' => $this->routeProvider->buildSaveRoute($customObject->getId())]
+            ['action' => $routeProvider->buildSaveRoute($customObject->getId())]
         );
 
         return $this->delegateView(
             [
-                'returnUrl'      => $this->routeProvider->buildListRoute(),
+                'returnUrl'      => $routeProvider->buildListRoute(),
                 'viewParameters' => [
                     'customObject'        => $customObject,
-                    'availableFieldTypes' => $this->customFieldTypeProvider->getTypes(),
-                    'customFields'        => $this->customFieldModel->fetchCustomFieldsForObject($customObject),
+                    'availableFieldTypes' => $customFieldTypeProvider->getTypes(),
+                    'customFields'        => $customFieldModel->fetchCustomFieldsForObject($customObject),
                     'deletedFields'       => [],
                     'form'                => $form->createView(),
                 ],
-                'contentTemplate' => 'CustomObjectsBundle:CustomObject:form.html.php',
+                'contentTemplate' => '@CustomObjects/CustomObject/form.html.twig',
                 'passthroughVars' => [
                     'mauticContent' => 'customObject',
                     'route'         => $route,

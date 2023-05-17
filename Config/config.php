@@ -594,35 +594,35 @@ $coParams = [
         ],
         'repositories' => [
             'custom_field.repository' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Repository\CustomFieldRepository::class,
+                'class'     => Doctrine\ORM\EntityRepository::class,
                 'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
                 'arguments' => [
                     \MauticPlugin\CustomObjectsBundle\Entity\CustomField::class,
                 ],
             ],
             'custom_item.repository' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Repository\CustomItemRepository::class,
+                'class'     => Doctrine\ORM\EntityRepository::class,
                 'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
                 'arguments' => [
                     \MauticPlugin\CustomObjectsBundle\Entity\CustomItem::class,
                 ],
             ],
             'custom_object.repository' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Repository\CustomObjectRepository::class,
+                'class'     => Doctrine\ORM\EntityRepository::class,
                 'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
                 'arguments' => [
                     \MauticPlugin\CustomObjectsBundle\Entity\CustomObject::class,
                 ],
             ],
             'custom_item.xref.contact.repository' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository::class,
+                'class'     => Doctrine\ORM\EntityRepository::class,
                 'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
                 'arguments' => [
                     \MauticPlugin\CustomObjectsBundle\Entity\CustomItemXrefContact::class,
                 ],
             ],
             'custom_item.xref.custom_item.repository' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefCustomItemRepository::class,
+                'class'     => Doctrine\ORM\EntityRepository::class,
                 'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
                 'arguments' => [
                     \MauticPlugin\CustomObjectsBundle\Entity\CustomItemXrefCustomItem::class,
@@ -637,49 +637,6 @@ $coParams = [
             ],
         ],
         'events' => [
-            'custom_object.api.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\ApiSubscriber::class,
-                'arguments' => [
-                    'custom_object.config.provider',
-                    'mautic.custom.model.object',
-                    'mautic.custom.model.item',
-                ],
-            ],
-            'custom_object.assets.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\AssetsSubscriber::class,
-                'arguments' => [
-                    'templating.helper.assets',
-                    'custom_object.config.provider',
-                ],
-            ],
-            'custom_object.menu.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\MenuSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                    'custom_object.config.provider',
-                ],
-            ],
-            'custom_object.contact.tab.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\ContactTabSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                    'custom_item.repository',
-                    'custom_object.config.provider',
-                    'translator',
-                    'custom_item.route.provider',
-                    'custom_object.session.provider_factory',
-                ],
-            ],
-            'custom_object.custom_item.tab.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemTabSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                    'custom_item.repository',
-                    'translator',
-                    'custom_item.route.provider',
-                    'custom_object.session.provider_factory',
-                ],
-            ],
             'custom_field.post_load.subscriber' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomFieldPostLoadSubscriber::class,
                 'arguments' => [
@@ -691,109 +648,12 @@ $coParams = [
                     'lazy'  => true,
                 ],
             ],
-            'custom_object.report.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\ReportSubscriber::class,
-                'arguments' => [
-                    'custom_object.repository',
-                    'mautic.lead.reportbundle.fields_builder',
-                    'mautic.lead.model.company_report_data',
-                    'mautic.report.helper.report',
-                    'translator',
-                ],
-            ],
             // There's a problem with multiple tags and arguments definition using array.
             // So subscriber above should contain subscriber method below. But it is not possible now.
             'custom_field.pre_save.subscriber' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomFieldPreSaveSubscriber::class,
                 'arguments' => [
                     'mautic.custom.model.field.option',
-                ],
-            ],
-            'custom_item.button.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemButtonSubscriber::class,
-                'arguments' => [
-                    'custom_item.permission.provider',
-                    'custom_item.route.provider',
-                    'translator',
-                ],
-            ],
-            'custom_item.xref_contact.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemXrefContactSubscriber::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                    'mautic.helper.user',
-                    'custom_item.repository',
-                ],
-            ],
-            'custom_item.export.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemScheduledExportSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.export_scheduler',
-                ],
-            ],
-            'custom_item.xref_item.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemXrefCustomItemSubscriber::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                    'custom_item.repository',
-                ],
-            ],
-            'custom_item.import.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\ImportSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                    'mautic.custom.model.import.item',
-                    'custom_object.config.provider',
-                    'custom_item.permission.provider',
-                    'custom_field.repository',
-                    'translator',
-                ],
-            ],
-            'custom_item.contact.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\ContactSubscriber::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                    'translator',
-                    'custom_item.route.provider',
-                    'mautic.custom.model.item',
-                    'custom_object.config.provider',
-                ],
-            ],
-            'custom_item.post_save.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemPostSaveSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.item',
-                    'request_stack',
-                ],
-            ],
-            'custom_item.post_delete.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomItemPostDeleteSubscriber::class,
-                'arguments' => [
-                    'custom_item.xref.custom_item.repository',
-                    'custom_item.xref.contact.repository',
-                ],
-            ],
-            'custom_object.audit.log.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\AuditLogSubscriber::class,
-                'arguments' => [
-                    'mautic.core.model.auditlog',
-                    'mautic.helper.ip_lookup',
-                ],
-            ],
-            'custom_object.filter.operator.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\FilterOperatorSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                ],
-            ],
-            'custom_object.button.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomObjectButtonSubscriber::class,
-                'arguments' => [
-                    'custom_object.permission.provider',
-                    'custom_object.route.provider',
-                    'custom_item.permission.provider',
-                    'custom_item.route.provider',
-                    'translator',
                 ],
             ],
             'custom_item.campaign.subscriber' => [
@@ -807,31 +667,6 @@ $coParams = [
                     'custom_object.query.filter.helper',
                     'custom_object.query.filter.factory',
                     'database_connection',
-                ],
-            ],
-            'custom_object.segments.filters_generate.subscriber'   => [
-                'class'    => \MauticPlugin\CustomObjectsBundle\EventListener\SegmentFiltersChoicesGenerateSubscriber::class,
-                'arguments'=> [
-                    'custom_object.repository',
-                    'translator',
-                    'custom_object.config.provider',
-                    'custom_field.type.provider',
-                ],
-            ],
-            'custom_object.segments.filters_dictionary.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\SegmentFiltersDictionarySubscriber::class,
-                'arguments' => [
-                    'doctrine',
-                    'custom_object.config.provider',
-                ],
-            ],
-            'custom_object.dynamic_content.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\DynamicContentSubscriber::class,
-                'arguments' => [
-                    'custom_object.query.filter.factory',
-                    'custom_object.query.filter.helper',
-                    'custom_object.config.provider',
-                    'logger',
                 ],
             ],
             'custom_object.serializer.subscriber' => [
@@ -861,47 +696,8 @@ $coParams = [
                     'custom_object.helper.token_formatter',
                 ],
             ],
-            'custom_object.segments.decorator_delegate.subscriber'   => [
-                'class'    => \MauticPlugin\CustomObjectsBundle\EventListener\SegmentFilterDecoratorDelegateSubscriber::class,
-                'arguments'=> [
-                    'custom_object.segment_decorator_multiselect',
-                ],
-            ],
-            'custom_object.tokens.list_format.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomObjectListFormatSubscriber::class,
-                'arguments' => [
-                    'custom_object.helper.token_formatter',
-                ],
-            ],
-            'custom_object.post_save.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomObjectPostSaveSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                ],
-            ],
-            'custom_object.pre_delete.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CustomObjectPreDeleteSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.object',
-                    'translator',
-                ],
-            ],
         ],
         'forms' => [
-            'custom_item.item.form' => [
-                'class' => \MauticPlugin\CustomObjectsBundle\Form\Type\CustomItemType::class,
-            ],
-            'custom_field.field.form' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Form\Type\CustomFieldType::class,
-                'arguments' => [
-                    'custom_object.repository',
-                    'custom_field.type.provider',
-                    'custom_field.field.params.to.string.transformer',
-                    'custom_field.field.options.to.string.transformer',
-                    'custom_object.custom_field_factory',
-                ],
-                'tag' => 'form.type',
-            ],
             'custom_field.field.params.to.string.transformer' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\Form\DataTransformer\ParamsToStringTransformer::class,
                 'arguments' => [
@@ -914,43 +710,6 @@ $coParams = [
                     'jms_serializer',
                     'mautic.custom.model.field',
                 ],
-            ],
-            'custom_object.object.form' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Form\Type\CustomObjectType::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                    'custom_field.type.provider',
-                    'custom_object.repository',
-                ],
-                'tag' => 'form.type',
-            ],
-            'custom_field.field.value.form' => [
-                'class' => \MauticPlugin\CustomObjectsBundle\Form\Type\CustomFieldValueType::class,
-            ],
-            'custom_item.campaign.link.form' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Form\Type\CampaignActionLinkType::class,
-                'arguments' => [
-                    'custom_item.route.provider',
-                    'translator',
-                ],
-            ],
-            'custom_item.campaign.field.value.form' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Form\Type\CampaignConditionFieldValueType::class,
-                'arguments' => [
-                    'mautic.custom.model.field',
-                    'custom_item.route.provider',
-                    'translator',
-                ],
-            ],
-        ],
-        'commands' => [
-            'custom_object.command.generate_sample_data' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Command\GenerateSampleDataCommand::class,
-                'arguments' => [
-                    'doctrine.orm.entity_manager',
-                    'custom_object.random.helper',
-                ],
-                'tag' => 'console.command',
             ],
         ],
         'fieldTypes' => [
@@ -1150,16 +909,6 @@ $coParams = [
             ],
             'custom_object.helper.token_formatter' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\Helper\TokenFormatter::class,
-            ],
-        ],
-        'validators' => [
-            'custom_object.allow.unique_identifier.validator' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Form\Validator\Constraints\AllowUniqueIdentifierValidator::class,
-                'arguments' => [
-                    'mautic.custom.model.item',
-                    'translator',
-                ],
-                'tag' => 'validator.constraint_validator',
             ],
         ],
     ],

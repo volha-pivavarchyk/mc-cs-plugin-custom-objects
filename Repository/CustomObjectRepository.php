@@ -6,11 +6,10 @@ namespace MauticPlugin\CustomObjectsBundle\Repository;
 
 use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\QueryBuilder;
-use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\LeadBundle\Entity\LeadList;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 
-class CustomObjectRepository extends CommonRepository
+class CustomObjectRepository extends CustomCommonRepository
 {
     public function checkAliasExists(string $alias, ?int $id = null): bool
     {

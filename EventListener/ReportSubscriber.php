@@ -132,7 +132,7 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         return [
             ReportEvents::REPORT_ON_BUILD           => ['onReportBuilder', 0],
-            ReportEvents::REPORT_ON_COLUMN_COLLECT  => ['onReportColumnCollect', 0],
+//            ReportEvents::REPORT_ON_COLUMN_COLLECT  => ['onReportColumnCollect', 0],
             ReportEvents::REPORT_ON_GENERATE        => [
                 ['onReportGenerate', 0],
                 ['onFormResultReportGenerate', -1],

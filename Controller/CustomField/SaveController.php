@@ -20,9 +20,7 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * This controller is not used for saving to database, it is used only to generate forms and data validation.
@@ -38,7 +36,7 @@ class SaveController extends CommonController
      * @return Response|JsonResponse
      */
     public function saveAction(
-        RequestStack $requestStack,
+        Request $request,
         FormFactoryInterface $formFactory,
         CustomFieldModel $customFieldModel,
         CustomFieldFactory $customFieldFactory,
@@ -46,9 +44,6 @@ class SaveController extends CommonController
         CustomFieldRouteProvider $fieldRouteProvider,
         CustomObjectModel $customObjectModel
     ) {
-        $this->setRequestStack($requestStack);
-
-        $request    = $requestStack->getCurrentRequest();
         $objectId   = (int) $request->get('objectId');
         $fieldId    = (int) $request->query->get('fieldId');
         $fieldType  = $request->get('fieldType');

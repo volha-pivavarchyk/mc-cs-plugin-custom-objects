@@ -13,28 +13,24 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 class ListController extends CommonController
 {
     public function listAction(
-        RequestStack $requestStack,
         SessionProviderFactory $sessionProviderFactory,
         CustomObjectModel $customObjectModel,
         CustomObjectPermissionProvider $permissionProvider,
         CustomObjectRouteProvider $routeProvider,
         int $page = 1
     ): Response {
-        $this->setRequestStack($requestStack);
-        $request = $this->getCurrentRequest();
-
         try {
             $permissionProvider->canViewAtAll();
         } catch (ForbiddenException $e) {
             return $this->accessDenied(false, $e->getMessage());
         }
 
+        $request         = $this->getCurrentRequest();
         $sessionProvider = $sessionProviderFactory->createObjectProvider();
         $search          = InputHelper::clean($request->get('search', $sessionProvider->getFilter()));
         $limit           = (int) $request->get('limit', $sessionProvider->getPageLimit());

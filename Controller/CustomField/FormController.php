@@ -22,14 +22,14 @@ use Symfony\Component\HttpFoundation\Response;
 class FormController extends CommonController
 {
     public function renderFormAction(
+        Request $request,
         FormFactoryInterface $formFactory,
         CustomFieldModel $customFieldModel,
         CustomFieldFactory $customFieldFactory,
         CustomFieldPermissionProvider $permissionProvider,
         CustomFieldRouteProvider $fieldRouteProvider,
         CustomObjectModel $customObjectModel,
-        CustomObjectRouteProvider $objectRouteProvider,
-        Request $request
+        CustomObjectRouteProvider $objectRouteProvider
     ): Response {
         $objectId   = (int) $request->get('objectId');
         $fieldId    = (int) $request->get('fieldId');

@@ -6,7 +6,6 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldCollectEvent;
-use Mautic\FormBundle\Event\FieldDisplayEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
 use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Crate\FieldCrate;
@@ -14,29 +13,18 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
-use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class FormSubscriber implements EventSubscriberInterface
 {
-    private CustomObjectModel $customObjectModel;
-    private CustomItemModel $customItemModel;
-//    private CustomItemXrefContactRepository $customItemXrefContactRepository;
-
-//    private RouterInterface $router;
-
     public function __construct(
-        CustomObjectModel $customObjectModel,
-        CustomItemModel $customItemModel
-//        CustomItemXrefContactRepository $customItemXrefContactRepository,
-//        RouterInterface $router
+        private CustomObjectModel $customObjectModel,
+        private CustomItemModel $customItemModel,
+        private CustomItemXrefContactRepository $customItemXrefContactRepository,
+        private RouterInterface $router
     ) {
-        $this->customObjectModel               = $customObjectModel;
-        $this->customItemModel                 = $customItemModel;
-//        $this->customItemXrefContactRepository = $customItemXrefContactRepository;
-//        $this->router                          = $router;
     }
 
     public static function getSubscribedEvents(): array
@@ -66,20 +54,22 @@ class FormSubscriber implements EventSubscriberInterface
 
         $items = $this->customItemModel->fetchCustomItemsForObject($object);
 
-//        if ($event->isAssigned()) {
-//            $contactId = $event->getLead()?->getId();
-//
-//            $items = array_filter(
-//                $items,
-//                function ($item) use ($contactId) {
-//                    $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
-//                    $ids = array_column($ids, 'contact_id');
-//                    return in_array($contactId, $ids);
-//                }
-//            );
-//
-//            $event->removeFields();
-//        }
+        // @Aivie Add posibility to use only assigned to the contact fields
+        // TODO Mautic PR
+        if ($event->isAssigned()) {
+            $contactId = $event->getLead()?->getId();
+
+            $items = array_filter(
+                $items,
+                function ($item) use ($contactId) {
+                    $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
+                    $ids = array_column($ids, 'contact_id');
+                    return in_array($contactId, $ids);
+                }
+            );
+
+            $event->removeFields();
+        }
 
         if (count($items) > 0) {
             foreach ($items as $item) {

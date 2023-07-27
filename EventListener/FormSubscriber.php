@@ -6,6 +6,7 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldCollectEvent;
+use Mautic\FormBundle\Event\FieldDisplayEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
 use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Crate\FieldCrate;
@@ -13,6 +14,7 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
+use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -32,7 +34,10 @@ class FormSubscriber implements EventSubscriberInterface
         return [
             FormEvents::ON_OBJECT_COLLECT      => ['onObjectCollect', 0],
             FormEvents::ON_FIELD_COLLECT       => ['onFieldCollect', 0],
-//            FormEvents::ON_FIELD_DISPLAY_EVENT => ['onFieldDisplay', 0],
+            FormEvents::ON_FIELD_DISPLAY       => [
+                ['onDisplayAssignedToContactFieldValue', 0],
+//                ['onDisplayLinkToField', 0],
+            ]
         ];
     }
 
@@ -54,23 +59,6 @@ class FormSubscriber implements EventSubscriberInterface
 
         $items = $this->customItemModel->fetchCustomItemsForObject($object);
 
-        // @Aivie Add posibility to use only assigned to the contact fields
-        // TODO Mautic PR
-        if ($event->isAssigned()) {
-            $contactId = $event->getLead()?->getId();
-
-            $items = array_filter(
-                $items,
-                function ($item) use ($contactId) {
-                    $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
-                    $ids = array_column($ids, 'contact_id');
-                    return in_array($contactId, $ids);
-                }
-            );
-
-            $event->removeFields();
-        }
-
         if (count($items) > 0) {
             foreach ($items as $item) {
                 $list[$item->getId()] = $item->getName();
@@ -85,32 +73,71 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-//    public function onFieldDisplay(FieldDisplayEvent $event): void
-//    {
-//        try {
-//            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
-//        } catch (NotFoundException $e) {
-//            // Do nothing if the custom object doesn't exist.
-//            return;
-//        }
-//
-//        $ids   = explode(',', $event->getValue());
-//        $value = '';
-//
-//        foreach ($ids as $id) {
-//            $item = $this->customItemModel->getEntity($id);
-//            if ($item) {
-//                $viewParameters = [
-//                    'objectId' => $object->getId(),
-//                    'itemId' => $item->getId(),
-//                ];
-//                $route = $this->router->generate(CustomItemRouteProvider::ROUTE_VIEW, $viewParameters);
-//                $value .= '<a href="' . $route . '" class="label label-success mr-5"> '.$item->getId().'</a>';
-//            }
-//        }
-//        $event->setValue($value);
-//    }
-//
+    // @Aivie Add posibility to use only assigned to the contact fields
+    // @todo Mautic PR
+    public function onDisplayAssignedToContactFieldValue(FieldDisplayEvent $event): void
+    {
+        if (null === $event->getLead() || !$event->getValue() instanceof FieldCrate) {
+            return;
+        }
+
+        try {
+            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
+        } catch (NotFoundException $e) {
+            // Do nothing if the custom object doesn't exist.
+            return;
+        }
+
+        $items     = $this->customItemModel->fetchCustomItemsForObject($object);
+        $contactId = $event->getLead()?->getId();
+
+        $items = array_filter(
+            $items,
+            function ($item) use ($contactId) {
+                $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
+                $ids = array_column($ids, 'contact_id');
+                return in_array($contactId, $ids);
+            }
+        );
+
+        if (count($items) > 0) {
+            foreach ($items as $item) {
+                $list[$item->getId()] = $item->getName();
+            }
+
+            $value = new FieldCrate($object->getAlias(), 'Name', 'text', ['list' => $list ?? []]);
+        }
+
+        $event->setValue($value ?? []);
+    }
+
+    // @todo Mautic PR
+    public function onDisplayLinkToField(FieldDisplayEvent $event): void
+    {
+        try {
+            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
+        } catch (NotFoundException $e) {
+            // Do nothing if the custom object doesn't exist.
+            return;
+        }
+
+        $ids   = explode(',', $event->getValue());
+        $value = '';
+
+        foreach ($ids as $id) {
+            $item = $this->customItemModel->getEntity($id);
+            if ($item) {
+                $viewParameters = [
+                    'objectId' => $object->getId(),
+                    'itemId' => $item->getId(),
+                ];
+                $route = $this->router->generate(CustomItemRouteProvider::ROUTE_VIEW, $viewParameters);
+                $value .= '<a href="' . $route . '" class="label label-success mr-5"> '.$item->getId().'</a>';
+            }
+        }
+        $event->setValue($value);
+    }
+
     /**
      * @return array<string, mixed>
      */

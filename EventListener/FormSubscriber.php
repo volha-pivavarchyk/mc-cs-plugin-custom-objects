@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Mautic\FormBundle\Crate\ObjectCrate;
+use Mautic\FormBundle\Event\FieldAssignEvent;
 use Mautic\FormBundle\Event\FieldCollectEvent;
 use Mautic\FormBundle\Event\FieldDisplayEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
@@ -34,10 +35,8 @@ class FormSubscriber implements EventSubscriberInterface
         return [
             FormEvents::ON_OBJECT_COLLECT      => ['onObjectCollect', 0],
             FormEvents::ON_FIELD_COLLECT       => ['onFieldCollect', 0],
-            FormEvents::ON_FIELD_DISPLAY       => [
-                ['onDisplayAssignedToContactFieldValue', 0],
-//                ['onDisplayLinkToField', 0],
-            ]
+            FormEvents::ON_FIELD_ASSIGN        => ['onFieldAssign', 0],
+            FormEvents::ON_FIELD_DISPLAY       => ['onDisplayLinkToField', 0],
         ];
     }
 
@@ -61,7 +60,11 @@ class FormSubscriber implements EventSubscriberInterface
 
         if (count($items) > 0) {
             foreach ($items as $item) {
-                $list[$item->getId()] = $item->getName();
+                $list[] = [
+                    'label' => $item->getName(),
+                    'value' => $item->getId(),
+                ];
+//                $list[$item->getId()] = $item->getName();
             }
 
             $event->appendField(new FieldCrate($object->getAlias(), 'Name', 'text', ['list' => $list ?? []]));
@@ -73,11 +76,9 @@ class FormSubscriber implements EventSubscriberInterface
         }
     }
 
-    // @Aivie Add posibility to use only assigned to the contact fields
-    // @todo Mautic PR
-    public function onDisplayAssignedToContactFieldValue(FieldDisplayEvent $event): void
+    public function onFieldAssign(FieldAssignEvent $event): void
     {
-        if (null === $event->getLead() || !$event->getValue() instanceof FieldCrate) {
+        if (null === $event->getLead()) {
             return;
         }
 
@@ -100,15 +101,11 @@ class FormSubscriber implements EventSubscriberInterface
             }
         );
 
-        if (count($items) > 0) {
-            foreach ($items as $item) {
-                $list[$item->getId()] = $item->getName();
-            }
-
-            $value = new FieldCrate($object->getAlias(), 'Name', 'text', ['list' => $list ?? []]);
-        }
-
-        $event->setValue($value ?? []);
+        $value = array_map(
+            fn ($item) => $item->getId(),
+            $items
+        );
+        $event->setValue($value);
     }
 
     // @todo Mautic PR

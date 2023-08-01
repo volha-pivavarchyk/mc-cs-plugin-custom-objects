@@ -7,7 +7,6 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldAssignEvent;
 use Mautic\FormBundle\Event\FieldCollectEvent;
-use Mautic\FormBundle\Event\FieldDisplayEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
 use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Crate\FieldCrate;
@@ -15,28 +14,24 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
-use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 class FormSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private CustomObjectModel $customObjectModel,
         private CustomItemModel $customItemModel,
-        private CustomItemXrefContactRepository $customItemXrefContactRepository,
-        private RouterInterface $router
+        private CustomItemXrefContactRepository $customItemXrefContactRepository
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            FormEvents::ON_OBJECT_COLLECT      => ['onObjectCollect', 0],
-            FormEvents::ON_FIELD_COLLECT       => ['onFieldCollect', 0],
-            FormEvents::ON_FIELD_ASSIGN        => ['onFieldAssign', 0],
-            FormEvents::ON_FIELD_DISPLAY       => ['onDisplayLinkToField', 0],
+            FormEvents::ON_OBJECT_COLLECT  => ['onObjectCollect', 0],
+            FormEvents::ON_FIELD_COLLECT   => ['onFieldCollect', 0],
+            FormEvents::ON_FIELD_ASSIGN    => ['onFieldAssign', 0],
         ];
     }
 
@@ -105,33 +100,6 @@ class FormSubscriber implements EventSubscriberInterface
             fn ($item) => $item->getId(),
             $items
         );
-        $event->setValue($value);
-    }
-
-    // @todo Mautic PR
-    public function onDisplayLinkToField(FieldDisplayEvent $event): void
-    {
-        try {
-            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
-        } catch (NotFoundException $e) {
-            // Do nothing if the custom object doesn't exist.
-            return;
-        }
-
-        $ids   = explode(',', $event->getValue());
-        $value = '';
-
-        foreach ($ids as $id) {
-            $item = $this->customItemModel->getEntity($id);
-            if ($item) {
-                $viewParameters = [
-                    'objectId' => $object->getId(),
-                    'itemId' => $item->getId(),
-                ];
-                $route = $this->router->generate(CustomItemRouteProvider::ROUTE_VIEW, $viewParameters);
-                $value .= '<a href="' . $route . '" class="label label-success mr-5"> '.$item->getId().'</a>';
-            }
-        }
         $event->setValue($value);
     }
 

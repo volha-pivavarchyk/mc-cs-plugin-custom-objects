@@ -8,12 +8,14 @@ use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldAssignEvent;
 use Mautic\FormBundle\Event\FieldCollectEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
+use Mautic\FormBundle\Event\SubmissionEvent;
 use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Crate\FieldCrate;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
+use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -22,7 +24,8 @@ class FormSubscriber implements EventSubscriberInterface
     public function __construct(
         private CustomObjectModel $customObjectModel,
         private CustomItemModel $customItemModel,
-        private CustomItemXrefContactRepository $customItemXrefContactRepository
+        private CustomItemXrefContactRepository $customItemXrefContactRepository,
+        private CustomItemPermissionProvider $permissionProvider
     ) {
     }
 
@@ -32,6 +35,7 @@ class FormSubscriber implements EventSubscriberInterface
             FormEvents::ON_OBJECT_COLLECT  => ['onObjectCollect', 0],
             FormEvents::ON_FIELD_COLLECT   => ['onFieldCollect', 0],
             FormEvents::ON_FIELD_ASSIGN    => ['onFieldAssign', 0],
+            FormEvents::FORM_ON_SUBMIT     => ['onFormSubmit', 0],
         ];
     }
 
@@ -101,6 +105,53 @@ class FormSubscriber implements EventSubscriberInterface
             $items
         );
         $event->setValue($value);
+    }
+
+    public function onFormSubmit(SubmissionEvent $event): void
+    {
+        if (null === $event->getLead()) {
+            return;
+        }
+
+        $results = $event->getResults();
+        $fields  = $event->getForm()->getFields();
+
+        foreach ($fields as $field) {
+            if ($field->getMappedObject() === null || $field->getMappedObject() === 'contact' || $field->getMappedObject() === 'company') {
+                continue;
+            }
+
+            try {
+                $object = $this->customObjectModel->fetchEntityByAlias($field->getMappedObject());
+            } catch (NotFoundException $e) {
+                // Do nothing if the custom object doesn't exist.
+                continue;
+            }
+
+            if (isset($results[$field->getAlias()])) {
+                $itemIds    = explode(',', $results[$field->getAlias()]);
+                $properties = $field->getProperties();
+                $lead       = $event->getLead();
+
+                foreach ($itemIds as $itemId) {
+                    $customItem = $this->customItemModel->fetchEntity((int) $itemId);
+
+                    $this->permissionProvider->canEdit($customItem);
+
+                    switch ($properties['saveRemove']) {
+                        case 1:
+                            $this->customItemModel->linkEntity($customItem, 'contact', $lead->getId());
+                            break;
+                        case 2:
+                            $this->customItemModel->unlinkEntity($customItem, 'contact', $lead->getId());
+                            break;
+                        default:
+                            //overwrite
+                    }
+                }
+
+            }
+        }
     }
 
     /**

@@ -23,7 +23,7 @@ class CustomItemDisplayValueSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CoreEvents::VIEW_INJECT_CUSTOM_OBJECT_VALUE => ['onDisplayItemLink', 0],
+//            CoreEvents::VIEW_INJECT_CUSTOM_OBJECT_VALUE => ['onDisplayItemLink', 0],
         ];
     }
 

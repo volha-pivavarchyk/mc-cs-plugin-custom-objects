@@ -9,6 +9,8 @@ use Mautic\FormBundle\Form\Type\FormFieldSelectType;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class FormFieldSelectTypeExtension extends AbstractTypeExtension
 {
@@ -29,19 +31,46 @@ class FormFieldSelectTypeExtension extends AbstractTypeExtension
     {
         parent::buildForm($builder, $options);
 
+//        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+//            $form       = $event->getForm();
+//            $object     = $form->getParent()->get('mappedObject');
+//
+//            if (isset($object)) {
+//                $objectName = $object->getData();
+//
+//                if ('contact' !== $objectName && 'contact' !== $objectName) {
+//                    $form->add(
+//                        'saveRemove',
+//                        ChoiceType::class,
+//                        [
+//                            'attr' => [
+//                                'data-show-on' => '{"formfield_mappedField:data-list-type": "1"}',
+//                                'tooltip'      => 'custom.item.select.mapped_field.action.descr',
+//                            ],
+//                            'label'    => 'custom.item.select.mapped_field.action',
+//                            'choices'  => [
+//                                'Add'    => 1,
+//                                'Remove' => 2,
+//                            ],
+//                        ]
+//                    );
+//                }
+//            }
+//        });
+
         $builder->add(
             'saveRemove',
             ChoiceType::class,
             [
                 'attr' => [
-                    'data-show-on' => '{"formfield_mappedField:data-list-type": "1"}',
-                    'tooltip'      => 'custom.item.select.link_unlink.contact.descr',
+                    'data-show-on'            => '{"formfield_mappedField:data-list-type": "1"}',
+                    'data-custom-object-prop' => 'true',
+                    'tooltip'                 => 'custom.item.select.mapped_field.action.descr',
                 ],
-                'label'    => 'custom.item.select.link_unlink.contact',
+                'label'    => 'custom.item.select.mapped_field.action',
                 'choices'  => [
-//                    'Overwrite' => 0,
-                    'Link'      => 1,
-                    'Unlink'    => 2,
+                    'Add'      => 1,
+                    'Remove'   => 2,
                 ],
             ]
         );

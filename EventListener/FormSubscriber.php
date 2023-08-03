@@ -15,7 +15,6 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
-use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -24,8 +23,7 @@ class FormSubscriber implements EventSubscriberInterface
     public function __construct(
         private CustomObjectModel $customObjectModel,
         private CustomItemModel $customItemModel,
-        private CustomItemXrefContactRepository $customItemXrefContactRepository,
-        private CustomItemPermissionProvider $permissionProvider
+        private CustomItemXrefContactRepository $customItemXrefContactRepository
     ) {
     }
 
@@ -135,8 +133,6 @@ class FormSubscriber implements EventSubscriberInterface
 
                 foreach ($itemIds as $itemId) {
                     $customItem = $this->customItemModel->fetchEntity((int) $itemId);
-
-                    $this->permissionProvider->canEdit($customItem);
 
                     switch ($properties['saveRemove']) {
                         case 1:

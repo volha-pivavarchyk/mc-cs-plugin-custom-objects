@@ -47,7 +47,6 @@ class FormFieldSelectTypeExtension extends AbstractTypeExtension
             [
                 'attr' => [
                     'data-show-on'            => '{"formfield_mappedObject": ['.$objectStr.']}',
-//                    'data-show-on'            => '{"formfield_mappedField:data-list-type": "1", "select[name=\"formfield[mappedObject]\"]": ["product", "material"]}',
                     'data-custom-object-prop' => 'true',
                     'tooltip'                 => 'custom.item.select.mapped_field.action.descr',
                 ],

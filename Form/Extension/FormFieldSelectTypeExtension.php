@@ -42,18 +42,18 @@ class FormFieldSelectTypeExtension extends AbstractTypeExtension
         $objectStr = implode(',', $objectsArr ?? []);
 
         $builder->add(
-            'saveRemove',
+            'saveFieldOption',
             ChoiceType::class,
             [
                 'attr' => [
                     'data-show-on'            => '{"formfield_mappedObject": ['.$objectStr.']}',
                     'data-custom-object-prop' => 'true',
-                    'tooltip'                 => 'custom.item.select.mapped_field.action.descr',
+                    'tooltip'                 => 'custom.item.save.field.option.descr',
                 ],
-                'label'    => 'custom.item.select.mapped_field.action',
+                'label'    => 'custom.item.save.field.option',
                 'choices'  => [
-                    'Add'      => 1,
-                    'Remove'   => 2,
+                    'custom.item.save.field.add'    => 1,
+                    'custom.item.save.field.remove' => 2,
                 ],
             ]
         );

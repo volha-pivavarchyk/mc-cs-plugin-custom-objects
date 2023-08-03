@@ -134,7 +134,7 @@ class FormSubscriber implements EventSubscriberInterface
                 foreach ($itemIds as $itemId) {
                     $customItem = $this->customItemModel->fetchEntity((int) $itemId);
 
-                    switch ($properties['saveRemove']) {
+                    switch ($properties['saveFieldOption']) {
                         case 1:
                             $this->customItemModel->linkEntity($customItem, 'contact', $lead->getId());
                             break;

@@ -6,6 +6,9 @@ namespace MauticPlugin\CustomObjectsBundle\Form\Extension;
 
 use Mautic\FormBundle\Form\Type\FormFieldGroupType;
 use Mautic\FormBundle\Form\Type\FormFieldSelectType;
+use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
+use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
+use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,6 +25,10 @@ class FormFieldSelectTypeExtension extends AbstractTypeExtension
     public static function getExtendedTypes(): iterable
     {
         return [FormFieldSelectType::class, FormFieldGroupType::class];
+    }
+
+    public function __construct(private CustomObjectModel $customObjectModel)
+    {
     }
 
     /**
@@ -58,12 +65,23 @@ class FormFieldSelectTypeExtension extends AbstractTypeExtension
 //            }
 //        });
 
+        $objects = $this->customObjectModel->getEntities()->getIterator();
+
+        foreach ($objects as $object) {
+            $objectsArr[] = '"'.$object->getAlias().'"';
+        }
+
+        $objectStr = implode(',', $objectsArr ?? []);
+
         $builder->add(
             'saveRemove',
             ChoiceType::class,
             [
                 'attr' => [
-                    'data-show-on'            => '{"formfield_mappedField:data-list-type": "1"}',
+                    'data-show-on'            => '{"formfield_mappedObject": ['.$objectStr.']}',
+//                    'data-show-on'            => '{"formfield_mappedObject": ["products", "materials"]}',
+//                    'data-show-on'            => '{"formfield_mappedField:data-list-type": "1", "select[name=\"formfield[mappedObject]\"]": ["product", "material"]}',
+//                    select[name="formfield[mappedObject]"]
                     'data-custom-object-prop' => 'true',
                     'tooltip'                 => 'custom.item.select.mapped_field.action.descr',
                 ],

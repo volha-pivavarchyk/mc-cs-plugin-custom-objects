@@ -7,6 +7,7 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 use Mautic\FormBundle\Crate\ObjectCrate;
 use Mautic\FormBundle\Event\FieldAssignEvent;
 use Mautic\FormBundle\Event\FieldCollectEvent;
+use Mautic\FormBundle\Event\FieldValueEvent;
 use Mautic\FormBundle\Event\ObjectCollectEvent;
 use Mautic\FormBundle\Event\SubmissionEvent;
 use Mautic\FormBundle\FormEvents;
@@ -15,6 +16,7 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
+use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -34,6 +36,7 @@ class FormSubscriber implements EventSubscriberInterface
             FormEvents::ON_FIELD_COLLECT   => ['onFieldCollect', 0],
             FormEvents::ON_FIELD_ASSIGN    => ['onFieldAssign', 0],
             FormEvents::FORM_ON_SUBMIT     => ['onFormSubmit', 0],
+            FormEvents::ON_FIELD_VALUE     => ['onDisplayItemLink', 0],
         ];
     }
 
@@ -146,6 +149,42 @@ class FormSubscriber implements EventSubscriberInterface
                     }
                 }
 
+            }
+        }
+    }
+
+    // @aivie Display a user-friendly custom object data in the form result page
+    // @todo Create Mautic PR
+    public function onDisplayItemLink(FieldValueEvent $event): void
+    {
+        try {
+            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
+        } catch (NotFoundException $e) {
+            // Do nothing if the custom object doesn't exist.
+            return;
+        }
+
+        $item       = $this->customItemModel->getEntity($event->getValue());
+        $properties = [
+            'link'           => CustomItemRouteProvider::ROUTE_VIEW,
+            'linkParameters' => [
+                'objectId'   => $object->getId(),
+                'itemId'     => isset($item) ? $item->getId() : '%alias%',
+            ],
+        ];
+
+        $event->setProperties($properties);
+
+        if (isset($item)) {
+            $event->setValue($item->getName());
+
+            if (!empty($event->getField()) && $event->getObject() !== $event->getField()) {
+                $fields = $this->customItemModel->populateCustomFields($item)->getCustomFieldValues();
+                foreach ($fields as $field) {
+                    if ($field->getCustomField()->getAlias() === $event->getField()) {
+                        $event->setValue($field->getValue());
+                    }
+                }
             }
         }
     }

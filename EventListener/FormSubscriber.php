@@ -129,7 +129,7 @@ class FormSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if (isset($results[$field->getAlias()])) {
+            if (!empty($results[$field->getAlias()])) {
                 $itemIds    = explode(',', $results[$field->getAlias()]);
                 $properties = $field->getProperties();
                 $lead       = $event->getLead();

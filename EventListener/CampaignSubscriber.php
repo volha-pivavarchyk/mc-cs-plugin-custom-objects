@@ -203,19 +203,19 @@ class CampaignSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $contactId = $event->getLead()?->getId();
+        $event->setResult(false);
+        $contact = $event->getLead();
 
-        if (empty($contactId)) {
-            $event->setResult(false);
-
+        if (empty($contact)) {
             return;
         }
 
         if ($event->checkContext('custom_item.linkoncontact')) {
-            $customId = $event->getConfig()['customItemId'];
+            $contactId = $contact->getId();
+            $customItemId = $event->getConfig()['customItemId'];
 
-            if (is_string($customId) && str_starts_with($customId, 'object_')) {
-                $customObjectId = (int) str_replace('object_', '', $customId);
+            if (is_string($customItemId) && str_starts_with($customItemId, 'object_')) {
+                $customObjectId = (int) str_replace('object_', '', $customItemId);
                 try {
                     $object = $this->customObjectModel->fetchEntity($customObjectId);
                 } catch (NotFoundException $e) {
@@ -223,15 +223,11 @@ class CampaignSubscriber implements EventSubscriberInterface
                     return;
                 }
 
-                $items     = $this->customItemModel->fetchCustomItemsForObject($object);
+                $items = $this->customItemModel->fetchCustomItemsForObject($object);
 
                 $items = array_filter(
                     $items,
-                    function ($item) use ($contactId) {
-                        $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
-                        $ids = array_column($ids, 'contact_id');
-                        return in_array($contactId, $ids);
-                    }
+                    fn ($item) => $this->isCustomItemsXrefContact((int) $item->getId(), $contactId),
                 );
 
                 $event->setResult(count($items) > 0);
@@ -239,11 +235,7 @@ class CampaignSubscriber implements EventSubscriberInterface
                 return;
             }
 
-            $customItemId = (int) $customId;
-            $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem($customItemId, 200, 0);
-
-            $ids = array_column($ids, 'contact_id');
-            $event->setResult(in_array($contactId, $ids));
+            $event->setResult($this->isCustomItemsXrefContact((int) $customItemId, $contactId));
         } else {
             if (!preg_match('/custom_item.(\d*).fieldvalue/', $event->getEvent()['type'])) {
                 return;
@@ -338,5 +330,13 @@ class CampaignSubscriber implements EventSubscriberInterface
             'operator' => $operator,
             'display'  => null,
         ];
+    }
+
+    private function isCustomItemsXrefContact(int $customItemId, int $contactId): bool
+    {
+        $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem($customItemId, 200, 0);
+        $ids = array_column($ids, 'contact_id');
+
+        return in_array($contactId, $ids);
     }
 }

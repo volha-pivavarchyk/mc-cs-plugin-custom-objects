@@ -21,12 +21,15 @@ use MauticPlugin\CustomObjectsBundle\Exception\InvalidSegmentFilterException;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Form\Type\CampaignActionLinkType;
 use MauticPlugin\CustomObjectsBundle\Form\Type\CampaignConditionFieldValueType;
+use MauticPlugin\CustomObjectsBundle\Form\Type\CampaignConditionLinkOnContactType;
 use MauticPlugin\CustomObjectsBundle\Helper\QueryBuilderManipulatorTrait;
 use MauticPlugin\CustomObjectsBundle\Helper\QueryFilterHelper;
 use MauticPlugin\CustomObjectsBundle\Model\CustomFieldModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
+use MauticPlugin\CustomObjectsBundle\Model\CustomItemXrefContactModel;
 use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\ConfigProvider;
+use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use MauticPlugin\CustomObjectsBundle\Repository\DbalQueryTrait;
 use MauticPlugin\CustomObjectsBundle\Segment\Query\Filter\QueryFilterFactory;
 use MauticPlugin\CustomObjectsBundle\Segment\Query\UnionQueryContainer;
@@ -86,7 +89,8 @@ class CampaignSubscriber implements EventSubscriberInterface
         ConfigProvider $configProvider,
         QueryFilterHelper $queryFilterHelper,
         QueryFilterFactory $queryFilterFactory,
-        Connection $connection
+        Connection $connection,
+        private CustomItemXrefContactRepository $customItemXrefContactRepository
     ) {
         $this->customFieldModel   = $customFieldModel;
         $this->customObjectModel  = $customObjectModel;
@@ -140,10 +144,17 @@ class CampaignSubscriber implements EventSubscriberInterface
                 'description'     => $this->translator->trans('custom.item.events.field.value_descr', ['%customObject%' => $customObject->getNameSingular()]),
                 'eventName'       => CustomItemEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
                 'formType'        => CampaignConditionFieldValueType::class,
-                'formTheme'       => 'CustomObjectsBundle:FormTheme\FieldValueCondition',
+//                'formTheme'       => '@CustomObjects/FormTheme/FieldValueCondition/_formaction_properties_row.html.twig',
                 'formTypeOptions' => ['customObject' => $customObject],
             ]);
         }
+
+        $event->addCondition("custom_item.linkoncontact", [
+            'label'           => $this->translator->trans('custom.item.events.link.on.contact'),
+            'description'     => $this->translator->trans('custom.item.events.link.on.contact.descr'),
+            'eventName'       => CustomItemEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
+            'formType'        => CampaignConditionLinkOnContactType::class,
+        ]);
     }
 
     public function onCampaignTriggerAction(CampaignExecutionEvent $event): void
@@ -192,49 +203,84 @@ class CampaignSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!preg_match('/custom_item.(\d*).fieldvalue/', $event->getEvent()['type'])) {
-            return;
-        }
+        $contactId = $event->getLead()?->getId();
 
-        $contact = $event->getLead();
-
-        if (empty($contact) || !$contact->getId()) {
+        if (empty($contactId)) {
             $event->setResult(false);
 
             return;
         }
 
-        try {
-            $customField = $this->customFieldModel->fetchEntity((int) $event->getConfig()['field']);
-        } catch (NotFoundException $e) {
-            $event->setResult(false);
+        if ($event->checkContext('custom_item.linkoncontact')) {
+            $customId = $event->getConfig()['customItemId'];
 
-            return;
-        }
+            if (is_string($customId) && str_starts_with($customId, 'object_')) {
+                $customObjectId = (int) str_replace('object_', '', $customId);
+                try {
+                    $object = $this->customObjectModel->fetchEntity($customObjectId);
+                } catch (NotFoundException $e) {
+                    // Do nothing if the custom object doesn't exist.
+                    return;
+                }
 
-        $queryAlias        = 'q1';
-        $value             = $event->getConfig()['value'];
-        $operator          = $event->getConfig()['operator'];
-        $innerQueryBuilder = $this->queryFilterFactory->configureQueryBuilderFromSegmentFilter(
-            $this->modelSegmentFilterArray($customField, $operator, $value),
-            $queryAlias
-        );
+                $items     = $this->customItemModel->fetchCustomItemsForObject($object);
 
-        if ($innerQueryBuilder instanceof UnionQueryContainer) {
-            $this->applyParamsToMultipleQueries($innerQueryBuilder, $queryAlias, $contact, $operator);
+                $items = array_filter(
+                    $items,
+                    function ($item) use ($contactId) {
+                        $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem((int)$item->getId(), 200, 0);
+                        $ids = array_column($ids, 'contact_id');
+                        return in_array($contactId, $ids);
+                    }
+                );
+
+                $event->setResult(count($items) > 0);
+
+                return;
+            }
+
+            $customItemId = (int) $customId;
+            $ids = $this->customItemXrefContactRepository->getContactIdsLinkedToCustomItem($customItemId, 200, 0);
+
+            $ids = array_column($ids, 'contact_id');
+            $event->setResult(in_array($contactId, $ids));
         } else {
-            $this->applyParamsToQuery($innerQueryBuilder, $queryAlias, $contact, $operator);
-        }
+            if (!preg_match('/custom_item.(\d*).fieldvalue/', $event->getEvent()['type'])) {
+                return;
+            }
 
-        $queryBuilder = $this->buildOuterQuery($innerQueryBuilder, $queryAlias);
+            try {
+                $customField = $this->customFieldModel->fetchEntity((int) $event->getConfig()['field']);
+            } catch (NotFoundException $e) {
+                $event->setResult(false);
 
-        $customItemId = $this->executeSelect($queryBuilder)->fetchColumn();
+                return;
+            }
 
-        if ($customItemId) {
-            $event->setChannel('customItem', $customItemId);
-            $event->setResult(true);
-        } else {
-            $event->setResult(false);
+            $queryAlias        = 'q1';
+            $value             = $event->getConfig()['value'];
+            $operator          = $event->getConfig()['operator'];
+            $innerQueryBuilder = $this->queryFilterFactory->configureQueryBuilderFromSegmentFilter(
+                $this->modelSegmentFilterArray($customField, $operator, $value),
+                $queryAlias
+            );
+
+            if ($innerQueryBuilder instanceof UnionQueryContainer) {
+                $this->applyParamsToMultipleQueries($innerQueryBuilder, $queryAlias, $contact, $operator);
+            } else {
+                $this->applyParamsToQuery($innerQueryBuilder, $queryAlias, $contact, $operator);
+            }
+
+            $queryBuilder = $this->buildOuterQuery($innerQueryBuilder, $queryAlias);
+
+            $customItemId = $this->executeSelect($queryBuilder)->fetchColumn();
+
+            if ($customItemId) {
+                $event->setChannel('customItem', $customItemId);
+                $event->setResult(true);
+            } else {
+                $event->setResult(false);
+            }
         }
     }
 

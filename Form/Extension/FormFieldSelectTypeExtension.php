@@ -36,10 +36,10 @@ class FormFieldSelectTypeExtension extends AbstractTypeExtension
 
         $objects = $this->customObjectModel->getEntities()->getIterator();
         foreach ($objects as $object) {
-            $objectsArr[] = '"'.$object->getAlias().'"';
+            $objectArr[] = '"'.$object->getAlias().'"';
         }
 
-        $objectStr = implode(',', $objectsArr ?? []);
+        $objectStr = implode(',', $objectArr ?? []);
 
         $builder->add(
             'saveFieldOption',

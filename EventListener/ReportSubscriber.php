@@ -11,15 +11,23 @@ use Mautic\LeadBundle\Model\CompanyReportData;
 use Mautic\LeadBundle\Report\FieldsBuilder;
 use Mautic\ReportBundle\Event\ColumnCollectEvent;
 use Mautic\ReportBundle\Event\ReportBuilderEvent;
+use Mautic\ReportBundle\Event\ReportDataEvent;
 use Mautic\ReportBundle\Event\ReportGeneratorEvent;
 use Mautic\ReportBundle\Helper\ReportHelper;
 use Mautic\ReportBundle\ReportEvents;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItemXrefContact;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
+use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
+use MauticPlugin\CustomObjectsBundle\Model\CustomFieldModel;
+use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
+use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
+use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Report\ReportColumnsBuilder;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomObjectRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ReportSubscriber implements EventSubscriberInterface
@@ -75,7 +83,12 @@ class ReportSubscriber implements EventSubscriberInterface
         CompanyReportData $companyReportData,
         ReportHelper $reportHelper,
         TranslatorInterface $translator,
-        FieldModel $fieldModel
+        FieldModel $fieldModel,
+        private CustomItemModel $customItemModel,
+        private CustomObjectModel $customObjectModel,
+        private CustomFieldModel $customFieldModel,
+        private RouterInterface $router,
+        private RequestStack $requestStack
     ) {
         $this->customObjectRepository = $customObjectRepository;
         $this->fieldsBuilder          = $fieldsBuilder;
@@ -137,6 +150,7 @@ class ReportSubscriber implements EventSubscriberInterface
                 ['onReportGenerate', 0],
                 ['onFormResultReportGenerate', -1],
             ],
+            ReportEvents::REPORT_ON_DISPLAY         => ['onReportDisplay', 0],
         ];
     }
 
@@ -455,5 +469,85 @@ class ReportSubscriber implements EventSubscriberInterface
             $reportColumnsBuilder->setFilterColumnsCallback([$event, 'usesColumn']);
             $reportColumnsBuilder->joinReportColumns($queryBuilder, $customItemTableAlias);
         }
+    }
+
+    public function onReportDisplay(ReportDataEvent $event): void
+    {
+        $data       = $event->getData();
+        $columns    = $event->getOptions()['columns'];
+        $requestUri = $this->requestStack->getCurrentRequest()->getRequestUri();
+
+        $objects = $this->customObjectRepository->getEntities();
+
+        foreach ($objects as $object) {
+            $objectArr[] = $object->getAlias();
+        }
+
+        $customObjectColumns = array_filter(
+            $columns,
+            fn ($item) => isset($item['mapped_object']) && in_array($item['mapped_object'], $objectArr ?? [])
+        );
+
+        foreach ($data as &$item) {
+            foreach ($item as $key => $value) {
+                if (!empty($value)) {
+                    foreach ($customObjectColumns as $customObjectColumn) {
+                        if ($customObjectColumn['alias'] === $key) {
+                            try {
+                                $object = $this->customObjectModel->fetchEntityByAlias($customObjectColumn['mapped_object']);
+                            } catch (NotFoundException $e) {
+                                // Do nothing if the custom object doesn't exist.
+                                return;
+                            }
+
+                            $newValue = '';
+                            $ids      = explode(',', $value);
+                            if ($customObjectColumn['mapped_field'] === $object->getAlias()) {
+                                foreach ($ids as $id) {
+                                    $customItem = $this->customItemModel->fetchEntity((int) $id);
+                                    $route      = $this->router->generate(
+                                        CustomItemRouteProvider::ROUTE_VIEW,
+                                        [
+                                            'objectId'   => $object->getId(),
+                                            'itemId'     => $customItem->getId(),
+                                        ]
+                                    );
+
+                                    $newValue   .= str_contains($requestUri, '/export')
+                                        ? empty($newValue) ? $customItem->getName() : ', '.$customItem->getName()
+                                        : '<a href="'.$route.'" class="label label-success mr-5"> '.$customItem->getName().'</a>';
+                                }
+                            } else {
+                                foreach ($ids as $id) {
+                                    $customItem   = $this->customItemModel->fetchEntity((int) $id);
+                                    $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($customItem);
+                                    $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
+
+                                    foreach ($itemCustomFieldsValues as $customFieldValue) {
+                                        if ($customObjectColumn['mapped_field'] === $customFieldValue->getCustomField()->getAlias()) {
+                                            $route      = $this->router->generate(
+                                                CustomItemRouteProvider::ROUTE_VIEW,
+                                                [
+                                                    'objectId'   => $object->getId(),
+                                                    'itemId'     => $customItem->getId(),
+                                                ]
+                                            );
+
+                                            $newValue .= str_contains($requestUri, '/export')
+                                                ? empty($newValue) ? $customFieldValue->getValue() : ', '.$customFieldValue->getValue()
+                                                : '<a href="'.$route.'" class="label label-success mr-5"> '.$customFieldValue->getValue().'</a>';
+                                        }
+                                    }
+                                }
+                            }
+
+                            $item[$key] = $newValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        $event->setData($data);
     }
 }

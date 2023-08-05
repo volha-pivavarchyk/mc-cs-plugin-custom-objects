@@ -372,19 +372,6 @@ $coParams = [
                     'mautic.custom.model.field.option',
                 ],
             ],
-            'custom_item.campaign.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\CampaignSubscriber::class,
-                'arguments' => [
-                    'mautic.custom.model.field',
-                    'mautic.custom.model.object',
-                    'mautic.custom.model.item',
-                    'translator',
-                    'custom_object.config.provider',
-                    'custom_object.query.filter.helper',
-                    'custom_object.query.filter.factory',
-                    'database_connection',
-                ],
-            ],
             'custom_object.serializer.subscriber' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\SerializerSubscriber::class,
                 'arguments' => [

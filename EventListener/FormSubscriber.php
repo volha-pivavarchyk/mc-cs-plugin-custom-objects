@@ -135,20 +135,23 @@ class FormSubscriber implements EventSubscriberInterface
                 $lead       = $event->getLead();
 
                 foreach ($itemIds as $itemId) {
-                    $customItem = $this->customItemModel->fetchEntity((int) $itemId);
+                    try {
+                        $customItem = $this->customItemModel->fetchEntity((int) $itemId);
 
-                    switch ($properties['saveFieldOption']) {
-                        case 1:
-                            $this->customItemModel->linkEntity($customItem, 'contact', $lead->getId());
-                            break;
-                        case 2:
-                            $this->customItemModel->unlinkEntity($customItem, 'contact', $lead->getId());
-                            break;
-                        default:
-                            //overwrite
+                        switch ($properties['saveFieldOption']) {
+                            case 1:
+                                $this->customItemModel->linkEntity($customItem, 'contact', $lead->getId());
+                                break;
+                            case 2:
+                                $this->customItemModel->unlinkEntity($customItem, 'contact', $lead->getId());
+                                break;
+                            default:
+                                //overwrite
+                        }
+                    } catch (NotFoundException $e) {
+                        // Do nothing if the custom item doesn't exist anymore.
                     }
                 }
-
             }
         }
     }

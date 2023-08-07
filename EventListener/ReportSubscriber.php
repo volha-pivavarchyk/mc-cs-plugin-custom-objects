@@ -504,39 +504,47 @@ class ReportSubscriber implements EventSubscriberInterface
                             $ids      = explode(',', $value);
                             if ($customObjectColumn['mapped_field'] === $object->getAlias()) {
                                 foreach ($ids as $id) {
-                                    $customItem = $this->customItemModel->fetchEntity((int) $id);
-                                    $route      = $this->router->generate(
-                                        CustomItemRouteProvider::ROUTE_VIEW,
-                                        [
-                                            'objectId'   => $object->getId(),
-                                            'itemId'     => $customItem->getId(),
-                                        ]
-                                    );
+                                    try {
+                                        $customItem = $this->customItemModel->fetchEntity((int) $id);
+                                        $route      = $this->router->generate(
+                                            CustomItemRouteProvider::ROUTE_VIEW,
+                                            [
+                                                'objectId'   => $object->getId(),
+                                                'itemId'     => $customItem->getId(),
+                                            ]
+                                        );
 
-                                    $newValue   .= str_contains($requestUri, '/export')
-                                        ? empty($newValue) ? $customItem->getName() : ', '.$customItem->getName()
-                                        : '<a href="'.$route.'" class="label label-success mr-5"> '.$customItem->getName().'</a>';
+                                        $newValue   .= str_contains($requestUri, '/export')
+                                            ? empty($newValue) ? $customItem->getName() : ', '.$customItem->getName()
+                                            : '<a href="'.$route.'" class="label label-success mr-5"> '.$customItem->getName().'</a>';
+                                    } catch (NotFoundException $e) {
+                                        // Do nothing if the custom item doesn't exist anymore.
+                                    }
                                 }
                             } else {
                                 foreach ($ids as $id) {
-                                    $customItem   = $this->customItemModel->fetchEntity((int) $id);
-                                    $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($customItem);
-                                    $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
+                                    try {
+                                        $customItem   = $this->customItemModel->fetchEntity((int) $id);
+                                        $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($customItem);
+                                        $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
 
-                                    foreach ($itemCustomFieldsValues as $customFieldValue) {
-                                        if ($customObjectColumn['mapped_field'] === $customFieldValue->getCustomField()->getAlias()) {
-                                            $route      = $this->router->generate(
-                                                CustomItemRouteProvider::ROUTE_VIEW,
-                                                [
-                                                    'objectId'   => $object->getId(),
-                                                    'itemId'     => $customItem->getId(),
-                                                ]
-                                            );
+                                        foreach ($itemCustomFieldsValues as $customFieldValue) {
+                                            if ($customObjectColumn['mapped_field'] === $customFieldValue->getCustomField()->getAlias()) {
+                                                $route      = $this->router->generate(
+                                                    CustomItemRouteProvider::ROUTE_VIEW,
+                                                    [
+                                                        'objectId'   => $object->getId(),
+                                                        'itemId'     => $customItem->getId(),
+                                                    ]
+                                                );
 
-                                            $newValue .= str_contains($requestUri, '/export')
-                                                ? empty($newValue) ? $customFieldValue->getValue() : ', '.$customFieldValue->getValue()
-                                                : '<a href="'.$route.'" class="label label-success mr-5"> '.$customFieldValue->getValue().'</a>';
+                                                $newValue .= str_contains($requestUri, '/export')
+                                                    ? empty($newValue) ? $customFieldValue->getValue() : ', '.$customFieldValue->getValue()
+                                                    : '<a href="'.$route.'" class="label label-success mr-5"> '.$customFieldValue->getValue().'</a>';
+                                            }
                                         }
+                                    } catch (NotFoundException $e) {
+                                        // Do nothing if the custom item doesn't exist anymore.
                                     }
                                 }
                             }

@@ -31,35 +31,35 @@ class CustomItemDisplayValueSubscriber implements EventSubscriberInterface
     // @todo Create Mautic PR
     public function onDisplayItemLink(CustomObjectValueEvent $event): void
     {
-        try {
-            $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
-        } catch (NotFoundException $e) {
-            // Do nothing if the custom object doesn't exist.
-            return;
-        }
+        // try {
+        //     $object = $this->customObjectModel->fetchEntityByAlias($event->getObject());
+        // } catch (NotFoundException $e) {
+        //     // Do nothing if the custom object doesn't exist.
+        //     return;
+        // }
 
-        $item       = $this->customItemModel->getEntity($event->getValue());
-        $properties = [
-            'link'           => CustomItemRouteProvider::ROUTE_VIEW,
-            'linkParameters' => [
-                'objectId'   => $object->getId(),
-                'itemId'     => isset($item) ? $item->getId() : '%alias%',
-            ],
-        ];
+        // $item       = $this->customItemModel->getEntity($event->getValue());
+        // $properties = [
+        //     'link'           => CustomItemRouteProvider::ROUTE_VIEW,
+        //     'linkParameters' => [
+        //         'objectId'   => $object->getId(),
+        //         'itemId'     => isset($item) ? $item->getId() : '%alias%',
+        //     ],
+        // ];
 
-        $event->setProperties($properties);
+        // $event->setProperties($properties);
 
-        if (isset($item)) {
-            $event->setValue($item->getName());
+        // if (isset($item)) {
+        //     $event->setValue($item->getName());
 
-            if (!empty($event->getField()) && $event->getObject() !== $event->getField()) {
-                $fields = $this->customItemModel->populateCustomFields($item)->getCustomFieldValues();
-                foreach ($fields as $field) {
-                    if ($field->getCustomField()->getAlias() === $event->getField()) {
-                        $event->setValue($field->getValue());
-                    }
-                }
-            }
-        }
+        //     if (!empty($event->getField()) && $event->getObject() !== $event->getField()) {
+        //         $fields = $this->customItemModel->populateCustomFields($item)->getCustomFieldValues();
+        //         foreach ($fields as $field) {
+        //             if ($field->getCustomField()->getAlias() === $event->getField()) {
+        //                 $event->setValue($field->getValue());
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

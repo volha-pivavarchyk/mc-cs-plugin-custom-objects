@@ -49,6 +49,11 @@ class ReportColumnsBuilder
             $this->columns[$this->getColumnName($customField)] = [
                 'label' => $customField->getLabel(),
                 'type'  => $this->resolveColumnType($customField),
+                'link'          => 'mautic_custom_item_view',
+                'linkParameters'=> [
+                    'itemId'    => '%itemId%',
+                    'objectId'   => '%objectId%'
+                ],
             ];
         }
     }

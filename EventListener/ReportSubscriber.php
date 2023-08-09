@@ -98,6 +98,19 @@ class ReportSubscriber implements EventSubscriberInterface
         $this->fieldModel             = $fieldModel;
     }
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ReportEvents::REPORT_ON_BUILD           => ['onReportBuilder', 0],
+           ReportEvents::REPORT_ON_COLUMN_COLLECT  => ['onReportColumnCollect', 0],
+            ReportEvents::REPORT_ON_GENERATE        => [
+                ['onReportGenerate', 0],
+                ['onFormResultReportGenerate', -1],
+            ],
+            ReportEvents::REPORT_ON_DISPLAY         => ['onReportDisplay', 0],
+        ];
+    }
+
     private function getCustomObjects(): ArrayCollection
     {
         if ($this->customObjects instanceof ArrayCollection) {
@@ -139,19 +152,6 @@ class ReportSubscriber implements EventSubscriberInterface
         });
 
         return new ArrayCollection($customObjects);
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            ReportEvents::REPORT_ON_BUILD           => ['onReportBuilder', 0],
-//            ReportEvents::REPORT_ON_COLUMN_COLLECT  => ['onReportColumnCollect', 0],
-            ReportEvents::REPORT_ON_GENERATE        => [
-                ['onReportGenerate', 0],
-                ['onFormResultReportGenerate', -1],
-            ],
-            ReportEvents::REPORT_ON_DISPLAY         => ['onReportDisplay', 0],
-        ];
     }
 
     private function getContext(CustomObject $customObject): string
@@ -197,7 +197,6 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $standardColumns     = $this->getStandardColumns($customItemTablePrefix);
         $customFieldsColumns = (new ReportColumnsBuilder($customObject))->getColumns();
-
         return array_merge($standardColumns, $customFieldsColumns);
     }
 
@@ -249,11 +248,19 @@ class ReportSubscriber implements EventSubscriberInterface
         }
     }
 
-    // @todo maybe not used?
+    /**
+     * Add custom object specific report columns.
+     * is triggered during the onReportBuilder in the ReportSubscriber from the ReportBundle
+     */
     public function onReportColumnCollect(ColumnCollectEvent $event): void
     {
         $object = $event->getObject();
-
+        print '<pre>';
+        print '<h1>onReportColumnCollect: object</h1>';
+        dump( $object );
+        print '</pre>'; 
+        exit;
+        
         if (!$this->customObjectRepository->checkAliasExists($object)) {
             return;
         }
@@ -415,6 +422,8 @@ class ReportSubscriber implements EventSubscriberInterface
             }
         }
 
+
+
         if (!$usesParentCustomObjectsColumns) {
             // No need to join parent custom object columns if we don't use them
             return;
@@ -478,7 +487,6 @@ class ReportSubscriber implements EventSubscriberInterface
     public function onReportDisplay(ReportDataEvent $event): void
     {
         $data       = $event->getData();
-        $dataMeta   = $event->getDataMeta();
         $columns    = $event->getOptions()['columns'];
         // $requestUri = $this->requestStack->getCurrentRequest()->getRequestUri();
 
@@ -516,8 +524,6 @@ class ReportSubscriber implements EventSubscriberInterface
                                         // set the value to be displayed in the report
                                         $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
 
-                                        $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
-
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
                                     }
@@ -553,18 +559,5 @@ class ReportSubscriber implements EventSubscriberInterface
         }
 
         $event->setData($data);
-
-        $event->setDataMeta($dataMeta);
-    }
-
-    /**
-     * Set acompanying data to be used in the report. E.g. for links
-     */
-    private function setDataMeta(CustomItem $item): array
-    {
-        return [
-            "itemId"  => $item->getId(),
-            "objectId"=> $item->getCustomObject()->getId(),
-        ];
     }
 }

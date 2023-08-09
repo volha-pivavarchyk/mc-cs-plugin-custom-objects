@@ -201,6 +201,9 @@ class ReportSubscriber implements EventSubscriberInterface
         return array_merge($standardColumns, $customFieldsColumns);
     }
 
+    /**
+     * Add custom object specific report sources and columns.
+     */
     public function onReportBuilder(ReportBuilderEvent $event): void
     {
         if (!$event->checkContext($this->getContexts())) {
@@ -246,6 +249,7 @@ class ReportSubscriber implements EventSubscriberInterface
         }
     }
 
+    // @todo maybe not used?
     public function onReportColumnCollect(ColumnCollectEvent $event): void
     {
         $object = $event->getObject();
@@ -254,8 +258,8 @@ class ReportSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $customObject        = $this->customObjectRepository->findOneBy(['alias' => $object]);
-        $properties          = $event->getProperties();
+        $customObject         = $this->customObjectRepository->findOneBy(['alias' => $object]);
+        $properties           = $event->getProperties();
         $customItemTableAlias = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
         $customObjectColumns  = $this->getCustomObjectColumns($customObject, $customItemTableAlias.'.');
 
@@ -474,8 +478,9 @@ class ReportSubscriber implements EventSubscriberInterface
     public function onReportDisplay(ReportDataEvent $event): void
     {
         $data       = $event->getData();
+        $dataMeta   = $event->getDataMeta();
         $columns    = $event->getOptions()['columns'];
-        $requestUri = $this->requestStack->getCurrentRequest()->getRequestUri();
+        // $requestUri = $this->requestStack->getCurrentRequest()->getRequestUri();
 
         $objects = $this->customObjectRepository->getEntities();
 
@@ -488,10 +493,11 @@ class ReportSubscriber implements EventSubscriberInterface
             fn ($item) => isset($item['mapped_object']) && in_array($item['mapped_object'], $objectArr ?? [])
         );
 
-        foreach ($data as &$item) {
+        foreach ($data as $rowIndex => &$item) {
             foreach ($item as $key => $value) {
                 if (!empty($value)) {
-                    foreach ($customObjectColumns as $customObjectColumn) {
+                    // $column = the column alias with the prefix
+                    foreach ($customObjectColumns as $column => $customObjectColumn) {
                         if ($customObjectColumn['alias'] === $key) {
                             try {
                                 $object = $this->customObjectModel->fetchEntityByAlias($customObjectColumn['mapped_object']);
@@ -506,41 +512,31 @@ class ReportSubscriber implements EventSubscriberInterface
                                 foreach ($ids as $id) {
                                     try {
                                         $customItem = $this->customItemModel->fetchEntity((int) $id);
-                                        $route      = $this->router->generate(
-                                            CustomItemRouteProvider::ROUTE_VIEW,
-                                            [
-                                                'objectId'   => $object->getId(),
-                                                'itemId'     => $customItem->getId(),
-                                            ]
-                                        );
 
-                                        $newValue   .= str_contains($requestUri, '/export')
-                                            ? empty($newValue) ? $customItem->getName() : ', '.$customItem->getName()
-                                            : '<a href="'.$route.'" class="label label-success mr-5"> '.$customItem->getName().'</a>';
+                                        // set the value to be displayed in the report
+                                        $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
+
+                                        $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
+
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
                                     }
                                 }
                             } else {
+                                // @todo when do we need this else case?
                                 foreach ($ids as $id) {
                                     try {
-                                        $customItem   = $this->customItemModel->fetchEntity((int) $id);
+                                        $customItem                = $this->customItemModel->fetchEntity((int) $id);
                                         $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($customItem);
                                         $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
 
                                         foreach ($itemCustomFieldsValues as $customFieldValue) {
                                             if ($customObjectColumn['mapped_field'] === $customFieldValue->getCustomField()->getAlias()) {
-                                                $route      = $this->router->generate(
-                                                    CustomItemRouteProvider::ROUTE_VIEW,
-                                                    [
-                                                        'objectId'   => $object->getId(),
-                                                        'itemId'     => $customItem->getId(),
-                                                    ]
-                                                );
 
-                                                $newValue .= str_contains($requestUri, '/export')
-                                                    ? empty($newValue) ? $customFieldValue->getValue() : ', '.$customFieldValue->getValue()
-                                                    : '<a href="'.$route.'" class="label label-success mr-5"> '.$customFieldValue->getValue().'</a>';
+                                                // set the value to display
+                                                $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
+
+                                               
                                             }
                                         }
                                     } catch (NotFoundException $e) {
@@ -557,5 +553,18 @@ class ReportSubscriber implements EventSubscriberInterface
         }
 
         $event->setData($data);
+
+        $event->setDataMeta($dataMeta);
+    }
+
+    /**
+     * Set acompanying data to be used in the report. E.g. for links
+     */
+    private function setDataMeta(CustomItem $item): array
+    {
+        return [
+            "itemId"  => $item->getId(),
+            "objectId"=> $item->getCustomObject()->getId(),
+        ];
     }
 }

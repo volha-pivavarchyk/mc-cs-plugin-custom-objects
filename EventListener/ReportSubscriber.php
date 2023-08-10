@@ -197,7 +197,9 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $standardColumns     = $this->getStandardColumns($customItemTablePrefix);
         $customFieldsColumns = (new ReportColumnsBuilder($customObject))->getColumns();
-        return array_merge($standardColumns, $customFieldsColumns);
+        $columns = array_merge($standardColumns, $customFieldsColumns);
+        $columns = $this->addLinkToCustomObjectColumns($columns);
+        return $columns;
     }
 
     /**
@@ -208,7 +210,7 @@ class ReportSubscriber implements EventSubscriberInterface
         if (!$event->checkContext($this->getContexts())) {
             return;
         }
-      
+
         $companyColumns = $this->getCompanyColumns();
         $contactColumns = $this->addPrefixToColumnLabel(
             $this->getLeadColumns(),
@@ -456,24 +458,24 @@ class ReportSubscriber implements EventSubscriberInterface
         );
 
         $queryBuilder = $event->getQueryBuilder();
-       
+
         foreach ($columns as $column) {
 
             $customObject          = $this->customObjectRepository->find($column['idCustomObject']);
             $field                 = $this->fieldModel->getEntity($column['formFieldId']);
-        
+
             $customItemTableAlias  = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
-        
+
             $colCustomObjectName   = sprintf('`%s`.`id`', $customItemTableAlias);
             $colMappedField        = sprintf('`%s`.`%s`', $prefixFormResultTable, $field->getAlias());
             $colCustomItemObjectId = sprintf('`%s`.`custom_object_id`', $customItemTableAlias);
             $colCustomObjectId     = sprintf('%s', $customObject->getId());
-        
+
             $joinCondition         = $field->hasChoices()
                 ? "{$colMappedField} LIKE CONCAT('%', {$colCustomObjectName}, '%') AND {$colCustomItemObjectId} = {$colCustomObjectId}"
                 : "{$colMappedField} = {$colCustomObjectName} AND {$colCustomItemObjectId} = {$colCustomObjectId}";
             $queryBuilder->leftJoin($prefixFormResultTable, CustomItem::TABLE_NAME, $customItemTableAlias, $joinCondition);
-            
+
             $addedCustomObjects[]  = $column['idCustomObject'];
             $reportColumnsBuilder  = new ReportColumnsBuilder($customObject);
             $reportColumnsBuilder->setFilterColumnsCallback([$event, 'usesColumn']);
@@ -489,14 +491,15 @@ class ReportSubscriber implements EventSubscriberInterface
         $columns    = $event->getOptions()['columns'];
         $customObjectColumns = $this->filterCustomObjectColumns($columns);
 
-        foreach ($data as $rowIndex => &$item) {
-            foreach ($item as $key => $value) {
+        foreach ($data as $rowIndex => &$dataItem) {
+            foreach ($dataItem as $dataColumn => $value) {
+
                 if (!empty($value)) {
                     // $column = the column alias with the prefix
                     foreach ($customObjectColumns as $column => $customObjectColumn) {
-                        if ($customObjectColumn['alias'] === $key) {
+                        if ($customObjectColumn['alias'] === $dataColumn) {
                             try {
-                                $object = $this->customObjectModel->fetchEntityByAlias($customObjectColumn['mapped_object']);
+                                $object = $this->customObjectModel->fetchEntityByAlias($customObjectColumn['mappedObject']);
                             } catch (NotFoundException $e) {
                                 // Do nothing if the custom object doesn't exist.
                                 return;
@@ -504,16 +507,34 @@ class ReportSubscriber implements EventSubscriberInterface
 
                             $newValue = '';
                             $ids      = explode(',', $value);
-                            if ($customObjectColumn['mapped_field'] === $object->getAlias()) {
+                            echo "column before if";
+                            dump($column);
+                            dump($object->getAlias());
+                            echo "mappedField"; dump($customObjectColumn['mappedField']);
+                            if ($customObjectColumn['mappedField'] === $object->getAlias()) {
+                                print '<pre>';
+                                print '<h1>ids</h1>';
+                                dump( $ids );
+                                print '</pre>';
+                                
+
+                                // @todo how to fix the mapping problem? 
+                                // a field with the name has to be queried by name, not by id
+                                dump($customObjectColumn);
+
+
                                 foreach ($ids as $id) {
                                     try {
                                         $customItem = $this->customItemModel->fetchEntity((int) $id);
 
                                         // set the value to be displayed in the report
                                         $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
-
+                                        print '<pre>';
+                                        print '<h1>newValue1</h1>';
+                                        dump( $dataColumn );
+                                        dump( $newValue );
+                                        print '</pre>'; 
                                         $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
-
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
                                     }
@@ -522,18 +543,17 @@ class ReportSubscriber implements EventSubscriberInterface
                                 // @todo when do we need this else case?
                                 foreach ($ids as $id) {
                                     try {
-                                        $customItem                = $this->customItemModel->fetchEntity((int) $id);
+                                        $customItem = $this->customItemModel->fetchEntity((int) $id);
                                         $itemWithCustomFieldValues = $this->customItemModel->populateCustomFields($customItem);
                                         $itemCustomFieldsValues    = $itemWithCustomFieldValues->getCustomFieldValues();
 
                                         foreach ($itemCustomFieldsValues as $customFieldValue) {
-                                            if ($customObjectColumn['mapped_field'] === $customFieldValue->getCustomField()->getAlias()) {
+                                            if ($customObjectColumn['mappedField'] === $customFieldValue->getCustomField()->getAlias()) {
 
                                                 // set the value to display
                                                 $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
-                                                $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
-                                               
                                             }
+                                            $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
                                         }
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
@@ -541,7 +561,7 @@ class ReportSubscriber implements EventSubscriberInterface
                                 }
                             }
                             // should that maybe be $column too? So it is unuqiue?
-                            $item[$key] = $newValue;
+                            $dataItem[$dataColumn] = $newValue;
                         }
                     }
                 }
@@ -568,7 +588,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
         return array_filter(
             $columns,
-            fn ($item) => isset($item['mapped_object']) && in_array($item['mapped_object'], $objectArr ?? [])
+            fn ($item) => isset($item['mappedObject']) && in_array($item['mappedObject'], $objectArr ?? [])
         );
     }
 
@@ -578,9 +598,7 @@ class ReportSubscriber implements EventSubscriberInterface
      */
     private function addLinkToCustomObjectColumns(array $columns)
     {
-        $customObjectColumns = $this->filterCustomObjectColumns($columns);
-
-        foreach ($customObjectColumns as $column => $customObjectColumn) {
+        foreach ($columns as $column => $customObjectColumn) {
             $customObjectColumns[$column] = array_merge(
                 $customObjectColumn,
                 [

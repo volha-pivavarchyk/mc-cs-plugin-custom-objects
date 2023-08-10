@@ -458,8 +458,9 @@ class ReportSubscriber implements EventSubscriberInterface
         $queryBuilder = $event->getQueryBuilder();
        
         foreach ($columns as $column) {
+
             $customObject          = $this->customObjectRepository->find($column['idCustomObject']);
-            $field                 = $this->fieldModel->getEntity($column['idFormField']);
+            $field                 = $this->fieldModel->getEntity($column['formFieldId']);
         
             $customItemTableAlias  = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
         

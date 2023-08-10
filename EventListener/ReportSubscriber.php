@@ -512,7 +512,7 @@ class ReportSubscriber implements EventSubscriberInterface
                                         // set the value to be displayed in the report
                                         $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
 
-                                        $dataMeta[$rowIndex][$key] = $this->setDataMeta($customItem);
+                                        $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
 
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
@@ -531,7 +531,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
                                                 // set the value to display
                                                 $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
-                                                $dataMeta[$rowIndex][$key] = $this->setDataMeta($customItem);
+                                                $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
                                                
                                             }
                                         }
@@ -540,7 +540,7 @@ class ReportSubscriber implements EventSubscriberInterface
                                     }
                                 }
                             }
-
+                            // should that maybe be $column too? So it is unuqiue?
                             $item[$key] = $newValue;
                         }
                     }

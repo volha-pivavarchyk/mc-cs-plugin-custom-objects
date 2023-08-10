@@ -208,7 +208,7 @@ class ReportSubscriber implements EventSubscriberInterface
         if (!$event->checkContext($this->getContexts())) {
             return;
         }
-
+      
         $companyColumns = $this->getCompanyColumns();
         $contactColumns = $this->addPrefixToColumnLabel(
             $this->getLeadColumns(),
@@ -255,12 +255,7 @@ class ReportSubscriber implements EventSubscriberInterface
     public function onReportColumnCollect(ColumnCollectEvent $event): void
     {
         $object = $event->getObject();
-        print '<pre>';
-        print '<h1>onReportColumnCollect: object</h1>';
-        dump( $object );
-        print '</pre>'; 
-        exit;
-        
+
         if (!$this->customObjectRepository->checkAliasExists($object)) {
             return;
         }
@@ -359,6 +354,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
     /**
      * Initialize the QueryBuilder object to generate reports from.
+     * Not used for the form results. Check onFormResultReportGenerate for that.
      */
     public function onReportGenerate(ReportGeneratorEvent $event): void
     {
@@ -451,7 +447,7 @@ class ReportSubscriber implements EventSubscriberInterface
         $columns            = array_filter(
             $event->getOptions()['columns'],
             function ($elem) use (&$addedCustomObjects) {
-                // left one column for each custom object
+                // left one column for each custom object. why?
                 $addToColumnList    = key_exists('idCustomObject', $elem) && !in_array($elem['idCustomObject'], $addedCustomObjects);
                 $addedCustomObjects[] = $elem['idCustomObject'] ?? '';
 
@@ -460,23 +456,23 @@ class ReportSubscriber implements EventSubscriberInterface
         );
 
         $queryBuilder = $event->getQueryBuilder();
-
+       
         foreach ($columns as $column) {
             $customObject          = $this->customObjectRepository->find($column['idCustomObject']);
             $field                 = $this->fieldModel->getEntity($column['idFormField']);
-
+        
             $customItemTableAlias  = static::CUSTOM_ITEM_TABLE_ALIAS.'_'.$customObject->getId();
-
+        
             $colCustomObjectName   = sprintf('`%s`.`id`', $customItemTableAlias);
             $colMappedField        = sprintf('`%s`.`%s`', $prefixFormResultTable, $field->getAlias());
             $colCustomItemObjectId = sprintf('`%s`.`custom_object_id`', $customItemTableAlias);
             $colCustomObjectId     = sprintf('%s', $customObject->getId());
-
+        
             $joinCondition         = $field->hasChoices()
                 ? "{$colMappedField} LIKE CONCAT('%', {$colCustomObjectName}, '%') AND {$colCustomItemObjectId} = {$colCustomObjectId}"
                 : "{$colMappedField} = {$colCustomObjectName} AND {$colCustomItemObjectId} = {$colCustomObjectId}";
             $queryBuilder->leftJoin($prefixFormResultTable, CustomItem::TABLE_NAME, $customItemTableAlias, $joinCondition);
-
+            
             $addedCustomObjects[]  = $column['idCustomObject'];
             $reportColumnsBuilder  = new ReportColumnsBuilder($customObject);
             $reportColumnsBuilder->setFilterColumnsCallback([$event, 'usesColumn']);
@@ -487,19 +483,10 @@ class ReportSubscriber implements EventSubscriberInterface
     public function onReportDisplay(ReportDataEvent $event): void
     {
         $data       = $event->getData();
+        $dataMeta   = $event->getDataMeta();
+
         $columns    = $event->getOptions()['columns'];
-        // $requestUri = $this->requestStack->getCurrentRequest()->getRequestUri();
-
-        $objects = $this->customObjectRepository->getEntities();
-
-        foreach ($objects as $object) {
-            $objectArr[] = $object->getAlias();
-        }
-
-        $customObjectColumns = array_filter(
-            $columns,
-            fn ($item) => isset($item['mapped_object']) && in_array($item['mapped_object'], $objectArr ?? [])
-        );
+        $customObjectColumns = $this->filterCustomObjectColumns($columns);
 
         foreach ($data as $rowIndex => &$item) {
             foreach ($item as $key => $value) {
@@ -524,6 +511,8 @@ class ReportSubscriber implements EventSubscriberInterface
                                         // set the value to be displayed in the report
                                         $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
 
+                                        $dataMeta[$rowIndex][$key] = $this->setDataMeta($customItem);
+
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
                                     }
@@ -541,7 +530,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
                                                 // set the value to display
                                                 $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
-
+                                                $dataMeta[$rowIndex][$key] = $this->setDataMeta($customItem);
                                                
                                             }
                                         }
@@ -559,5 +548,64 @@ class ReportSubscriber implements EventSubscriberInterface
         }
 
         $event->setData($data);
+        $event->setDataMeta($dataMeta);
+    }
+
+    /**
+     * Filter the list of all columns to only include the ones that are mapped
+     * to a custom object.
+     */
+    private function filterCustomObjectColumns(array $columns): array
+    {
+        $objectArr = [];
+
+        $objects = $this->customObjectRepository->getEntities();
+
+        foreach ($objects as $object) {
+            $objectArr[] = $object->getAlias();
+        }
+
+        return array_filter(
+            $columns,
+            fn ($item) => isset($item['mapped_object']) && in_array($item['mapped_object'], $objectArr ?? [])
+        );
+    }
+
+    /**
+     * Add the necessary parameters so that the field gets a link in the UI
+     * to the corresponding custom item.
+     */
+    private function addLinkToCustomObjectColumns(array $columns)
+    {
+        $customObjectColumns = $this->filterCustomObjectColumns($columns);
+
+        foreach ($customObjectColumns as $column => $customObjectColumn) {
+            $customObjectColumns[$column] = array_merge(
+                $customObjectColumn,
+                [
+                    'link' => 'mautic_custom_item_view',
+                    'linkParameters'=> [
+                        'itemId'    => '%itemId%',
+                        'objectId'   => '%objectId%'
+                    ],
+                ]
+            );
+        }
+        $mergedColumns = array_merge(
+            $columns,
+            $customObjectColumns
+        );
+        return $mergedColumns;
+    }
+
+    /**
+     * Set acompanying data to be used in the report. E.g. for links
+     */
+    private function setDataMeta(CustomItem $item): array
+    {
+        return [
+            "itemId"  => $item->getId(),
+            "objectId"=> $item->getCustomObject()->getId(),
+        ];
     }
 }

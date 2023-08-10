@@ -505,35 +505,20 @@ class ReportSubscriber implements EventSubscriberInterface
                                 return;
                             }
 
-                            $newValue = '';
+                            // if it is not an ID, just use the original value. e.g. the name
+                            $newValue = $value;
                             $ids      = explode(',', $value);
-                            echo "column before if";
-                            dump($column);
-                            dump($object->getAlias());
-                            echo "mappedField"; dump($customObjectColumn['mappedField']);
                             if ($customObjectColumn['mappedField'] === $object->getAlias()) {
-                                print '<pre>';
-                                print '<h1>ids</h1>';
-                                dump( $ids );
-                                print '</pre>';
-                                
 
                                 // @todo how to fix the mapping problem? 
                                 // a field with the name has to be queried by name, not by id
-                                dump($customObjectColumn);
-
-
                                 foreach ($ids as $id) {
                                     try {
                                         $customItem = $this->customItemModel->fetchEntity((int) $id);
 
                                         // set the value to be displayed in the report
                                         $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
-                                        print '<pre>';
-                                        print '<h1>newValue1</h1>';
-                                        dump( $dataColumn );
-                                        dump( $newValue );
-                                        print '</pre>'; 
+
                                         $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.
@@ -599,6 +584,12 @@ class ReportSubscriber implements EventSubscriberInterface
     private function addLinkToCustomObjectColumns(array $columns)
     {
         foreach ($columns as $column => $customObjectColumn) {
+            
+            // only when the string contains an id, add the link
+            if (strpos($column, '.id') === false) {
+                continue;
+            }
+            
             $customObjectColumns[$column] = array_merge(
                 $customObjectColumn,
                 [

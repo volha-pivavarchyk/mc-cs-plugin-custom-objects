@@ -420,8 +420,6 @@ class ReportSubscriber implements EventSubscriberInterface
             }
         }
 
-
-
         if (!$usesParentCustomObjectsColumns) {
             // No need to join parent custom object columns if we don't use them
             return;
@@ -506,19 +504,28 @@ class ReportSubscriber implements EventSubscriberInterface
                             }
 
                             // if it is not an ID, just use the original value. e.g. the name
-                            $newValue = $value;
-                            $ids      = explode(',', $value);
-                            if ($customObjectColumn['mappedField'] === $object->getAlias()) {
+                            if (empty($customObjectColumn['link'])) {
+                                $newValue = $value;
+                                continue;
+                            }
 
+                            $ids      = explode(',', $value);
+                            $newValue = '';
+                            if ($customObjectColumn['mappedField'] === $object->getAlias()) {
                                 // @todo how to fix the mapping problem? 
                                 // a field with the name has to be queried by name, not by id
                                 foreach ($ids as $id) {
                                     try {
                                         $customItem = $this->customItemModel->fetchEntity((int) $id);
 
-                                        // set the value to be displayed in the report
-                                        $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
+                                        // set the value to be displayed in the report. If its a link on an ID, use the original value
+                                        if (!empty($customObjectColumn['link'] && $customObjectColumn['type']==='int')) {
+                                            $newValue .= empty($newValue) ? $value : ', '.$value;
+                                        } else {
+                                            $newValue .= empty($newValue) ? $customItem->getName() : ', '.$customItem->getName();
+                                        }
 
+                                        // @todo handle the case where there are multiple values in one cell
                                         $dataMeta[$rowIndex][$column] = $this->setDataMeta($customItem);
                                     } catch (NotFoundException $e) {
                                         // Do nothing if the custom item doesn't exist anymore.

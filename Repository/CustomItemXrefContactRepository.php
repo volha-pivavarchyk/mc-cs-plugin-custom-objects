@@ -62,4 +62,23 @@ class CustomItemXrefContactRepository extends CustomCommonRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Updates the contact mapping (e.g. after a lead merge).
+     */
+    public function updateContact(Lead $fromContact, Lead $toContact): void
+    {
+        $q = $this->createQueryBuilder(CustomItemXrefContact::TABLE_ALIAS);
+        $q->update()
+            ->set(CustomItemXrefContact::TABLE_ALIAS.'.contact', ':toContact')
+            ->where(
+                $q->expr()->eq(CustomItemXrefContact::TABLE_ALIAS.'.contact', ':fromContact')
+            )
+            ->setParameters([
+                'fromContact' => $fromContact,
+                'toContact'   => $toContact,
+            ])
+            ->getQuery()
+            ->execute();
+    }
 }

@@ -7,14 +7,18 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 use Doctrine\ORM\EntityManager;
 use Mautic\LeadBundle\Entity\LeadEventLog;
 use Mautic\LeadBundle\Entity\LeadEventLogRepository;
+use Mautic\LeadBundle\Event\LeadMergeEvent;
 use Mautic\LeadBundle\Event\LeadTimelineEvent;
 use Mautic\LeadBundle\LeadEvents;
+use MauticPlugin\CustomObjectsBundle\Entity\CustomItemXrefContact;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
+use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefContactRepository;
 use MauticPlugin\CustomObjectsBundle\Provider\ConfigProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Psr\Log\LoggerInterface;
 
 class ContactSubscriber implements EventSubscriberInterface
 {
@@ -48,7 +52,8 @@ class ContactSubscriber implements EventSubscriberInterface
         TranslatorInterface $translator,
         CustomItemRouteProvider $routeProvider,
         CustomItemModel $customItemModel,
-        ConfigProvider $configProvider
+        ConfigProvider $configProvider,
+        private LoggerInterface $logger
     ) {
         $this->entityManager   = $entityManager;
         $this->translator      = $translator;
@@ -64,7 +69,20 @@ class ContactSubscriber implements EventSubscriberInterface
     {
         return [
             LeadEvents::TIMELINE_ON_GENERATE => 'onTimelineGenerate',
+            LeadEvents::LEAD_POST_MERGE      => ['onLeadMerge', 0],
         ];
+    }
+
+    public function onLeadMerge(LeadMergeEvent $event)
+    {
+        /** @var CustomItemXrefContactRepository $repo */
+        $repo = $this->entityManager->getRepository(CustomItemXrefContact::class);
+        $repo->updateContact($event->getLoser(), $event->getVictor());
+
+        $this->logger->debug(self::class.": Added custom objects to winner contact", [
+            'loser' => $event->getLoser()->getId(),
+            'victor'   => $event->getVictor()->getId(),
+        ]);
     }
 
     /**

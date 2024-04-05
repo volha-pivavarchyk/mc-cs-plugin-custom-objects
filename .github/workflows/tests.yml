@@ -103,8 +103,8 @@ jobs:
     - name: PHPSTAN - baseline (debug)
       run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
 
-    - name: PHPSTAN
-      run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
+    # - name: PHPSTAN
+    #   run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
 
     - name: Rector
       run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}

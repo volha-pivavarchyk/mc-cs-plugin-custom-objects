@@ -100,8 +100,16 @@ jobs:
     - name: Run Code Style check
       run: bin/php-cs-fixer fix ${{ env.PLUGIN_DIR }} --config=.php-cs-fixer.php -v --dry-run --show-progress=dots --diff
 
+    # - name: PHPSTAN - baseline (debug)
+    #   run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
+
     - name: PHPSTAN - baseline (debug)
-      run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
+      run: |
+        if [ -f "plugins/CustomObjectsBundle/phpstan.neon" ]; then
+          bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-7.4.neon --allow-empty-baseline
+        else
+          echo "PHPStan configuration file not found. Skipping baseline generation."
+        fi
 
     # - name: PHPSTAN
     #   run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon

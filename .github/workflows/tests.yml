@@ -126,8 +126,8 @@ jobs:
     #   # run: XDEBUG_MODE=coverage APP_DEBUG=0 php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~tests|themes|vendor~" bin/phpunit -d memory_limit=1G --bootstrap vendor/autoload.php --configuration ${{ env.PLUGIN_DIR }}/phpunit.xml --coverage-clover=${{ env.PLUGIN_DIR }}/coverage.xml --coverage-text
     #   run: XDEBUG_MODE=coverage APP_DEBUG=0 php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~tests|themes|vendor|app~" bin/phpunit -d memory_limit=1G --bootstrap vendor/autoload.php --configuration app/phpunit.xml.dist --filter=CustomObjectsBundle --coverage-clover=${{ env.PLUGIN_DIR }}/coverage.xml --coverage-text
 
-    - name: Coverage report (debug)
-      run: cat ${{ env.PLUGIN_DIR }}/coverage.xml
+    # - name: Coverage report (debug)
+    #   run: cat ${{ env.PLUGIN_DIR }}/coverage.xml
 
     #  - name: Upload coverage report
     #     if: ${{ matrix.php-versions == '8.0' && matrix.db-types == 'mysql' && matrix.mautic-versions == '4.4' }} # upload just once, change for your matrix

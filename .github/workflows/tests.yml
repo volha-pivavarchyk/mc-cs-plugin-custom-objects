@@ -10,17 +10,6 @@ on:
   pull_request:
     branches:
       - '*'
-  workflow_call:
-    inputs:
-      phpstan_baseline_debug:
-        required: true
-        type: boolean
-      # deploy_target:
-      #   required: true
-      #   type: string
-      # perform_deploy:
-      #   required: true
-      #   type: boolean
 
 env:
   PLUGIN_DIR: plugins/CustomObjectsBundle # Same as extra.install-directory-name in composer.json
@@ -120,7 +109,6 @@ jobs:
 
     - name: PHPSTAN - baseline (debug)
       run: |
-        if ${{ inputs.phpstan_baseline_debug }}
         if [ -f "plugins/CustomObjectsBundle/phpstan.neon" ]; then
           bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-7.4.neon --allow-empty-baseline
         else

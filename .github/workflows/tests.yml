@@ -119,8 +119,8 @@ jobs:
     #   run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
 
     - name: PHPSTAN - baseline (debug)
-      if: ${{ inputs.phpstan_baseline_debug }}
       run: |
+        if ${{ inputs.phpstan_baseline_debug }}
         if [ -f "plugins/CustomObjectsBundle/phpstan.neon" ]; then
           bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-7.4.neon --allow-empty-baseline
         else

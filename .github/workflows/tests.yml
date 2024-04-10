@@ -166,6 +166,7 @@ jobs:
       run: |
         git config --global user.email "acsfbot@acquia.com"
         git config --global user.name "Jenkins"
+        git config --global url."git@github.com:".insteadOf "https://github.com/"
         git clone https://github.com/acquia/mc-cs.git mc-cs-plugin-test
         cd mc-cs-plugin-test
         ls -al

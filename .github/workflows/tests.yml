@@ -55,9 +55,10 @@ jobs:
       with:
         path: ${{ env.PLUGIN_DIR }}
 
-    - name: Print commit ID 
+    - name: Get Commit ID 
       run: |
-        echo "Commit ID: ${{ github.sha }}"
+        echo "COMMIT_ID=${{ github.sha }}" >> $GITHUB_ENV
+        echo "Commit ID: $COMMIT_ID"
 
     - name: Setup PHP, with composer and extensions
       uses: shivammathur/setup-php@v2
@@ -151,3 +152,12 @@ jobs:
       with:
         name: mautic-logs
         path: var/logs/
+
+    - name: Push commit to mc-cs
+      run: | 
+        git clone https://github.com/acquia/mc-cs.git mc-cs-plugin-test
+        cd mc-cs-plugin-test
+        echo "${COMMIT_ID}" > commit_id.txt
+        git add commit_id.txt
+        git commit -m "Add commit ID"
+        git push origin mc-cs-plugin-test

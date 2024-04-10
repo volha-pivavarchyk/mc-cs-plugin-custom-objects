@@ -55,6 +55,10 @@ jobs:
       with:
         path: ${{ env.PLUGIN_DIR }}
 
+    - name: Print commit ID 
+      run: |
+        echo "Commit ID: ${{ github.sha }}"
+
     - name: Setup PHP, with composer and extensions
       uses: shivammathur/setup-php@v2
       with:

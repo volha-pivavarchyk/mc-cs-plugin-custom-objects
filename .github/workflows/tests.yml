@@ -153,23 +153,24 @@ jobs:
         name: mautic-logs
         path: var/logs/
     
-    - name: Setup SSH key
-      run: |
-        eval `ssh-agent -s`
-        echo $ACSFBOT_SSHKEY | base64 -d | ssh-add -
-        git config -l
-        git config --global --add safe.directory '*'
-        mkdir -p -m 0600 $HOME/.ssh && ssh-keyscan github.com >> $HOME/.ssh/known_hosts
-        echo $ACQUIA_VCS_KNOWN_HOSTS_ENTRY >> $HOME/.ssh/known_hosts
+    # - name: Setup SSH key
+    #   run: |
+    #     eval `ssh-agent -s`
+    #     echo $ACSFBOT_SSHKEY | base64 -d | ssh-add -
+    #     git config -l
+    #     git config --global --add safe.directory '*'
+    #     mkdir -p -m 0600 $HOME/.ssh && ssh-keyscan github.com >> $HOME/.ssh/known_hosts
+    #     echo $ACQUIA_VCS_KNOWN_HOSTS_ENTRY >> $HOME/.ssh/known_hosts
     
     - name: Push commit to mc-cs
       run: | 
         git clone https://github.com/acquia/mc-cs.git mc-cs-plugin-test
         cd mc-cs-plugin-test
-        git config --global user.email "acsfbot@acquia.com"
-        git config --global user.name "Jenkins"
-        git config --global advice.detachedHead false
-        git config --global url."git@github.com:".insteadOf "https://github.com/"
-        git checkout origin/mc-cs-plugin-test
-        git pull origin $DEV_BRANCH
-        git push origin HEAD:mc-cs-plugin-test
+        ls -al
+        # git config --global user.email "acsfbot@acquia.com"
+        # git config --global user.name "Jenkins"
+        # git config --global advice.detachedHead false
+        # git config --global url."git@github.com:".insteadOf "https://github.com/"
+        # git checkout origin/mc-cs-plugin-test
+        # git pull origin $DEV_BRANCH
+        # git push origin HEAD:mc-cs-plugin-test

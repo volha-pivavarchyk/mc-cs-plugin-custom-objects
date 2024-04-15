@@ -102,9 +102,9 @@ jobs:
       run: php bin/console mautic:plugins:install --env=dev
 
     # - name: Run static analysis
-    #   run: |
-    #     export COMPOSER_ALLOW_SUPERUSER=1
-    #     composer phpstan -- --no-progress
+    #   env:
+    #     COMPOSER_ALLOW_SUPERUSER: 1
+    #   run: composer phpstan -- --no-progress
 
     - name: Run Code Style check
       run: bin/php-cs-fixer fix ${{ env.PLUGIN_DIR }} --config=.php-cs-fixer.php -v --dry-run --show-progress=dots --diff
@@ -120,8 +120,8 @@ jobs:
     #       echo "PHPStan configuration file not found. Skipping baseline generation."
     #     fi
 
-    # - name: PHPSTAN
-    #   run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
+    - name: PHPSTAN
+      run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
 
     - name: Rector
       run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}

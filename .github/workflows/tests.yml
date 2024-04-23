@@ -45,13 +45,13 @@ jobs:
 
     steps:
     - name: Checkout Mautic
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: mautic/mautic
         ref: ${{ matrix.mautic-versions }}
 
     - name: Checkout this plugin
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: ${{ env.PLUGIN_DIR }}
 
@@ -83,7 +83,7 @@ jobs:
       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Cache composer dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}

@@ -74,7 +74,9 @@ jobs:
         echo "MAUTIC_ENV=test" >> $GITHUB_ENV
 
     - name: Install Composer dependencies
-      run: composer install && composer require --dev theofidry/alice-data-fixtures
+      run: |
+        composer install
+        composer require --dev theofidry/alice-data-fixtures
 
     # - name: Get composer cache directory
     #   id: composer-cache

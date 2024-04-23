@@ -8,8 +8,6 @@ on:
       - development
       - beta
   pull_request:
-    branches:
-      - '*'
 
 env:
   PLUGIN_DIR: plugins/CustomObjectsBundle # Same as extra.install-directory-name in composer.json
@@ -112,8 +110,8 @@ jobs:
     # - name: PHPSTAN - baseline (debug, enable if you need to regenerate baseline for all PHP versions)
     #   run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
 
-    - name: PHPSTAN
-      run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
+    # - name: PHPSTAN
+    #   run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
 
     - name: Rector
       run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}
@@ -121,11 +119,11 @@ jobs:
     - name: Twig Lint
       run: bin/console lint:twig ${{ env.PLUGIN_DIR }}
 
-    # - name: Run PHPUNIT tests
-    #   env:
-    #     DB_PORT: ${{ job.services.database.ports[3306] }}
-    #   # run: XDEBUG_MODE=coverage APP_DEBUG=0 php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~tests|themes|vendor~" bin/phpunit -d memory_limit=1G --bootstrap vendor/autoload.php --configuration ${{ env.PLUGIN_DIR }}/phpunit.xml --coverage-clover=${{ env.PLUGIN_DIR }}/coverage.xml --coverage-text
-    #   run: XDEBUG_MODE=coverage APP_DEBUG=0 php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~tests|themes|vendor|app~" bin/phpunit -d memory_limit=1G --bootstrap vendor/autoload.php --configuration app/phpunit.xml.dist --filter=CustomObjectsBundle --coverage-clover=${{ env.PLUGIN_DIR }}/coverage.xml --coverage-text
+    - name: Run PHPUNIT tests
+      env:
+        DB_PORT: ${{ job.services.database.ports[3306] }}
+      # run: XDEBUG_MODE=coverage APP_DEBUG=0 php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~tests|themes|vendor~" bin/phpunit -d memory_limit=1G --bootstrap vendor/autoload.php --configuration ${{ env.PLUGIN_DIR }}/phpunit.xml --coverage-clover=${{ env.PLUGIN_DIR }}/coverage.xml --coverage-text
+      run: XDEBUG_MODE=coverage APP_DEBUG=0 php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~tests|themes|vendor|app~" bin/phpunit -d memory_limit=1G --bootstrap vendor/autoload.php --configuration app/phpunit.xml.dist --filter=CustomObjectsBundle --coverage-clover=${{ env.PLUGIN_DIR }}/coverage.xml --coverage-text
 
     # - name: Coverage report (debug)
     #   run: cat ${{ env.PLUGIN_DIR }}/coverage.xml

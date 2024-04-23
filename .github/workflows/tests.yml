@@ -109,11 +109,11 @@ jobs:
     - name: Run Code Style check
       run: bin/php-cs-fixer fix ${{ env.PLUGIN_DIR }} --config=.php-cs-fixer.php -v --dry-run --show-progress=dots --diff
 
-    # - name: PHPSTAN - baseline (debug, enable if you need to regenerate baseline for all PHP versions)
-    #   run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
+    - name: PHPSTAN - baseline (debug, enable if you need to regenerate baseline for all PHP versions)
+      run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
 
-    - name: PHPSTAN
-      run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
+    # - name: PHPSTAN
+    #   run: bin/phpstan --configuration=${{ env.PLUGIN_DIR }}/phpstan.neon
 
     - name: Rector
       run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}

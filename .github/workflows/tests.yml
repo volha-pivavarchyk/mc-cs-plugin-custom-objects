@@ -44,7 +44,7 @@ jobs:
           --health-retries=3
 
     steps:
-    - name: Checkout Mautic 4
+    - name: Checkout Mautic
       uses: actions/checkout@v3
       with:
         repository: mautic/mautic
@@ -109,8 +109,8 @@ jobs:
     - name: Run Code Style check
       run: bin/php-cs-fixer fix ${{ env.PLUGIN_DIR }} --config=.php-cs-fixer.php -v --dry-run --show-progress=dots --diff
 
-    # - name: PHPSTAN - baseline (debug)
-    #   run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
+    - name: PHPSTAN - baseline (debug)
+      run: bin/phpstan --configuration=plugins/CustomObjectsBundle/phpstan.neon --generate-baseline=var/logs/phpstan-baseline-${{ matrix.php-versions }}.neon --allow-empty-baseline 
 
     # - name: PHPSTAN - baseline (debug)
     #   run: |

@@ -757,6 +757,7 @@ $coParams = [
                     'custom_item.route.provider',
                     'mautic.custom.model.item',
                     'custom_object.config.provider',
+                    'custom_item.xref.contact.repository',
                 ],
             ],
             'custom_item.post_save.subscriber' => [
@@ -823,6 +824,12 @@ $coParams = [
                 'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\SegmentFiltersDictionarySubscriber::class,
                 'arguments' => [
                     'doctrine',
+                    'custom_object.config.provider',
+                ],
+            ],
+            'custom_object.segments.filters_merge.subscriber' => [
+                'class'     => \MauticPlugin\CustomObjectsBundle\EventListener\SegmentFiltersMergeSubscriber::class,
+                'arguments' => [
                     'custom_object.config.provider',
                 ],
             ],
@@ -1122,6 +1129,14 @@ $coParams = [
                     'event_dispatcher',
                 ],
             ],
+            'mautic.lead.query.builder.custom_object.merged.value' => [
+                'class'     => \MauticPlugin\CustomObjectsBundle\Segment\Query\Filter\CustomObjectMergedFilterQueryBuilder::class,
+                'arguments' => [
+                    'mautic.lead.model.random_parameter_name',
+                    'event_dispatcher',
+                    'custom_object.query.filter.helper',
+                ],
+            ],
             'custom_object.query.filter.factory' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\Segment\Query\Filter\QueryFilterFactory::class,
                 'arguments' => [
@@ -1147,10 +1162,18 @@ $coParams = [
                 'arguments' => [
                     'doctrine.orm.entity_manager',
                     'query_filter_factory',
+                    'mautic.lead.model.random_parameter_name',
                 ],
             ],
             'custom_object.helper.token_formatter' => [
                 'class'     => \MauticPlugin\CustomObjectsBundle\Helper\TokenFormatter::class,
+            ],
+            'custom_object.data_persister.custom_item' => [
+                'class'     => \MauticPlugin\CustomObjectsBundle\DataPersister\CustomItemDataPersister::class,
+                'tag'       => 'api_platform.data_persister',
+                'arguments' => [
+                    'mautic.custom.model.item',
+                ],
             ],
         ],
         'validators' => [
@@ -1165,9 +1188,10 @@ $coParams = [
         ],
     ],
     'parameters' => [
-        ConfigProvider::CONFIG_PARAM_ENABLED                              => true,
-        ConfigProvider::CONFIG_PARAM_ITEM_VALUE_TO_CONTACT_RELATION_LIMIT => 3,
-        'custom_item_export_dir'                                          => '%kernel.root_dir%/../media/files/temp',
+        ConfigProvider::CONFIG_PARAM_ENABLED                                  => true,
+        ConfigProvider::CONFIG_PARAM_ITEM_VALUE_TO_CONTACT_RELATION_LIMIT     => ConfigProvider::CONFIG_PARAM_ITEM_VALUE_TO_CONTACT_RELATION_DEFAULT_LIMIT,
+        'custom_item_export_dir'                                              => '%kernel.root_dir%/../media/files/temp',
+        'custom_object_merge_filter'                                          => false,
     ],
 ];
 

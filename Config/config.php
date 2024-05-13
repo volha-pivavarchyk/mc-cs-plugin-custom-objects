@@ -816,6 +816,7 @@ $coParams = [
                     'translator',
                     'custom_object.config.provider',
                     'custom_field.type.provider',
+                    'mautic.lead.provider.typeOperator',
                 ],
             ],
             'custom_object.segments.filters_dictionary.subscriber' => [

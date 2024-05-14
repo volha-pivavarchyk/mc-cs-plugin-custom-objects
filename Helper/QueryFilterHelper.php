@@ -90,7 +90,8 @@ class QueryFilterHelper
                 $segmentQueryBuilder,
                 $tableAlias,
                 $filter->getOperator(),
-                $valueParameter
+                $valueParameter,
+                true
             );
 
             $this->addOperatorExpression(
@@ -160,8 +161,20 @@ class QueryFilterHelper
         SegmentQueryBuilder $customQuery,
         string $tableAlias,
         string $operator,
-        string $valueParameter
+        string $valueParameter,
+        bool $alreadyNegated = false,
     ) {
+        if ($alreadyNegated) {
+            switch ($operator) {
+                case 'empty':
+                    $operator = 'notEmpty';
+                    break;
+                case 'neq':
+                    $operator = 'eq';
+                    break;
+            }
+        }
+
         switch ($operator) {
             case 'empty':
                 $expression = $customQuery->expr()->orX(

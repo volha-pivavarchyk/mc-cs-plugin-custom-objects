@@ -42,10 +42,11 @@ class QueryFilterHelper
 
     public function createValueQuery(
         string $alias,
-        ContactSegmentFilter $segmentFilter
+        ContactSegmentFilter $segmentFilter,
+        bool $filterAlreadyNegated = false
     ): UnionQueryContainer {
         $unionQueryContainer = $this->queryFilterFactory->createQuery($alias, $segmentFilter);
-        $this->addCustomFieldValueExpressionFromSegmentFilter($unionQueryContainer, $alias, $segmentFilter);
+        $this->addCustomFieldValueExpressionFromSegmentFilter($unionQueryContainer, $alias, $segmentFilter, $filterAlreadyNegated);
 
         return $unionQueryContainer;
     }
@@ -82,7 +83,8 @@ class QueryFilterHelper
     public function addCustomFieldValueExpressionFromSegmentFilter(
         UnionQueryContainer $unionQueryContainer,
         string $tableAlias,
-        ContactSegmentFilter $filter
+        ContactSegmentFilter $filter,
+        bool $filterAlreadyNegated = false
     ): void {
         foreach ($unionQueryContainer as $segmentQueryBuilder) {
             $valueParameter = $this->randomParameterNameService->generateRandomParameterName();
@@ -91,7 +93,7 @@ class QueryFilterHelper
                 $tableAlias,
                 $filter->getOperator(),
                 $valueParameter,
-                true
+                $filterAlreadyNegated
             );
 
             $this->addOperatorExpression(
@@ -162,7 +164,7 @@ class QueryFilterHelper
         string $tableAlias,
         string $operator,
         string $valueParameter,
-        bool $alreadyNegated = false,
+        bool $alreadyNegated = false
     ) {
         if ($alreadyNegated) {
             switch ($operator) {

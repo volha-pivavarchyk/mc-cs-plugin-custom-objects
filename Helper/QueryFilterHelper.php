@@ -158,7 +158,7 @@ class QueryFilterHelper
     /**
      * Form the logical expression needed to limit the CustomValue's value for given operator.
      *
-     * @param array<string> $parameterValueArray
+     * @param float|bool|array<mixed>|string|null $filterParameterValue
      */
     private function getCustomValueValueExpression(
         SegmentQueryBuilder $customQuery,
@@ -224,12 +224,15 @@ class QueryFilterHelper
                 break;
             case 'between':
             case 'notBetween':
+                if (is_array($filterParameterValue)) {
                     $expression = $customQuery->expr()->{$operator}(
                         $tableAlias.'_value.value',
-                        array_values($parameterValueArray)
+                        array_values($filterParameterValue)
                     );
                     break;
+                }
 
+                // no break
             default:
                 $expression     = $customQuery->expr()->{$operator}(
                     $tableAlias.'_value.value',

@@ -159,6 +159,8 @@ class QueryFilterHelper
      * Form the logical expression needed to limit the CustomValue's value for given operator.
      *
      * @param mixed $filterParameterValue
+     *
+     * @return CompositeExpression|string
      */
     private function getCustomValueValueExpression(
         SegmentQueryBuilder $customQuery,

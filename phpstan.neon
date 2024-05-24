@@ -10,7 +10,6 @@ parameters:
 		maximumNumberOfProcesses: 4
 		processTimeout: 1000.0
 	scanDirectories:
-		- ../../vendor
 		- ../../app
 	paths:
 		- .

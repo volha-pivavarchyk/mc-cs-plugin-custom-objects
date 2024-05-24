@@ -95,11 +95,6 @@ jobs:
         cp ./.github/ci-files/local.php ./app/config/local.php
         php bin/console mautic:install --force http://localhost
 
-    - name: Install dependencies
-      run: |
-        composer validate
-        composer install --prefer-dist --no-progress --no-suggest
-
     - name: Install Plugins
       env:
         DB_PORT: ${{ job.services.database.ports[3306] }}

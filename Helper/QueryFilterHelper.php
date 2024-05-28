@@ -90,7 +90,8 @@ class QueryFilterHelper
                 $segmentQueryBuilder,
                 $tableAlias,
                 $filter->getOperator(),
-                $valueParameter
+                $valueParameter,
+                $filter->getParameterValue()
             );
 
             $this->addOperatorExpression(
@@ -154,13 +155,16 @@ class QueryFilterHelper
     /**
      * Form the logical expression needed to limit the CustomValue's value for given operator.
      *
+     * @param mixed $filterParameterValue
+     *
      * @return CompositeExpression|string
      */
     private function getCustomValueValueExpression(
         SegmentQueryBuilder $customQuery,
         string $tableAlias,
         string $operator,
-        string $valueParameter
+        string $valueParameter,
+        $filterParameterValue = null
     ) {
         switch ($operator) {
             case 'empty':
@@ -203,7 +207,18 @@ class QueryFilterHelper
                     $customQuery->expr()->isNull($tableAlias.'_value.value'),
                     $customQuery->expr()->like($tableAlias.'_value.value', ":${valueParameter}")
                 );
-
+                // no break
+            case 'between':
+            case 'notBetween':
+                if (is_array($filterParameterValue)) {
+                    $expression = $customQuery->expr()->{$operator}(
+                        $tableAlias.'_value.value',
+                        array_map(function (mixed $val) use ($customQuery): mixed {
+                            return is_numeric($val) && intval($val) === $val ? $val : $customQuery->expr()->literal($val);
+                        }, $filterParameterValue)
+                    );
+                    break;
+                }
                 break;
             default:
                 $expression     = $customQuery->expr()->{$operator}(

@@ -19,10 +19,10 @@ class CampaignConditionTest extends MauticMysqlTestCase
     public function testConditionForm(): void
     {
         $session = self::$container->get('session');
-        $session->__construct(new MockArraySessionStorage());
+        $session->__construct(new MockArraySessionStorage()); // @phpstan-ignore
 
         $sessionAuthenticationStrategy = self::$container->get('security.authentication.session_strategy');
-        $sessionAuthenticationStrategy->__construct(SessionAuthenticationStrategy::MIGRATE);
+        $sessionAuthenticationStrategy->__construct(SessionAuthenticationStrategy::MIGRATE); // @phpstan-ignore
 
         $customObject = $this->createCustomObjectWithAllFields(self::$container, 'Campaign test object');
         $crawler      = $this->client->request(

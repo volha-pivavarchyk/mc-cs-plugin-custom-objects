@@ -217,10 +217,11 @@ class QueryFilterHelper
                         array_map(function (mixed $val) use ($customQuery): mixed {
                             return is_numeric($val) && intval($val) === $val ?
                                 $val : $customQuery->expr()->literal($val);
-                        }, $filterParameterValue)
+                        }, array_values($filterParameterValue))
                     );
+                    break;
                 }
-                break;
+                // no break
             default:
                 $expression     = $customQuery->expr()->{$operator}(
                     $tableAlias.'_value.value',

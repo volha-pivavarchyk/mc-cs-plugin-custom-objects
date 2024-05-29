@@ -9,6 +9,8 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Tests\Functional\DataFixtures\Traits\CustomObjectsTrait;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategy;
 
 class CampaignConditionTest extends MauticMysqlTestCase
 {
@@ -16,6 +18,12 @@ class CampaignConditionTest extends MauticMysqlTestCase
 
     public function testConditionForm(): void
     {
+        $session = self::$container->get('session');
+        $session->__construct(new MockArraySessionStorage());
+
+        $sessionAuthenticationStrategy = self::$container->get('security.authentication.session_strategy');
+        $sessionAuthenticationStrategy->__construct(SessionAuthenticationStrategy::MIGRATE);
+
         $customObject = $this->createCustomObjectWithAllFields(self::$container, 'Campaign test object');
         $crawler      = $this->client->request(
             Request::METHOD_GET,

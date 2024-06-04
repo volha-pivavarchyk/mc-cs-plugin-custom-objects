@@ -236,6 +236,7 @@ class QueryFilterHelper
                     );
                     break;
                 }
+                // no break
             default:
                 $expression     = $customQuery->expr()->{$operator}(
                     $tableAlias.'_value.value',

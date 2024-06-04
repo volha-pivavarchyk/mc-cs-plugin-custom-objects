@@ -184,8 +184,7 @@ class QueryFilterHelper
                     $customQuery->expr()->isNull($tableAlias.'_value.value'),
                 );
                 if ($filter->doesColumnSupportEmptyValue()) {
-                    /** @phpstan-ignore-next-line */
-                    $expression->with(
+                    $expression->add(
                         $customQuery->expr()->eq($tableAlias.'_value.value', $customQuery->expr()->literal(''))
                     );
                 }
@@ -195,8 +194,7 @@ class QueryFilterHelper
                     $customQuery->expr()->isNotNull($tableAlias.'_value.value'),
                 );
                 if ($filter->doesColumnSupportEmptyValue()) {
-                    /** @phpstan-ignore-next-line */
-                    $expression->with(
+                    $expression->add(
                         $customQuery->expr()->neq($tableAlias.'_value.value', $customQuery->expr()->literal(''))
                     );
                 }

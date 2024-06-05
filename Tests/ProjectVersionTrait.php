@@ -8,6 +8,6 @@ trait ProjectVersionTrait
 {
     private function isCloudProject(): bool
     {
-        return str_starts_with(getenv('MAUTIC_PROJECT_VERSION'), 'cloud-');
+        return str_starts_with((string) getenv('MAUTIC_PROJECT_VERSION'), 'cloud-');
     }
 }

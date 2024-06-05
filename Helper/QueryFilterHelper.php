@@ -168,7 +168,6 @@ class QueryFilterHelper
         string $operator,
         string $valueParameter,
         bool $alreadyNegated = false,
-        array $parameterValueArray = [],
         $filterParameterValue = null,
     ): CompositeExpression|string {
         if ($alreadyNegated) {

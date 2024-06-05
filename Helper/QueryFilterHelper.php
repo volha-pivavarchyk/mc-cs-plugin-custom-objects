@@ -354,14 +354,16 @@ class QueryFilterHelper
             $segmentFilterFieldType     = $filter['type'] ?: $this->queryFilterFactory
                 ->getCustomFieldTypeById($segmentFilterFieldId);
             $dataTable                  = $this->queryFilterFactory->getTableNameFromType($segmentFilterFieldType);
+            $segmentMergedFilter        = $filter['filter'];
             $segmentFilterFieldOperator = (string) $filter['operator'];
+
             $alias                      = $customItemXrefContactAlias.'_'.$segmentFilterFieldId.'_'.$filter['type'];
             $aliasValue                 = $alias.'_value';
             $isCmoFilter                = $filter['cmo_filter'] ?? false;
             $cinAlias                   = 'cin_'.$segmentFilterFieldId;
             $cinAliasItem               = $cinAlias.'_item';
             $valueParameter             = $this->randomParameterNameService->generateRandomParameterName();
-            $segmentFilter              = $filter['filter'];
+
             if ($isCmoFilter && !in_array($cinAliasItem, $joinedAlias, true)) {
                 $this->joinMergeCustomItem($qb, $customItemXrefContactAlias, $cinAliasItem, $segmentFilterFieldId);
                 $joinedAlias[] = $cinAliasItem;
@@ -383,7 +385,7 @@ class QueryFilterHelper
                     $qb,
                     $cinAlias,
                     $alias,
-                    $segmentFilter,
+                    $segmentMergedFilter,
                     $valueParameter
                 ),
                 $segmentFilterFieldOperator,
@@ -436,10 +438,10 @@ class QueryFilterHelper
         SegmentQueryBuilder $qb,
         string $cinAlias,
         string $alias,
-        ContactSegmentFilter $segmentFilter,
+        ContactSegmentFilter $filter,
         string $valueParameter
     ) {
-        $segmentFilterFieldOperator = $segmentFilter->getOperator();
+        $segmentFilterFieldOperator = $filter->getOperator();
         if ($isCmoFilter) {
             $expression = $this->getCustomObjectNameExpression(
                 $qb,
@@ -454,7 +456,7 @@ class QueryFilterHelper
                 $segmentFilterFieldOperator,
                 $valueParameter,
                 false,
-                $segmentFilter->getParameterValue()
+                $filter->getParameterValue()
             );
         }
 

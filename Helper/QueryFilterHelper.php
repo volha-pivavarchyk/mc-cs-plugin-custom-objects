@@ -168,8 +168,8 @@ class QueryFilterHelper
         string $operator,
         string $valueParameter,
         bool $alreadyNegated = false,
-        $filterParameterValue = null,
-    ): CompositeExpression|string {
+        $filterParameterValue = null
+    ) {
         if ($alreadyNegated) {
             switch ($operator) {
                 case 'empty':

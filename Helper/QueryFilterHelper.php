@@ -361,7 +361,7 @@ class QueryFilterHelper
             $cinAlias                   = 'cin_'.$segmentFilterFieldId;
             $cinAliasItem               = $cinAlias.'_item';
             $valueParameter             = $this->randomParameterNameService->generateRandomParameterName();
-
+            $segmentFilter              = $filter['filter'];
             if ($isCmoFilter && !in_array($cinAliasItem, $joinedAlias, true)) {
                 $this->joinMergeCustomItem($qb, $customItemXrefContactAlias, $cinAliasItem, $segmentFilterFieldId);
                 $joinedAlias[] = $cinAliasItem;
@@ -383,7 +383,7 @@ class QueryFilterHelper
                     $qb,
                     $cinAlias,
                     $alias,
-                    $segmentFilterFieldOperator,
+                    $segmentFilter,
                     $valueParameter
                 ),
                 $segmentFilterFieldOperator,
@@ -436,9 +436,10 @@ class QueryFilterHelper
         SegmentQueryBuilder $qb,
         string $cinAlias,
         string $alias,
-        string $segmentFilterFieldOperator,
+        ContactSegmentFilter $segmentFilter,
         string $valueParameter
     ) {
+        $segmentFilterFieldOperator = $segmentFilter->getOperator();
         if ($isCmoFilter) {
             $expression = $this->getCustomObjectNameExpression(
                 $qb,
@@ -451,7 +452,9 @@ class QueryFilterHelper
                 $qb,
                 $alias,
                 $segmentFilterFieldOperator,
-                $valueParameter
+                $valueParameter,
+                false,
+                $segmentFilter->getParameterValue()
             );
         }
 

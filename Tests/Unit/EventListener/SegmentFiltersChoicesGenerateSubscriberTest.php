@@ -208,7 +208,12 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
                 ],
         ];
 
-        $fieldOperators = [
+        $betweenOperators = $this->isCloudProject() ? [
+            'between'               => 'between',
+            'not between'           => '!between',
+        ] : [];
+
+        $fieldOperators = array_merge([
             'equals'                => '=',
             'not equal'             => '!=',
             'greater than'          => 'gt',
@@ -217,9 +222,7 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
             'less than or equal'    => 'lte',
             'empty'                 => 'empty',
             'not empty'             => '!empty',
-            'between'               => 'between',
-            'not between'           => '!between',
-        ];
+        ], $betweenOperators);
 
         $event = new LeadListFiltersChoicesEvent([], [], $this->translator);
 

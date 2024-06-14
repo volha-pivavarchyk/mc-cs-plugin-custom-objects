@@ -349,7 +349,6 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
 
     public function testOnGenerateSegmentFiltersForDate(): void
     {
-        // @phpstan-ignore-start
         if (!$this->isCloudProject()) {
             $this->markTestSkipped('OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE event is not present in 4.4');
         }
@@ -456,10 +455,10 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
                     }),
                 ],
                 [
-                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE,
-                    $this->callback(function (OverrideOperatorLabelEvent $event) {
+                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE, // @phpstan-ignore-line
+                    $this->callback(function (OverrideOperatorLabelEvent $event) { // @phpstan-ignore-line
                         // Emulate a subscriber.
-                        $event->setTypeOperatorsChoices(
+                        $event->setTypeOperatorsChoices( // @phpstan-ignore-line
                             [
                                 'Greater Than' => OperatorOptions::GREATER_THAN,
                             ]
@@ -469,10 +468,10 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
                     }),
                 ],
                 [
-                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE,
-                    $this->callback(function (OverrideOperatorLabelEvent $event) {
+                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE, // @phpstan-ignore-line
+                    $this->callback(function (OverrideOperatorLabelEvent $event) { // @phpstan-ignore-line
                         // Emulate a subscriber.
-                        $event->setTypeOperatorsChoices(
+                        $event->setTypeOperatorsChoices( // @phpstan-ignore-line
                             [
                                 'After'                  => OperatorOptions::GREATER_THAN,
                                 'After (Including day)'  => OperatorOptions::GREATER_THAN_OR_EQUAL,
@@ -504,7 +503,6 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
             ],
             $choices['custom_object']['cmf_2']['operators']
         );
-        // @phpstan-ignore-end
     }
 
     public function testGetSubscribedEvents(): void

@@ -349,6 +349,7 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
 
     public function testOnGenerateSegmentFiltersForDate(): void
     {
+        // @phpstan-ignore-start
         if (!$this->isCloudProject()) {
             $this->markTestSkipped('OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE event is not present in 4.4');
         }
@@ -503,6 +504,7 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
             ],
             $choices['custom_object']['cmf_2']['operators']
         );
+        // @phpstan-ignore-end
     }
 
     public function testGetSubscribedEvents(): void

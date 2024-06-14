@@ -235,10 +235,10 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
                 ],
         ];
 
-        $betweenOperators = $this->isCloudProject() ? [
+        $betweenOperators = [
             'between'               => 'between',
             'not between'           => '!between',
-        ] : [];
+        ];
 
         $fieldOperators = array_merge([
             'equals'                => '=',
@@ -289,8 +289,8 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
             ['mautic.lead.list.form.operator.isnotempty'],
             ['mautic.lead.list.form.operator.islike'],
             ['mautic.lead.list.form.operator.isnotlike'],
-            $this->isCloudProject() ? ['mautic.lead.list.form.operator.between'] : null,
-            $this->isCloudProject() ? ['mautic.lead.list.form.operator.notbetween'] : null,
+            ['mautic.lead.list.form.operator.between'],
+            ['mautic.lead.list.form.operator.notbetween'],
             ['mautic.lead.list.form.operator.regexp'],
             ['mautic.lead.list.form.operator.notregexp'],
             ['mautic.core.operator.starts.with'],
@@ -321,8 +321,8 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
             'not empty',
             'like',
             'not like',
-            $this->isCloudProject() ? 'between' : null,
-            $this->isCloudProject() ? 'not between' : null,
+            'between',
+            'not between',
             'regexp',
             'not regexp',
             'starts with',

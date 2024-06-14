@@ -459,10 +459,10 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
                     }),
                 ],
                 [
-                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE, // @phpstan-ignore-line
-                    $this->callback(function (OverrideOperatorLabelEvent $event) { // @phpstan-ignore-line
+                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE,
+                    $this->callback(function (OverrideOperatorLabelEvent $event) {
                         // Emulate a subscriber.
-                        $event->setTypeOperatorsChoices( // @phpstan-ignore-line
+                        $event->setTypeOperatorsChoices(
                             [
                                 'Greater Than' => OperatorOptions::GREATER_THAN,
                             ]
@@ -472,10 +472,10 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
                     }),
                 ],
                 [
-                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE, // @phpstan-ignore-line
-                    $this->callback(function (OverrideOperatorLabelEvent $event) { // @phpstan-ignore-line
+                    LeadEvents::OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE,
+                    $this->callback(function (OverrideOperatorLabelEvent $event) {
                         // Emulate a subscriber.
-                        $event->setTypeOperatorsChoices( // @phpstan-ignore-line
+                        $event->setTypeOperatorsChoices(
                             [
                                 'After'                  => OperatorOptions::GREATER_THAN,
                                 'After (Including day)'  => OperatorOptions::GREATER_THAN_OR_EQUAL,

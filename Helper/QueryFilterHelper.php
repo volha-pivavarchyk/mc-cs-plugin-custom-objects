@@ -91,7 +91,7 @@ class QueryFilterHelper
             $expression     = $this->getCustomValueValueExpression(
                 $segmentQueryBuilder,
                 $tableAlias,
-                $filter->getOperator(),
+                $filter,
                 $valueParameter,
                 $filterAlreadyNegated,
                 $filter->getParameterValue()
@@ -165,11 +165,12 @@ class QueryFilterHelper
     private function getCustomValueValueExpression(
         SegmentQueryBuilder $customQuery,
         string $tableAlias,
-        string $operator,
+        ContactSegmentFilter $filter,
         string $valueParameter,
         bool $alreadyNegated = false,
         $filterParameterValue = null
     ) {
+        $operator = $filter->getOperator();
         if ($alreadyNegated) {
             switch ($operator) {
                 case 'empty':
@@ -178,6 +179,10 @@ class QueryFilterHelper
                 case 'neq':
                     $operator = 'eq';
                     break;
+                case '!between':
+                case 'notBetween':
+                    $operator = 'between';
+                    break;
             }
         }
 
@@ -185,15 +190,22 @@ class QueryFilterHelper
             case 'empty':
                 $expression = $customQuery->expr()->orX(
                     $customQuery->expr()->isNull($tableAlias.'_value.value'),
-                    $customQuery->expr()->eq($tableAlias.'_value.value', $customQuery->expr()->literal(''))
                 );
-
+                if ($filter->doesColumnSupportEmptyValue()) {
+                    $expression->add(
+                        $customQuery->expr()->eq($tableAlias.'_value.value', $customQuery->expr()->literal(''))
+                    );
+                }
                 break;
             case 'notEmpty':
                 $expression = $customQuery->expr()->andX(
                     $customQuery->expr()->isNotNull($tableAlias.'_value.value'),
-                    $customQuery->expr()->neq($tableAlias.'_value.value', $customQuery->expr()->literal(''))
                 );
+                if ($filter->doesColumnSupportEmptyValue()) {
+                    $expression->add(
+                        $customQuery->expr()->neq($tableAlias.'_value.value', $customQuery->expr()->literal(''))
+                    );
+                }
 
                 break;
             case 'notIn':
@@ -229,11 +241,13 @@ class QueryFilterHelper
                 if (is_array($filterParameterValue)) {
                     $expression = $customQuery->expr()->{$operator}(
                         $tableAlias.'_value.value',
-                        array_values($filterParameterValue)
+                        array_map(function (mixed $val) use ($customQuery): mixed {
+                            return is_numeric($val) && intval($val) === $val ?
+                                $val : $customQuery->expr()->literal($val);
+                        }, array_values($filterParameterValue))
                     );
                     break;
                 }
-
                 // no break
             default:
                 $expression     = $customQuery->expr()->{$operator}(
@@ -352,7 +366,9 @@ class QueryFilterHelper
             $segmentFilterFieldType     = $filter['type'] ?: $this->queryFilterFactory
                 ->getCustomFieldTypeById($segmentFilterFieldId);
             $dataTable                  = $this->queryFilterFactory->getTableNameFromType($segmentFilterFieldType);
+            $segmentMergedFilter        = $filter['filter'];
             $segmentFilterFieldOperator = (string) $filter['operator'];
+
             $alias                      = $customItemXrefContactAlias.'_'.$segmentFilterFieldId.'_'.$filter['type'];
             $aliasValue                 = $alias.'_value';
             $isCmoFilter                = $filter['cmo_filter'] ?? false;
@@ -381,7 +397,7 @@ class QueryFilterHelper
                     $qb,
                     $cinAlias,
                     $alias,
-                    $segmentFilterFieldOperator,
+                    $segmentMergedFilter,
                     $valueParameter
                 ),
                 $segmentFilterFieldOperator,
@@ -434,9 +450,10 @@ class QueryFilterHelper
         SegmentQueryBuilder $qb,
         string $cinAlias,
         string $alias,
-        string $segmentFilterFieldOperator,
+        ContactSegmentFilter $filter,
         string $valueParameter
     ) {
+        $segmentFilterFieldOperator = $filter->getOperator();
         if ($isCmoFilter) {
             $expression = $this->getCustomObjectNameExpression(
                 $qb,
@@ -448,8 +465,10 @@ class QueryFilterHelper
             $expression = $this->getCustomValueValueExpression(
                 $qb,
                 $alias,
-                $segmentFilterFieldOperator,
-                $valueParameter
+                $filter,
+                $valueParameter,
+                false,
+                $filter->getParameterValue()
             );
         }
 

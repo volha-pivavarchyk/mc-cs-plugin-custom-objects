@@ -114,6 +114,51 @@ class QueryFilterHelperTest extends MauticMysqlTestCase
         );
 
         $this->assertMatchWhere(
+            "test_value.value BETWEEN '2024-05-15 00:00:00' AND '2024-05-24 23:59:59'",
+            [
+                'glue'       => 'and',
+                'field'      => 'cmf_'.$this->getFixtureById('custom_object_product')->getId(),
+                'object'     => 'custom_object',
+                'type'       => 'datetime',
+                'operator'   => 'between',
+                'properties' => [
+                    'filter' => [
+                        'date_from' => 'May 15, 2024',
+                        'date_to'   => 'May 24, 2024',
+                    ],
+                ],
+            ]
+        );
+
+        $this->assertMatchWhere(
+            'test_value.value IS NULL',
+            [
+                'glue'       => 'and',
+                'field'      => 'cmf_'.$this->getFixtureById('custom_object_product')->getId(),
+                'object'     => 'custom_object',
+                'type'       => 'datetime',
+                'operator'   => 'empty',
+                'properties' => [
+                    'filter' => [],
+                ],
+            ]
+        );
+
+        $this->assertMatchWhere(
+            'test_value.value IS NOT NULL',
+            [
+                'glue'       => 'and',
+                'field'      => 'cmf_'.$this->getFixtureById('custom_object_product')->getId(),
+                'object'     => 'custom_object',
+                'type'       => 'datetime',
+                'operator'   => '!empty',
+                'properties' => [
+                    'filter' => [],
+                ],
+            ]
+        );
+
+        $this->assertMatchWhere(
             'test_value.value BETWEEN 0 AND 10',
             [
                 'glue'       => 'and',

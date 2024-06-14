@@ -343,6 +343,10 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
 
     public function testOnGenerateSegmentFiltersForDate(): void
     {
+        if($this->isCloudProject()){
+            $this->markTestSkipped('OVERRIDE_OPERATOR_LABEL_FOR_FIELD_TYPE event is not present in 4.4');
+        }
+
         $customObject = new CustomObject();
         $customObject->setId(1);
         $customObject->setNameSingular('Product');

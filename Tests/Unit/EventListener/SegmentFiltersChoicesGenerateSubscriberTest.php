@@ -62,9 +62,15 @@ class SegmentFiltersChoicesGenerateSubscriberTest extends TestCase
      */
     private $filterOperatorProvider;
 
-    private MockObject|TypeOperatorProviderInterface $typeOperatorProvider;
+    /**
+     * @var TypeOperatorProviderInterface|MockObject
+     */
+    private $typeOperatorProvider;
 
-    private MockObject|EventDispatcherInterface $dispatcher;
+    /**
+     * @var EventDispatcherInterface|MockObject
+     */
+    private $dispatcher;
 
     public function setUp(): void
     {

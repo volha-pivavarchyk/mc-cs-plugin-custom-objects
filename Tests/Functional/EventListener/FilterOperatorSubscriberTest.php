@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Tests\Functional\EventListener;
 
+use Mautic\CoreBundle\Helper\CommandHelper;
 use Mautic\CoreBundle\Test\MauticMysqlTestCase;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadList;
@@ -14,6 +15,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FilterOperatorSubscriberTest extends MauticMysqlTestCase
 {
+    /**
+     * @var CommandHelper
+     */
+    private $commandHelper;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->commandHelper = static::getContainer()->get('mautic.helper.command');
+    }
+
     public function testIfNewOperatorNotInCustomObjectsAddedinSegmentFilter()
     {
         // Create a segment
@@ -82,7 +94,7 @@ class FilterOperatorSubscriberTest extends MauticMysqlTestCase
         $this->em->flush();
 
         // 4) run update segment command
-        $this->runCommand('mautic:segments:update', ['-i' => $segment->getId()]);
+        $this->commandHelper->runCommand('mautic:segments:update', ['-i' => $segment->getId()]);
 
         // 5) fetch segment added contacts
         $leads = $this->em->getRepository(ListLead::class)->findBy(['list' => $segment->getId()], ['lead' => 'DESC']);

@@ -228,7 +228,7 @@ class CampaignSubscriber implements EventSubscriberInterface
 
         $queryBuilder = $this->buildOuterQuery($innerQueryBuilder, $queryAlias);
 
-        $customItemId = $this->executeSelect($queryBuilder)->fetchColumn();
+        $customItemId = $this->executeSelect($queryBuilder)->fetchOne();
 
         if ($customItemId) {
             $event->setChannel('customItem', $customItemId);

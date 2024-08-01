@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomItem;
 
+use AllowDynamicProperties;
 use Mautic\CoreBundle\Factory\ModelFactory;
 use Mautic\CoreBundle\Model\NotificationModel;
 use Mautic\CoreBundle\Translation\Translator;
@@ -30,6 +31,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+#[AllowDynamicProperties]
 class FormControllerTest extends ControllerTestCase
 {
     public const OBJECT_ID = 33;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Entity;
 
+use AllowDynamicProperties;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -41,6 +42,7 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
  *     denormalizationContext={"groups"={"custom_item:write"}, "swagger_definition_name"="Write"}
  * )
  */
+#[AllowDynamicProperties]
 class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInterface
 {
     use UpsertTrait;
@@ -241,6 +243,7 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
     {
         foreach ($data as $property => $value) {
             $camelCaseProperty          = lcfirst(ucwords($property, '_'));
+            //$this->__set($camelCaseProperty, $value);
             $this->{$camelCaseProperty} = $value;
         }
     }

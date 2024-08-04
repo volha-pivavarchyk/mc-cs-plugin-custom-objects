@@ -53,10 +53,10 @@ class SaveControllerTest extends ControllerTestCase
      */
     private $customObjectModel;
 
-    /**
-     * @var MockObject|FlashBag
-     */
-    private $flashBag;
+//    /**
+//     * @var MockObject|FlashBag
+//     */
+//    private $flashBag;
 
     /**
      * @var MockObject|CustomItemPermissionProvider
@@ -95,18 +95,36 @@ class SaveControllerTest extends ControllerTestCase
         $this->formFactory            = $this->createMock(FormFactoryInterface::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->customObjectModel      = $this->createMock(CustomObjectModel::class);
-        $this->flashBag               = $this->createMock(FlashBag::class);
+//        $this->flashBag               = $this->createMock(FlashBag::class);
         $this->permissionProvider     = $this->createMock(CustomItemPermissionProvider::class);
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->lockFlashMessageHelper = $this->createMock(LockFlashMessageHelper::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
         $this->request                = new Request();
         $this->customItem             = $this->createMock(CustomItem::class);
         $this->form                   = $this->createMock(FormInterface::class);
 
-        $this->translator             = $this->createMock(Translator::class);
-        $this->saveController         = new SaveController($this->security, $this->userHelper, $this->managerRegistry);
-        $this->saveController->setTranslator($this->translator);
+        $userMock = $this->createMock(User::class);
+        $userMock->method('isAdmin')
+            ->willReturn(true);
+
+        $this->userHelper->expects($this->any())->method('getUser')
+            ->willReturn($userMock);
+
+//        $this->translator             = $this->createMock(Translator::class);
+        $this->saveController         = new SaveController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+//        $this->saveController->setTranslator($this->translator);
 
         $this->addSymfonyDependencies($this->saveController);
 
@@ -130,7 +148,7 @@ class SaveControllerTest extends ControllerTestCase
             ->method('canCreate');
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -159,7 +177,7 @@ class SaveControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -268,7 +286,7 @@ class SaveControllerTest extends ControllerTestCase
         Assert::assertSame(Request::METHOD_GET, $this->request->getMethod());
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -361,7 +379,7 @@ class SaveControllerTest extends ControllerTestCase
             ->willReturn('someRedirectUrl');
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -395,7 +413,7 @@ class SaveControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -456,7 +474,7 @@ class SaveControllerTest extends ControllerTestCase
             ->method('save');
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -554,7 +572,7 @@ class SaveControllerTest extends ControllerTestCase
             ->method('save');
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -583,14 +601,12 @@ class SaveControllerTest extends ControllerTestCase
             ->with($this->customItem)
             ->willReturn(true);
 
-        $userMock = $this->createMock(User::class);
-        $this->userHelper->expects($this->once())
-            ->method('getUser')
-            ->willReturn($userMock);
-
-        $userMock->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+//        $userMock = $this->createMock(User::class);
+//        $userMock->method('isAdmin')
+//            ->willReturn(true);
+//
+//        $this->userHelper->expects($this->any())->method('getUser')
+//            ->willReturn($userMock);
 
         $this->routeProvider->expects($this->once())
             ->method('buildViewRoute')
@@ -598,7 +614,7 @@ class SaveControllerTest extends ControllerTestCase
             ->willReturn('https://redirect.url');
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -704,7 +720,7 @@ class SaveControllerTest extends ControllerTestCase
         Assert::assertSame(Request::METHOD_GET, $this->request->getMethod());
 
         $this->saveController->saveAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,

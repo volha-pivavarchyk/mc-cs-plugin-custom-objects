@@ -20,7 +20,7 @@ class LookupControllerTest extends ControllerTestCase
 
     private $customItemModel;
     private $permissionProvider;
-    private $flashBag;
+//    private $flashBag;
 
     /**
      * @var LookupController
@@ -32,9 +32,9 @@ class LookupControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->customItemModel    = $this->createMock(CustomItemModel::class);
-        $this->requestStack       = $this->createMock(RequestStack::class);
+//        $this->requestStack       = $this->createMock(RequestStack::class);
         $this->permissionProvider = $this->createMock(CustomItemPermissionProvider::class);
-        $this->flashBag           = $this->createMock(FlashBag::class);
+//        $this->flashBag           = $this->createMock(FlashBag::class);
         $this->request            = $this->createMock(Request::class);
         $this->lookupController   = new LookupController();
 

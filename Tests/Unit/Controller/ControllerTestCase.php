@@ -6,14 +6,18 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Mautic\CoreBundle\Controller\CommonController;
+use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\CoreBundle\Factory\ModelFactory;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\UserHelper;
 use Mautic\CoreBundle\Model\NotificationModel;
 use Mautic\CoreBundle\Security\Permissions\CorePermissions;
+use Mautic\CoreBundle\Service\FlashBag;
+use Mautic\CoreBundle\Translation\Translator;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +36,6 @@ use Twig\Environment;
  */
 class ControllerTestCase extends \PHPUnit\Framework\TestCase
 {
-    protected $requestStack;
     protected $request;
     protected $session;
 
@@ -47,11 +50,6 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
     protected $container;
 
     /**
-     * @var MockObject|CorePermissions
-     */
-    protected $security;
-
-    /**
      * @var MockObject|UserHelper
      */
     protected $userHelper;
@@ -61,15 +59,63 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
      */
     protected $managerRegistry;
 
+    /**
+     * @var MockObject|MauticFactory
+     */
+    protected $mauticFactory;
+
+    /**
+     * @var MockObject|ModelFactory
+     */
+    protected $modelFactory;
+
+    /**
+     * @var MockObject|CoreParametersHelper
+     */
+    protected $coreParametersHelper;
+
+    /**
+     * @var MockObject|EventDispatcherInterface
+     */
+    protected $dispatcher;
+
+    /**
+     * @var MockObject|Translator
+     */
+    protected $translator;
+
+    /**
+     * @var MockObject|FlashBag
+     */
+    protected $flashBag;
+
+    /**
+     * @var MockObject|RequestStack
+     */
+    protected $requestStack;
+
+    /**
+     * @var MockObject|CorePermissions
+     */
+    protected $security;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->security        = $this->createMock(CorePermissions::class);
-        $this->userHelper      = $this->createMock(UserHelper::class);
-        $this->container       = $this->createMock(ContainerInterface::class);
-        $this->router          = $this->createMock(RouterInterface::class);
-        $this->managerRegistry = $this->createMock(ManagerRegistry::class);
+        $this->security             = $this->createMock(CorePermissions::class);
+        $this->userHelper           = $this->createMock(UserHelper::class);
+        $this->container            = $this->createMock(ContainerInterface::class);
+        $this->router               = $this->createMock(RouterInterface::class);
+        $this->managerRegistry      = $this->createMock(ManagerRegistry::class);
+        $this->mauticFactory        = $this->createMock(MauticFactory::class);
+        $this->modelFactory         = $this->createMock(ModelFactory::class);
+        $this->coreParametersHelper = $this->createMock(CoreParametersHelper::class);
+        $this->dispatcher           = $this->createMock(EventDispatcherInterface::class);
+        $this->translator           = $this->createMock(Translator::class);
+        $this->flashBag             = $this->createMock(FlashBag::class);
+        $this->requestStack         = $this->createMock(RequestStack::class);
+        $this->security             = $this->createMock(CorePermissions::class);
     }
 
     protected function addSymfonyDependencies(AbstractController $controller): void
@@ -116,9 +162,9 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
         $requestStack->method('getCurrentRequest')->willReturn($request);
 
         $controller->setContainer($this->container);
-
-        if ($controller instanceof CommonController) {
-            $controller->setCoreParametersHelper($this->createMock(CoreParametersHelper::class));
-        }
+//
+//        if ($controller instanceof CommonController) {
+//            $controller->setCoreParametersHelper($this->createMock(CoreParametersHelper::class));
+//        }
     }
 }

@@ -36,7 +36,7 @@ class SaveController extends CommonController
      * @return Response|JsonResponse
      */
     public function saveAction(
-        Request $request,
+//        Request $request,
         FormFactoryInterface $formFactory,
         CustomFieldModel $customFieldModel,
         CustomFieldFactory $customFieldFactory,
@@ -44,6 +44,8 @@ class SaveController extends CommonController
         CustomFieldRouteProvider $fieldRouteProvider,
         CustomObjectModel $customObjectModel
     ) {
+        $request    = $this->getCurrentRequest();
+
         $objectId   = (int) $request->get('objectId');
         $fieldId    = (int) $request->query->get('fieldId');
         $fieldType  = $request->get('fieldType');

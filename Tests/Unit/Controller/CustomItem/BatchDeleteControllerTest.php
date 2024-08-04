@@ -30,10 +30,10 @@ class BatchDeleteControllerTest extends ControllerTestCase
     private $customItemModel;
     private $sessionProvider;
     private $sessionProviderFactory;
-    private $flashBag;
+//    private $flashBag;
     private $permissionProvider;
     private $routeProvider;
-    private $modelFactory;
+//    private $modelFactory;
     private $model;
 
     /**
@@ -48,28 +48,39 @@ class BatchDeleteControllerTest extends ControllerTestCase
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
-        $this->flashBag               = $this->createMock(FlashBag::class);
+//        $this->flashBag               = $this->createMock(FlashBag::class);
         $this->permissionProvider     = $this->createMock(CustomItemPermissionProvider::class);
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->request                = $this->createMock(Request::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
 
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
             ->willReturn($this->request);
 
-        $this->translator             = $this->createMock(Translator::class);
-        $this->security               = $this->createMock(CorePermissions::class);
-        $this->modelFactory           = $this->createMock(ModelFactory::class);
+//        $this->translator             = $this->createMock(Translator::class);
+//        $this->security               = $this->createMock(CorePermissions::class);
+//        $this->modelFactory           = $this->createMock(ModelFactory::class);
         $this->model                  = $this->createMock(NotificationModel::class);
         $this->modelFactory->expects($this->once())
             ->method('getModel')
             ->willReturn($this->model);
 
-        $this->batchDeleteController  = new BatchDeleteController($this->managerRegistry);
-        $this->batchDeleteController->setTranslator($this->translator);
-        $this->batchDeleteController->setSecurity($this->security);
-        $this->batchDeleteController->setModelFactory($this->modelFactory);
+        $this->batchDeleteController  = new BatchDeleteController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+//        $this->batchDeleteController->setTranslator($this->translator);
+//        $this->batchDeleteController->setSecurity($this->security);
+//        $this->batchDeleteController->setModelFactory($this->modelFactory);
 
         $this->addSymfonyDependencies($this->batchDeleteController);
 

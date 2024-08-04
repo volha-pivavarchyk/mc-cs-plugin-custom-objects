@@ -62,18 +62,33 @@ class FormControllerTest extends ControllerTestCase
         $this->request                 = $this->createMock(Request::class);
         $this->customObject            = $this->createMock(CustomObject::class);
         $this->form                    = $this->createMock(FormInterface::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
-        $this->requestStack->expects($this->any())
-            ->method('getCurrentRequest')
-            ->willReturn($this->request);
-
-        $this->translator             = $this->createMock(Translator::class);
-        $this->modelFactory           = $this->createMock(ModelFactory::class);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack->expects($this->any())
+//            ->method('getCurrentRequest')
+//            ->willReturn($this->request);
+//
+//        $this->translator             = $this->createMock(Translator::class);
+//        $this->modelFactory           = $this->createMock(ModelFactory::class);
         $this->model                  = $this->createMock(NotificationModel::class);
 
-        $this->formController         = new FormController($this->security, $this->userHelper, $this->managerRegistry, $this->requestStack);
-        $this->formController->setTranslator($this->translator);
-        $this->formController->setModelFactory($this->modelFactory);
+//        $this->formController         = new FormController($this->security, $this->userHelper, $this->managerRegistry, $this->requestStack);
+//        $this->formController->setTranslator($this->translator);
+//        $this->formController->setModelFactory($this->modelFactory);
+//
+//        $this->addSymfonyDependencies($this->formController);
+
+        $this->formController = new FormController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
 
         $this->addSymfonyDependencies($this->formController);
 
@@ -131,14 +146,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
-
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
+//
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->modelFactory->expects($this->once())
             ->method('getModel')
@@ -260,14 +275,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
-
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
+//
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->modelFactory->expects($this->once())
             ->method('getModel')
@@ -376,14 +391,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
-
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
+//
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->modelFactory->expects($this->once())
             ->method('getModel')

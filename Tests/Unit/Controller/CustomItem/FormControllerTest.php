@@ -103,17 +103,40 @@ class FormControllerTest extends ControllerTestCase
         $this->customObject           = $this->createMock(CustomObject::class);
         $this->customItem             = $this->createMock(CustomItem::class);
         $this->form                   = $this->createMock(FormInterface::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
-        $this->requestStack->expects($this->any())
-            ->method('getCurrentRequest')
-            ->willReturn($this->request);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack->expects($this->any())
+//            ->method('getCurrentRequest')
+//            ->willReturn($this->request);
 
-        $this->translator             = $this->createMock(Translator::class);
-        $this->modelFactory           = $this->createMock(ModelFactory::class);
+//        $this->translator             = $this->createMock(Translator::class);
+//        $this->modelFactory           = $this->createMock(ModelFactory::class);
         $this->model                  = $this->createMock(NotificationModel::class);
-        $this->formController         = new FormController($this->security, $this->userHelper, $this->managerRegistry, $this->requestStack);
-        $this->formController->setTranslator($this->translator);
-        $this->formController->setModelFactory($this->modelFactory);
+
+//        $this->formController         = new FormController($this->security, $this->userHelper, $this->managerRegistry, $this->requestStack);
+//        $this->formController->setTranslator($this->translator);
+//        $this->formController->setModelFactory($this->modelFactory);
+
+//        $this->requestStack  = $this->createRequestStackMock();
+
+        $userMock = $this->createMock(User::class);
+        $userMock->method('isAdmin')
+            ->willReturn(true);
+
+        $this->userHelper->expects($this->any())->method('getUser')
+            ->willReturn($userMock);
+
+        $this->formController = new FormController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
 
         $this->addSymfonyDependencies($this->formController);
 
@@ -211,14 +234,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->modelFactory->expects($this->once())
             ->method('getModel')
@@ -276,14 +299,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
@@ -368,14 +391,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
@@ -471,14 +494,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
@@ -536,14 +559,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
@@ -636,14 +659,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
@@ -730,14 +753,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('buildEditRouteWithRedirectToContact')
             ->with(self::OBJECT_ID, self::ITEM_ID, static::CONTACT_ID);
 
-        $userMock = $this->createMock(User::class);
-        $this->userHelper->expects($this->once())
-            ->method('getUser')
-            ->willReturn($userMock);
+//        $userMock = $this->createMock(User::class);
+//        $this->userHelper->expects($this->once())
+//            ->method('getUser')
+//            ->willReturn($userMock);
 
-        $userMock->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+//        $userMock->expects($this->once())
+//            ->method('isAdmin')
+//            ->willReturn(true);
 
         $this->routeProvider->expects($this->once())
             ->method('buildViewRoute')
@@ -771,14 +794,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('buildEditRoute')
             ->with(self::OBJECT_ID, self::ITEM_ID);
 
-        $userMock = $this->createMock(User::class);
-        $this->userHelper->expects($this->once())
-            ->method('getUser')
-            ->willReturn($userMock);
-
-        $userMock->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+//        $userMock = $this->createMock(User::class);
+//        $this->userHelper->expects($this->once())
+//            ->method('getUser')
+//            ->willReturn($userMock);
+//
+//        $userMock->expects($this->once())
+//            ->method('isAdmin')
+//            ->willReturn(true);
 
         $this->routeProvider->expects($this->once())
             ->method('buildViewRoute')
@@ -818,14 +841,14 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')

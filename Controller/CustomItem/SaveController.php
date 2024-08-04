@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SaveController extends AbstractFormController
 {
     public function saveAction(
-        Request $request,
+//        Request $request,
         FormFactoryInterface $formFactory,
         FlashBag $flashBag,
         CustomItemModel $customItemModel,
@@ -33,6 +33,8 @@ class SaveController extends AbstractFormController
         int $objectId,
         ?int $itemId = null
     ): Response {
+        $request = $this->getCurrentRequest();
+
         $customItemData = $request->request->get('custom_item');
         $contactId      = intval($customItemData['contact_id'] ?? 0);
 

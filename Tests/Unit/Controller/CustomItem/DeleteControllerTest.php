@@ -35,7 +35,7 @@ class DeleteControllerTest extends ControllerTestCase
 
     private $customItemModel;
     private $sessionProvider;
-    private $flashBag;
+//    private $flashBag;
     private $permissionProvider;
     private $routeProvider;
 
@@ -51,25 +51,36 @@ class DeleteControllerTest extends ControllerTestCase
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
-        $this->flashBag               = $this->createMock(FlashBag::class);
+//        $this->flashBag               = $this->createMock(FlashBag::class);
         $this->permissionProvider     = $this->createMock(CustomItemPermissionProvider::class);
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->request                = $this->createMock(Request::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
 
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
             ->willReturn($this->request);
 
-        $this->translator             = $this->createMock(Translator::class);
-        $this->security               = $this->createMock(CorePermissions::class);
-        $this->modelFactory           = $this->createMock(ModelFactory::class);
+//        $this->translator             = $this->createMock(Translator::class);
+//        $this->security               = $this->createMock(CorePermissions::class);
+//        $this->modelFactory           = $this->createMock(ModelFactory::class);
         $this->model                  = $this->createMock(NotificationModel::class);
 
-        $this->deleteController       = new DeleteController($this->managerRegistry);
-        $this->deleteController->setTranslator($this->translator);
-        $this->deleteController->setSecurity($this->security);
-        $this->deleteController->setModelFactory($this->modelFactory);
+        $this->deleteController       = new DeleteController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+//        $this->deleteController->setTranslator($this->translator);
+//        $this->deleteController->setSecurity($this->security);
+//        $this->deleteController->setModelFactory($this->modelFactory);
 
         $this->addSymfonyDependencies($this->deleteController);
 

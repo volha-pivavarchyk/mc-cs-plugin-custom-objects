@@ -41,7 +41,7 @@ class SaveControllerTest extends ControllerTestCase
     private $customFieldTypeProvider;
     private $paramsToStringTransformer;
     private $optionsToStringTransformer;
-    private $flashBag;
+//    private $flashBag;
     private $permissionProvider;
     private $routeProvider;
     private $lockFlashMessageHelper;
@@ -60,10 +60,10 @@ class SaveControllerTest extends ControllerTestCase
         $this->formFactory                = $this->createMock(FormFactoryInterface::class);
         $this->customObjectModel          = $this->createMock(CustomObjectModel::class);
         $this->customFieldModel           = $this->createMock(CustomFieldModel::class);
-        $this->flashBag                   = $this->createMock(FlashBag::class);
+//        $this->flashBag                   = $this->createMock(FlashBag::class);
         $this->permissionProvider         = $this->createMock(CustomObjectPermissionProvider::class);
         $this->routeProvider              = $this->createMock(CustomObjectRouteProvider::class);
-        $this->requestStack               = $this->createMock(RequestStack::class);
+//        $this->requestStack               = $this->createMock(RequestStack::class);
         $this->customFieldTypeProvider    = $this->createMock(CustomFieldTypeProvider::class);
         $this->paramsToStringTransformer  = $this->createMock(ParamsToStringTransformer::class);
         $this->optionsToStringTransformer = $this->createMock(OptionsToStringTransformer::class);
@@ -72,10 +72,21 @@ class SaveControllerTest extends ControllerTestCase
         $this->customObject               = $this->createMock(CustomObject::class);
         $this->form                       = $this->createMock(FormInterface::class);
 
-        $this->translator                 = $this->createMock(Translator::class);
+//        $this->translator                 = $this->createMock(Translator::class);
 
-        $this->saveController             = new SaveController($this->security, $this->userHelper, $this->managerRegistry, $this->requestStack);
-        $this->saveController->setTranslator($this->translator);
+        $this->saveController             = new SaveController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+//        $this->saveController->setTranslator($this->translator);
 
         $this->addSymfonyDependencies($this->saveController);
 

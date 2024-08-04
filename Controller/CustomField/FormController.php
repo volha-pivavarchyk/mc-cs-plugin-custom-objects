@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 class FormController extends CommonController
 {
     public function renderFormAction(
-        Request $request,
+//        Request $request,
         FormFactoryInterface $formFactory,
         CustomFieldModel $customFieldModel,
         CustomFieldFactory $customFieldFactory,
@@ -31,6 +31,7 @@ class FormController extends CommonController
         CustomObjectModel $customObjectModel,
         CustomObjectRouteProvider $objectRouteProvider
     ): Response {
+        $request    = $this->getCurrentRequest();
         $objectId   = (int) $request->get('objectId');
         $fieldId    = (int) $request->get('fieldId');
         $fieldType  = $request->get('fieldType');

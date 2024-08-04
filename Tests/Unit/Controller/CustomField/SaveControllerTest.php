@@ -27,7 +27,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SaveControllerTest extends AbstractFieldControllerTest
 {
     private $formFactory;
-    private $translator;
     private $customFieldModel;
     private $customFieldFactory;
     private $permissionProvider;
@@ -41,7 +40,6 @@ class SaveControllerTest extends AbstractFieldControllerTest
         parent::setUp();
 
         $this->formFactory        = $this->createMock(FormFactory::class);
-        $this->translator         = $this->createMock(TranslatorInterface::class);
         $this->customFieldModel   = $this->createMock(CustomFieldModel::class);
         $this->customFieldFactory = $this->createMock(CustomFieldFactory::class);
         $this->permissionProvider = $this->createMock(CustomFieldPermissionProvider::class);
@@ -49,13 +47,24 @@ class SaveControllerTest extends AbstractFieldControllerTest
         $this->customObjectModel  = $this->createMock(CustomObjectModel::class);
         $this->form               = $this->createMock(FormInterface::class);
 
-        $this->translator          = $this->createMock(Translator::class);
-        $this->security            = $this->createMock(CorePermissions::class);
-        $this->saveController      = new SaveController($this->managerRegistry);
-        $this->saveController->setTranslator($this->translator);
-        $this->saveController->setSecurity($this->security);
+//        $this->requestStack = $this->createRequestStackMock( 1, 2, "test");
+//
+//        $this->saveController     = new SaveController(
+//            $this->managerRegistry,
+//            $this->mauticFactory,
+//            $this->modelFactory,
+//            $this->userHelper,
+//            $this->coreParametersHelper,
+//            $this->dispatcher,
+//            $this->translator,
+//            $this->flashBag,
+//            $this->requestStack,
+//            $this->security
+//        );
+//        $this->saveController->setTranslator($this->translator);
+//        $this->saveController->setSecurity($this->security);
 
-        $this->addSymfonyDependencies($this->saveController);
+//        $this->addSymfonyDependencies($this->saveController);
     }
 
     public function testRenderFormIfCustomFieldNotFound(): void
@@ -66,7 +75,15 @@ class SaveControllerTest extends AbstractFieldControllerTest
         $panelId      = null;
         $panelCount   = null;
 
-        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount);
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount
+        );
+//
+//        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount);
 
         $this->customFieldModel->expects($this->once())
             ->method('fetchEntity')
@@ -76,7 +93,7 @@ class SaveControllerTest extends AbstractFieldControllerTest
             ->method('canEdit');
 
         $this->saveController->saveAction(
-            $requestStack,
+//            $requestStack,
             $this->formFactory,
             $this->customFieldModel,
             $this->customFieldFactory,
@@ -94,7 +111,15 @@ class SaveControllerTest extends AbstractFieldControllerTest
         $panelId    = null;
         $panelCount = null;
 
-        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount);
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount
+        );
+
+//        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount);
 
         $this->customFieldModel->expects($this->once())
             ->method('fetchEntity')
@@ -108,7 +133,7 @@ class SaveControllerTest extends AbstractFieldControllerTest
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->saveController->saveAction(
-            $requestStack,
+//            $requestStack,
             $this->formFactory,
             $this->customFieldModel,
             $this->customFieldFactory,
@@ -126,6 +151,14 @@ class SaveControllerTest extends AbstractFieldControllerTest
         $panelId    = null;
         $panelCount = null;
 
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount
+        );
+
         $customObject = $this->createMock(CustomObject::class);
         $customObject->expects($this->once())
             ->method('getId')
@@ -138,7 +171,16 @@ class SaveControllerTest extends AbstractFieldControllerTest
             ['custom_field', null, []],
             ['panelId', null, $panelCount],
         ];
-        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount, $mapExtras);
+
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount,
+            $mapExtras
+        );
+//        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount, $mapExtras);
 
         $this->customObjectModel->expects($this->once())
             ->method('fetchEntity')
@@ -171,7 +213,7 @@ class SaveControllerTest extends AbstractFieldControllerTest
 
         $this->form->expects($this->once())
             ->method('handleRequest')
-            ->with($requestStack->getCurrentRequest());
+            ->with($this->requestStack->getCurrentRequest());
 
         $this->form->expects($this->once())
             ->method('isValid')
@@ -196,7 +238,7 @@ class SaveControllerTest extends AbstractFieldControllerTest
             ->method('setCustomFields');
 
         $this->saveController->saveAction(
-            $requestStack,
+//            $requestStack,
             $this->formFactory,
             $this->customFieldModel,
             $this->customFieldFactory,
@@ -214,6 +256,14 @@ class SaveControllerTest extends AbstractFieldControllerTest
         $panelId    = null;
         $panelCount = null;
 
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount
+        );
+
         $customObject = $this->createMock(CustomObject::class);
         $customObject->expects($this->once())
             ->method('getId')
@@ -228,7 +278,16 @@ class SaveControllerTest extends AbstractFieldControllerTest
             ['panelCount', null, $panelCount],
             ['custom_field', null, []],
         ];
-        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount, $mapExtras);
+//        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount, $mapExtras);
+
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount,
+            $mapExtras
+        );
 
         $this->customObjectModel->expects($this->once())
             ->method('fetchEntity')
@@ -261,7 +320,7 @@ class SaveControllerTest extends AbstractFieldControllerTest
 
         $this->form->expects($this->once())
             ->method('handleRequest')
-            ->with($requestStack->getCurrentRequest());
+            ->with($this->requestStack->getCurrentRequest());
 
         $this->form->expects($this->once())
             ->method('isValid')
@@ -283,7 +342,7 @@ class SaveControllerTest extends AbstractFieldControllerTest
             ->method('setCustomFields');
 
         $this->saveController->saveAction(
-            $requestStack,
+//            $requestStack,
             $this->formFactory,
             $this->customFieldModel,
             $this->customFieldFactory,
@@ -312,7 +371,16 @@ class SaveControllerTest extends AbstractFieldControllerTest
             ['custom_field', null, []],
             ['custom_field', null, []],
         ];
-        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount, $mapExtras);
+
+        $this->createSaveController(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount,
+            $mapExtras
+        );
+//        $requestStack = $this->createRequestStackMock($objectId, $fieldId, $fieldType, $panelId, $panelCount, $mapExtras);
 
         $this->customObjectModel->expects($this->once())
             ->method('fetchEntity')
@@ -341,14 +409,14 @@ class SaveControllerTest extends AbstractFieldControllerTest
 
         $this->form->expects($this->once())
             ->method('handleRequest')
-            ->with($requestStack->getCurrentRequest());
+            ->with($this->requestStack->getCurrentRequest());
 
         $this->form->expects($this->once())
             ->method('isValid')
             ->willReturn(false);
 
         $this->saveController->saveAction(
-            $requestStack,
+//            $requestStack,
             $this->formFactory,
             $this->customFieldModel,
             $this->customFieldFactory,
@@ -356,5 +424,38 @@ class SaveControllerTest extends AbstractFieldControllerTest
             $this->fieldRouteProvider,
             $this->customObjectModel
         );
+    }
+
+    private function createSaveController(
+        ?int $objectId,
+        ?int $fieldId,
+        string $fieldType,
+        ?int $panelId = null,
+        ?int $panelCount = null,
+        array $mapExtras = []
+    ): void {
+        $this->requestStack  = $this->createRequestStackMock(
+            $objectId,
+            $fieldId,
+            $fieldType,
+            $panelId,
+            $panelCount,
+            $mapExtras
+        );
+
+        $this->saveController     = new SaveController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+
+        $this->addSymfonyDependencies($this->saveController);
     }
 }

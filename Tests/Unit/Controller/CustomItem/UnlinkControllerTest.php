@@ -30,10 +30,10 @@ class UnlinkControllerTest extends ControllerTestCase
      */
     private $customItemModel;
 
-    /**
-     * @var MockObject|FlashBag
-     */
-    private $flashBag;
+//    /**
+//     * @var MockObject|FlashBag
+//     */
+//    private $flashBag;
 
     /**
      * @var MockObject|CustomItemPermissionProvider
@@ -50,7 +50,7 @@ class UnlinkControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->customItemModel            = $this->createMock(CustomItemModel::class);
-        $this->flashBag                   = $this->createMock(FlashBag::class);
+//        $this->flashBag                   = $this->createMock(FlashBag::class);
         $this->permissionProvider         = $this->createMock(CustomItemPermissionProvider::class);
         $this->unlinkController           = new UnlinkController();
 

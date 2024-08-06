@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 class BatchDeleteController extends CommonController
 {
     public function deleteAction(
-        Request $request,
         CustomItemModel $customItemModel,
         SessionProviderFactory $sessionProviderFactory,
         CustomItemPermissionProvider $permissionProvider,
@@ -26,6 +25,8 @@ class BatchDeleteController extends CommonController
         FlashBag $flashBag,
         int $objectId
     ): Response {
+        $request = $this->getCurrentRequest();
+
         $itemIds  = json_decode($request->get('ids', '[]'), true);
         $page     = $sessionProviderFactory->createItemProvider($objectId)->getPage();
         $notFound = [];

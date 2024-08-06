@@ -38,13 +38,24 @@ class CancelControllerTest extends ControllerTestCase
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->request                = $this->createMock(Request::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
 
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
             ->willReturn($this->request);
 
-        $this->cancelController       = new CancelController($this->managerRegistry);
+        $this->cancelController       = new CancelController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
 
         $this->addSymfonyDependencies($this->cancelController);
 
@@ -68,7 +79,6 @@ class CancelControllerTest extends ControllerTestCase
             ->willReturn('some/route');
 
         $this->cancelController->cancelAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->routeProvider,
             $this->customItemModel,
@@ -101,7 +111,6 @@ class CancelControllerTest extends ControllerTestCase
             ->willReturn('some/route');
 
         $this->cancelController->cancelAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->routeProvider,
             $this->customItemModel,

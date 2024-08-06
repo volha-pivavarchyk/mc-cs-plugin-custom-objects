@@ -112,7 +112,6 @@ class DeleteControllerTest extends ControllerTestCase
             ->willReturn([]);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->customItemModel,
             $this->sessionProviderFactory,
             $this->flashBag,
@@ -146,7 +145,6 @@ class DeleteControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->customItemModel,
             $this->sessionProviderFactory,
             $this->flashBag,
@@ -188,21 +186,20 @@ class DeleteControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
 
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
             ->willReturn([[], 'test', 'test']);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->customItemModel,
             $this->sessionProviderFactory,
             $this->flashBag,

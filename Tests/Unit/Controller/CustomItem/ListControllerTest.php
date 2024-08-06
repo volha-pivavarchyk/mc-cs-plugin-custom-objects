@@ -50,7 +50,7 @@ class ListControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
-        $this->requestStack           = $this->createMock(RequestStack::class);
+//        $this->requestStack           = $this->createMock(RequestStack::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->customObjectModel      = $this->createMock(CustomObjectModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
@@ -58,14 +58,25 @@ class ListControllerTest extends ControllerTestCase
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->request                = $this->createMock(Request::class);
 
-        $this->translator             = $this->createMock(Translator::class);
-        $this->modelFactory           = $this->createMock(ModelFactory::class);
+//        $this->translator             = $this->createMock(Translator::class);
+//        $this->modelFactory           = $this->createMock(ModelFactory::class);
         $this->model                  = $this->createMock(NotificationModel::class);
 
-        $this->listController         = new ListController($this->managerRegistry);
-        $this->listController->setTranslator($this->translator);
-        $this->listController->setModelFactory($this->modelFactory);
-        $this->listController->setSecurity($this->security);
+        $this->listController         = new ListController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+//        $this->listController->setTranslator($this->translator);
+//        $this->listController->setModelFactory($this->modelFactory);
+//        $this->listController->setSecurity($this->security);
 
         $this->addSymfonyDependencies($this->listController);
 
@@ -89,7 +100,6 @@ class ListControllerTest extends ControllerTestCase
             ->willReturn([]);
 
         $this->listController->listAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customItemModel,
             $this->customObjectModel,
@@ -116,7 +126,6 @@ class ListControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->listController->listAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customItemModel,
             $this->customObjectModel,
@@ -185,7 +194,6 @@ class ListControllerTest extends ControllerTestCase
             ->with($pageLimit);
 
         $this->listController->listAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customItemModel,
             $this->customObjectModel,
@@ -274,21 +282,20 @@ class ListControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
-
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
+//
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
             ->willReturn([[], 'test', 'test']);
 
         $this->listController->listAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customItemModel,
             $this->customObjectModel,

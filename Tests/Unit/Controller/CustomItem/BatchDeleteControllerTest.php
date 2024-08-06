@@ -87,14 +87,14 @@ class BatchDeleteControllerTest extends ControllerTestCase
         $this->request->method('isXmlHttpRequest')->willReturn(true);
         $this->sessionProviderFactory->method('createItemProvider')->willReturn($this->sessionProvider);
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-            ->method('get')
-            ->willReturn('test');
-
-        $this->request->expects($this->exactly(2))
-            ->method('getSession')
-            ->willReturn($session);
+//        $session = $this->createMock(SessionInterface::class);
+//        $session->expects($this->once())
+//            ->method('get')
+//            ->willReturn('test');
+//
+//        $this->request->expects($this->exactly(2))
+//            ->method('getSession')
+//            ->willReturn($session);
 
         $this->model->expects($this->once())
             ->method('getNotificationContent')
@@ -123,7 +123,6 @@ class BatchDeleteControllerTest extends ControllerTestCase
             ->with('custom.item.error.items.not.found', ['%ids%' => '13,14'], FlashBag::LEVEL_ERROR);
 
         $this->batchDeleteController->deleteAction(
-            $this->requestStack,
             $this->customItemModel,
             $this->sessionProviderFactory,
             $this->permissionProvider,

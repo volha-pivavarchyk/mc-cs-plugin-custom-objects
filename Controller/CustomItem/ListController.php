@@ -21,7 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 class ListController extends CommonController
 {
     public function listAction(
-        Request $request,
         SessionProviderFactory $sessionProviderFactory,
         CustomItemModel $customItemModel,
         CustomObjectModel $customObjectModel,
@@ -30,6 +29,8 @@ class ListController extends CommonController
         int $objectId,
         int $page = 1
     ): Response {
+        $request = $this->getCurrentRequest();
+
         try {
             $permissionProvider->canViewAtAll($objectId);
             $customObject = $customObjectModel->fetchEntity($objectId);

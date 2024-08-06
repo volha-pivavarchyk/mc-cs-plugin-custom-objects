@@ -19,13 +19,14 @@ use Symfony\Component\HttpFoundation\Response;
 class ListController extends CommonController
 {
     public function listAction(
-        Request $request,
         SessionProviderFactory $sessionProviderFactory,
         CustomObjectModel $customObjectModel,
         CustomObjectPermissionProvider $permissionProvider,
         CustomObjectRouteProvider $routeProvider,
         int $page = 1
     ): Response {
+        $request = $this->getCurrentRequest();
+
         try {
             $permissionProvider->canViewAtAll();
         } catch (ForbiddenException $e) {

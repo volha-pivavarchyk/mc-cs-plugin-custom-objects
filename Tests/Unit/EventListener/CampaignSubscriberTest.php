@@ -414,7 +414,7 @@ class CampaignSubscriberTest extends TestCase
             ->willReturn($this->customField);
 
         $this->statement->expects($this->once())
-            ->method('fetchColumn')
+            ->method('fetchOne')
             ->willReturn(false);
 
         $this->campaignExecutionEvent->expects($this->once())
@@ -474,7 +474,7 @@ class CampaignSubscriberTest extends TestCase
             ->with('customItem', 4344);
 
         $this->statement->expects($this->once())
-            ->method('fetchColumn')
+            ->method('fetchOne')
             ->willReturn('4344');
 
         $this->campaignExecutionEvent->expects($this->once())

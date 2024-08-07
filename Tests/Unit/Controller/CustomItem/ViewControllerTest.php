@@ -57,17 +57,28 @@ class ViewControllerTest extends ControllerTestCase
         $this->formFactory                = $this->createMock(FormFactoryInterface::class);
         $this->form                       = $this->createMock(FormInterface::class);
         $this->customItem                 = $this->createMock(CustomItem::class);
-        $this->requestStack               = $this->createMock(RequestStack::class);
+//        $this->requestStack               = $this->createMock(RequestStack::class);
         $this->request                    = $this->createMock(Request::class);
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
             ->willReturn($this->request);
 
-        $this->translator                 = $this->createMock(Translator::class);
+//        $this->translator                 = $this->createMock(Translator::class);
 
-        $this->viewController             = new ViewController($this->managerRegistry);
-        $this->viewController->setTranslator($this->translator);
-        $this->viewController->setSecurity($this->security);
+        $this->viewController             = new ViewController(
+            $this->managerRegistry,
+            $this->mauticFactory,
+            $this->modelFactory,
+            $this->userHelper,
+            $this->coreParametersHelper,
+            $this->dispatcher,
+            $this->translator,
+            $this->flashBag,
+            $this->requestStack,
+            $this->security
+        );
+//        $this->viewController->setTranslator($this->translator);
+//        $this->viewController->setSecurity($this->security);
 
         $this->addSymfonyDependencies($this->viewController);
     }
@@ -91,7 +102,7 @@ class ViewControllerTest extends ControllerTestCase
             ->willReturn([]);
 
         $this->viewController->viewAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->customItemModel,
             $this->customItemXrefContactModel,
@@ -123,7 +134,7 @@ class ViewControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->viewController->viewAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->customItemModel,
             $this->customItemXrefContactModel,
@@ -191,7 +202,7 @@ class ViewControllerTest extends ControllerTestCase
             ->with('customItem', self::ITEM_ID, '2019-01-04 10:20:30', 10, 'customObjects');
 
         $this->viewController->viewAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->formFactory,
             $this->customItemModel,
             $this->customItemXrefContactModel,

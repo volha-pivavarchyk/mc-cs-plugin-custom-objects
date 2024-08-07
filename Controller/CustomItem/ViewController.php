@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ViewController extends CommonController
 {
     public function viewAction(
-        Request $request,
+//        Request $request,
         FormFactoryInterface $formFactory,
         CustomItemModel $customItemModel,
         CustomItemXrefContactModel $customItemXrefContactModel,
@@ -30,6 +30,8 @@ class ViewController extends CommonController
         int $objectId,
         int $itemId
     ): Response {
+        $request = $this->getCurrentRequest();
+
         try {
             $customItem = $customItemModel->fetchEntity($itemId);
             $permissionProvider->canView($customItem);

@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ViewController extends CommonController
 {
     public function viewAction(
-        Request $request,
+//        Request $request,
         FormFactoryInterface $formFactory,
         CustomObjectModel $customObjectModel,
         AuditLogModel $auditLogModel,
@@ -27,6 +27,8 @@ class ViewController extends CommonController
         CustomObjectRouteProvider $routeProvider,
         int $objectId
     ): Response {
+        $request = $this->getCurrentRequest();
+
         try {
             $customObject = $customObjectModel->fetchEntity($objectId);
             $permissionProvider->canView($customObject);

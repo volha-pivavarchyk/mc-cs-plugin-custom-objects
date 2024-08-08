@@ -81,7 +81,7 @@ class CustomItemModel extends FormModel
             throw new InvalidValueException($errors->get(0)->getMessage());
         }
 
-        $this->dispatcher->dispatch(new CustomItemEvent($customItem, $customItem->isNew(), CustomItemEvents::ON_CUSTOM_ITEM_PRE_SAVE));
+        $this->dispatcher->dispatch(new CustomItemEvent($customItem, $customItem->isNew()), CustomItemEvents::ON_CUSTOM_ITEM_PRE_SAVE);
 
         if (!$dryRun) {
             if ($customItem->isNew()) {
@@ -113,7 +113,7 @@ class CustomItemModel extends FormModel
 
             $customItem->recordCustomFieldValueChanges();
 
-            $this->dispatcher->dispatch(new CustomItemEvent($customItem, $customItem->isNew(), CustomItemEvents::ON_CUSTOM_ITEM_POST_SAVE));
+            $this->dispatcher->dispatch(new CustomItemEvent($customItem, $customItem->isNew()), CustomItemEvents::ON_CUSTOM_ITEM_POST_SAVE);
         }
 
         return $customItem;
@@ -230,7 +230,7 @@ class CustomItemModel extends FormModel
             CustomItemEvents::ON_CUSTOM_ITEM_LIST_DBAL_QUERY
         );
 
-        return $queryBuilder->execute()->fetchAll();
+        return $queryBuilder->execute()->fetchAllAssociative();
     }
 
     public function getCountForTable(TableConfig $tableConfig): int

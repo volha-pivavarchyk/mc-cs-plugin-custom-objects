@@ -55,7 +55,7 @@ class LookupControllerTest extends ControllerTestCase
             ->method('getLookupData');
 
         $this->lookupController->listAction(
-            $this->requestStack,
+            $this->request,
             $this->customItemModel,
             $this->permissionProvider,
             $this->flashBag,
@@ -87,7 +87,7 @@ class LookupControllerTest extends ControllerTestCase
             }));
 
         $this->lookupController->listAction(
-            $this->requestStack,
+            $this->request,
             $this->customItemModel,
             $this->permissionProvider,
             $this->flashBag,
@@ -124,7 +124,7 @@ class LookupControllerTest extends ControllerTestCase
             }));
 
         $this->lookupController->listAction(
-            $this->requestStack,
+            $this->request,
             $this->customItemModel,
             $this->permissionProvider,
             $this->flashBag,

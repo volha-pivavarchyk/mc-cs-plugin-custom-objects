@@ -208,6 +208,10 @@ class ListControllerTest extends ControllerTestCase
             ->method('setPageLimit')
             ->with($pageLimit);
 
+        $this->sessionProvider->expects($this->once())
+            ->method('setPageLimit')
+            ->with($pageLimit);
+
         $this->listController->listAction(
             $this->sessionProviderFactory,
             $this->customObjectModel,

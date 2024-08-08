@@ -158,7 +158,7 @@ class BatchDeleteControllerTest extends ControllerTestCase
             ->with('custom.item.error.items.denied', ['%ids%' => '13,14'], FlashBag::LEVEL_ERROR);
 
         $this->batchDeleteController->deleteAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->customItemModel,
             $this->sessionProviderFactory,
             $this->permissionProvider,
@@ -203,7 +203,7 @@ class BatchDeleteControllerTest extends ControllerTestCase
             ->with(33, 3);
 
         $this->batchDeleteController->deleteAction(
-            $this->requestStack,
+//            $this->requestStack,
             $this->customItemModel,
             $this->sessionProviderFactory,
             $this->permissionProvider,

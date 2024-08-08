@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomItem;
 
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Mautic\CoreBundle\Service\FlashBag;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomItem\LinkController;
@@ -74,8 +74,8 @@ class LinkControllerTest extends ControllerTestCase
             ->will(
                 $this->throwException(
                     new UniqueConstraintViolationException(
-                        'a message',
-                        $this->createMock(DriverException::class)
+                        $this->createMock(TheDriverException::class),
+                        null
                     )
                 )
             );

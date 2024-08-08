@@ -25,14 +25,15 @@ class CustomItemExportCommandTest extends CustomObjectTestCase
         parent::setUp();
 
         $this->customItemModel = self::$container->get('mautic.custom.model.item');
+//        self::bootKernel();
+//        $this->client = static::createClient();
 
         $this->createMockData();
     }
 
     public function testCustomItemExport(): void
     {
-        $client = static::createClient();
-        $client->enableProfiler();
+        $this->client->enableProfiler();
 
         $commandTester = $this->getCustomItemExportCommandTester();
         $this->em->clear();

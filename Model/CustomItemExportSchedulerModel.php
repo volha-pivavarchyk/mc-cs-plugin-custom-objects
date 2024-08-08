@@ -87,7 +87,7 @@ class CustomItemExportSchedulerModel extends AbstractCommonModel
         $scheduledDateTime = $customItemExportScheduler->getScheduledDateTime();
         $fileName          = 'custom_items_export_'.$scheduledDateTime->format(self::EXPORT_FILE_NAME_DATE_FORMAT).'.csv';
 
-        $filePath = $this->exportHelper->getValidExportFileName($fileName, 'custom_item_export_dir');
+        $filePath = $this->exportHelper->getValidContactExportFileName($fileName, 'custom_item_export_dir');
 
         $this->filePath = $filePath;
 
@@ -200,9 +200,9 @@ class CustomItemExportSchedulerModel extends AbstractCommonModel
                     $rowData   = $savedRow;
                     $rowData[] = implode(',', $results);
 
-                    if ($this->eventDispatcher->hasListeners(CustomItemEvents::ON_PROCESSING_FILE)) {
-                        $this->eventDispatcher->dispatch(CustomItemEvents::ON_PROCESSING_FILE);
-                    }
+//                    if ($this->dispatcher->hasListeners(CustomItemEvents::ON_PROCESSING_FILE)) {
+//                        $this->dispatcher->dispatch(CustomItemEvents::ON_PROCESSING_FILE);
+//                    }
 
                     fputcsv($handler, $rowData);
                     $customItemAdded = true;

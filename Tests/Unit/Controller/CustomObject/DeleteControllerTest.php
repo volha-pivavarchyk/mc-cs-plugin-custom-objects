@@ -115,12 +115,11 @@ class DeleteControllerTest extends ControllerTestCase
             ->willReturn([]);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customObjectModel,
             $this->flashBag,
             $this->permissionProvider,
-            $this->eventDispatcher,
+            $this->dispatcher,
             self::OBJECT_ID
         );
     }
@@ -148,12 +147,11 @@ class DeleteControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customObjectModel,
             $this->flashBag,
             $this->permissionProvider,
-            $this->eventDispatcher,
+            $this->dispatcher,
             self::OBJECT_ID
         );
     }
@@ -177,12 +175,11 @@ class DeleteControllerTest extends ControllerTestCase
             ->willReturn(3);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customObjectModel,
             $this->flashBag,
             $this->permissionProvider,
-            $this->eventDispatcher,
+            $this->dispatcher,
             self::OBJECT_ID
         );
     }
@@ -198,7 +195,7 @@ class DeleteControllerTest extends ControllerTestCase
             ->with(self::OBJECT_ID)
             ->willReturn($customObject);
 
-        $this->eventDispatcher->expects($this->never())
+        $this->dispatcher->expects($this->never())
             ->method('dispatch');
 
         $this->flashBag->expects($this->once())
@@ -217,12 +214,11 @@ class DeleteControllerTest extends ControllerTestCase
             ->willThrowException($inUseException);
 
         $this->deleteController->deleteAction(
-            $this->requestStack,
             $this->sessionProviderFactory,
             $this->customObjectModel,
             $this->flashBag,
             $this->permissionProvider,
-            $this->eventDispatcher,
+            $this->dispatcher,
             self::OBJECT_ID
         );
     }

@@ -123,8 +123,8 @@ class ContactTabSubscriberTest extends TestCase
             ->method('checkContext')
             ->willReturnMap(
                 [
-                    ['MauticLeadBundle:Lead:lead.html.twig', 'tabs', true],
-                    ['MauticLeadBundle:Lead:lead.html.twig', 'tabs.content', false],
+                    ['@MauticLead/Lead/lead.html.twig', 'tabs', true],
+                    ['@MauticLead/Lead/lead.html.twig', 'tabs.content', false],
                 ]
             );
 
@@ -136,7 +136,7 @@ class ContactTabSubscriberTest extends TestCase
             ->method('addTemplate')
             ->withConsecutive(
                 [
-                    'CustomObjectsBundle:SubscribedEvents/Tab:link.html.twig',
+                    '@CustomObjects/SubscribedEvents/Tab/link.html.twig',
                     [
                         'count' => 13,
                         'title' => 'Object A',
@@ -144,7 +144,7 @@ class ContactTabSubscriberTest extends TestCase
                     ],
                 ],
                 [
-                    'CustomObjectsBundle:SubscribedEvents/Tab:modal.html.twig',
+                    '@CustomObjects/SubscribedEvents/Tab/modal.html.twig',
                 ]
             );
 
@@ -176,8 +176,8 @@ class ContactTabSubscriberTest extends TestCase
             ->method('checkContext')
             ->willReturnMap(
                 [
-                    ['MauticLeadBundle:Lead:lead.html.twig', 'tabs', false],
-                    ['MauticLeadBundle:Lead:lead.html.twig', 'tabs.content', true],
+                    ['@MauticLead/Lead/lead.html.twig', 'tabs', false],
+                    ['@MauticLead/Lead/lead.html.twig', 'tabs.content', true],
                 ]
             );
 
@@ -218,7 +218,7 @@ class ContactTabSubscriberTest extends TestCase
         $this->customContentEvent->expects($this->once())
             ->method('addTemplate')
             ->with(
-                'CustomObjectsBundle:SubscribedEvents/Tab:content.html.twig',
+                '@CustomObjects/SubscribedEvents/Tab/content.html.twig',
                 [
                     'customObjectId'       => 555,
                     'currentEntityId'      => 45,

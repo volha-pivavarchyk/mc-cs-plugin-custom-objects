@@ -7,6 +7,7 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManager;
@@ -414,17 +415,20 @@ class CustomItemModelTest extends TestCase
             ->method('select')
             ->willReturn(CustomItem::TABLE_ALIAS.'.*');
 
+        $result = $this->createMock(Result::class);
+
+        $result->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
+
         $this->dbalQueryBuilder->expects($this->once())
             ->method('execute')
-            ->willReturn($this->statement);
+            ->willReturn($result);
+//            ->willReturn($this->statement);
 
         $this->dbalQueryBuilder->expects($this->once())
             ->method('setParameter')
             ->with('customObjectId', 44);
-
-        $this->statement->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([]);
 
         $this->dispatcher->expects($this->once())
             ->method('dispatch');

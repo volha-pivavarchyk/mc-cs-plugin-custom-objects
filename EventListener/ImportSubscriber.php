@@ -162,7 +162,7 @@ class ImportSubscriber implements EventSubscriberInterface
         if (empty($matchedFields)) {
             $form->addError(
                 new FormError(
-                    $this->translator->trans('mautic.lead.import.matchfields', [], 'validators')
+                    $this->translator->trans('mautic.lead.import.matchfields', [], 'validators') ?? ''
                 )
             );
 

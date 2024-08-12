@@ -155,18 +155,18 @@ class MenuSubscriberTest extends TestCase
             ->method('fetchAllPublishedEntities');
 
         $this->menuEvent->expects($this->once())
-            ->method('addMenuItems')
-            ->willReturn([
-                'priority' => 61,
-                'items'    => [
-                    'custom.object.config.menu.title' => [
-                        'id'        => CustomObjectRouteProvider::ROUTE_LIST,
-                        'route'     => CustomObjectRouteProvider::ROUTE_LIST,
-                        'access'    => 'custom_objects:custom_objects:view',
-                        'iconClass' => 'fa-list-alt',
-                    ],
-                ],
-            ]);
+            ->method('addMenuItems');
+//            ->willReturn([
+//                'priority' => 61,
+//                'items'    => [
+//                    'custom.object.config.menu.title' => [
+//                        'id'        => CustomObjectRouteProvider::ROUTE_LIST,
+//                        'route'     => CustomObjectRouteProvider::ROUTE_LIST,
+//                        'access'    => 'custom_objects:custom_objects:view',
+//                        'iconClass' => 'fa-list-alt',
+//                    ],
+//                ],
+//            ]);
 
         $this->menuSubscriber->onBuildMenu($this->menuEvent);
     }

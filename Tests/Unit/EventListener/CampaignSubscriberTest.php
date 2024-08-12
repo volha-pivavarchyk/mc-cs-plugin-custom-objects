@@ -7,6 +7,7 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\EventListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
@@ -52,6 +53,7 @@ class CampaignSubscriberTest extends TestCase
     private $queryBuilder;
     private $segmentQueryBuilder;
     private $statement;
+    private $result;
 
     /**
      * @var CampaignSubscriber
@@ -81,6 +83,7 @@ class CampaignSubscriberTest extends TestCase
         $this->queryBuilder           = $this->createMock(QueryBuilder::class);
         $this->segmentQueryBuilder    = $this->createMock(SegmentQueryBuilder::class);
         $this->statement              = $this->createMock(Statement::class);
+        $this->result                 = $this->createMock(Result::class);
         $this->campaignSubscriber     = new CampaignSubscriber(
             $this->customFieldModel,
             $this->customObjectModel,
@@ -380,7 +383,8 @@ class CampaignSubscriberTest extends TestCase
 
         $this->queryBuilder->expects($this->once())
             ->method('execute')
-            ->willReturn($this->statement);
+            ->willReturn($this->result);
+//            ->willReturn($this->statement);
 
         $this->queryFilterFactory->expects($this->once())
             ->method('configureQueryBuilderFromSegmentFilter')
@@ -413,7 +417,8 @@ class CampaignSubscriberTest extends TestCase
             ->method('fetchEntity')
             ->willReturn($this->customField);
 
-        $this->statement->expects($this->once())
+        $this->result->expects($this->once())
+//        $this->statement->expects($this->once())
             ->method('fetchOne')
             ->willReturn(false);
 
@@ -436,7 +441,8 @@ class CampaignSubscriberTest extends TestCase
 
         $this->queryBuilder->expects($this->once())
             ->method('execute')
-            ->willReturn($this->statement);
+            ->willReturn($this->result);
+//            ->willReturn($this->statement);
 
         $this->queryFilterFactory->expects($this->once())
             ->method('configureQueryBuilderFromSegmentFilter')
@@ -473,7 +479,11 @@ class CampaignSubscriberTest extends TestCase
             ->method('setChannel')
             ->with('customItem', 4344);
 
-        $this->statement->expects($this->once())
+//        $this->statement->expects($this->once())
+//            ->method('fetchOne')
+//            ->willReturn('4344');
+
+        $this->result->expects($this->once())
             ->method('fetchOne')
             ->willReturn('4344');
 

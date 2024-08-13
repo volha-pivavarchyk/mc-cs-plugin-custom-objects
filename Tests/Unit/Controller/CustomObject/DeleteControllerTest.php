@@ -167,7 +167,7 @@ class DeleteControllerTest extends ControllerTestCase
             ->with(self::OBJECT_ID)
             ->willReturn($customObject);
 
-        $this->eventDispatcher->expects($this->once())
+        $this->dispatcher->expects($this->once())
             ->method('dispatch');
 
         $this->sessionProvider->expects($this->once())

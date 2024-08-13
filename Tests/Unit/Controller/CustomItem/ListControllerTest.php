@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomItem;
 
 use AllowDynamicProperties;
-use Mautic\CoreBundle\Factory\ModelFactory;
-use Mautic\CoreBundle\Model\NotificationModel;
-use Mautic\CoreBundle\Translation\Translator;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomItem\ListController;
 use MauticPlugin\CustomObjectsBundle\DTO\TableConfig;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
@@ -22,8 +19,6 @@ use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AllowDynamicProperties]
@@ -50,17 +45,12 @@ class ListControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
-//        $this->requestStack           = $this->createMock(RequestStack::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->customObjectModel      = $this->createMock(CustomObjectModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
         $this->permissionProvider     = $this->createMock(CustomItemPermissionProvider::class);
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->request                = $this->createMock(Request::class);
-
-//        $this->translator             = $this->createMock(Translator::class);
-//        $this->modelFactory           = $this->createMock(ModelFactory::class);
-        $this->model                  = $this->createMock(NotificationModel::class);
 
         $this->listController         = new ListController(
             $this->managerRegistry,
@@ -74,9 +64,6 @@ class ListControllerTest extends ControllerTestCase
             $this->requestStack,
             $this->security
         );
-//        $this->listController->setTranslator($this->translator);
-//        $this->listController->setModelFactory($this->modelFactory);
-//        $this->listController->setSecurity($this->security);
 
         $this->addSymfonyDependencies($this->listController);
 
@@ -277,23 +264,6 @@ class ListControllerTest extends ControllerTestCase
         $this->sessionProvider->expects($this->once())
             ->method('setPageLimit')
             ->with($pageLimit);
-
-        $this->modelFactory->expects($this->once())
-            ->method('getModel')
-            ->willReturn($this->model);
-
-//        $session = $this->createMock(SessionInterface::class);
-//        $session->expects($this->once())
-//            ->method('get')
-//            ->willReturn('test');
-//
-//        $this->request->expects($this->exactly(2))
-//            ->method('getSession')
-//            ->willReturn($session);
-
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
 
         $this->listController->listAction(
             $this->sessionProviderFactory,

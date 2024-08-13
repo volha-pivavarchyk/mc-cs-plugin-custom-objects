@@ -123,11 +123,11 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
         $requestStack = empty($this->requestStack) ? $this->createMock(RequestStack::class) : $this->requestStack;
         $request      = empty($this->request) ? $this->createMock(Request::class) : $this->request;
         $session      = empty($this->session) ? $this->createMock(Session::class) : $this->session;
+        $modelFactory = empty($this->modelFactory) ? $this->createMock(ModelFactory::class) : $this->modelFactory;
 
         $httpKernel        = $this->createMock(HttpKernel::class);
         $response          = $this->createMock(Response::class);
         $twig              = $this->createMock(Environment::class);
-        $modelFactory      = $this->createMock(ModelFactory::class);
         $notificationModel = $this->createMock(NotificationModel::class);
 
         $this->container->method('get')->willReturnMap([

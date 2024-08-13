@@ -100,7 +100,7 @@ class DynamicContentSubscriber implements EventSubscriberInterface
                     $event->setIsEvaluated(true);
                 }
             } catch (PDOException $e) {
-                $this->logger->addError('Failed to evaluate dynamic content for custom object '.$e->getMessage());
+                $this->logger->error('Failed to evaluate dynamic content for custom object '.$e->getMessage());
 
                 throw $e;
             }

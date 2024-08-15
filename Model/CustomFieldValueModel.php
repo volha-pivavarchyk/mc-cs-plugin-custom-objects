@@ -192,7 +192,7 @@ class CustomFieldValueModel
         $query     = implode(' UNION ALL ', $queries->toArray());
         $statement = $this->entityManager->getConnection()->prepare($query);
 
-        return new ArrayCollection($statement->execute()->fetchAll());
+        return new ArrayCollection($statement->executeQuery()->fetchAllAssociative());
     }
 
     private function buildQueriesForUnion(CustomItem $customItem, Collection $customFields): Collection

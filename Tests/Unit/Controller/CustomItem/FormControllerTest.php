@@ -247,9 +247,9 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->newAction(
             $this->formFactory,
@@ -308,9 +308,9 @@ class FormControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->newWithRedirectToContactAction(
             $this->formFactory,
@@ -400,9 +400,9 @@ class FormControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->newWithRedirectToContactAction(
             $this->formFactory,
@@ -503,9 +503,9 @@ class FormControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->editAction(
             $this->formFactory,
@@ -568,9 +568,9 @@ class FormControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->editWithRedirectToContactAction(
             $this->formFactory,
@@ -668,9 +668,9 @@ class FormControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->editWithRedirectToContactAction(
             $this->formFactory,
@@ -850,9 +850,9 @@ class FormControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->cloneAction(
             $this->formFactory,

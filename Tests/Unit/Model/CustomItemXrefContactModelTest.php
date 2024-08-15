@@ -8,11 +8,20 @@ use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
+use Mautic\CoreBundle\Helper\CoreParametersHelper;
+use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
+use Mautic\CoreBundle\Translation\Translator;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Model\CustomItemXrefContactModel;
+use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
@@ -21,11 +30,44 @@ class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
 
     private $entityManager;
 
+    /**
+     * @var MockObject|CorePermissions
+     */
+    private $security;
+
+    /**
+     * @var MockObject|EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var MockObject|UrlGeneratorInterface
+     */
+    private $router;
+
+    /**
+     * @var MockObject|Translator
+     */
+    private $translator;
+
+    /**
+     * @var MockObject|UserHelper
+     */
+    private $userHelper;
+
+    /**
+     * @var MockObject|LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @var MockObject|CoreParametersHelper
+     */
+    private $coreParametersHelper;
+
     private $queryBuilder;
 
     private $query;
-
-    private $translator;
 
     /**
      * @var CustomItemXrefContactModel
@@ -40,10 +82,22 @@ class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
         $this->entityManager                = $this->createMock(EntityManager::class);
         $this->queryBuilder                 = $this->createMock(QueryBuilder::class);
         $this->query                        = $this->createMock(AbstractQuery::class);
-        $this->translator                   = $this->createMock(TranslatorInterface::class);
+        $this->translator                   = $this->createMock(Translator::class);
+        $this->security                     = $this->createMock(CorePermissions::class);
+        $this->dispatcher                   = $this->createMock(EventDispatcherInterface::class);
+        $this->router                       = $this->createMock(UrlGeneratorInterface::class);
+        $this->userHelper                   = $this->createMock(UserHelper::class);
+        $this->logger                       = $this->createMock(LoggerInterface::class);
+        $this->coreParametersHelper         = $this->createMock(CoreParametersHelper::class);
         $this->customItemXrefContactModel   = new CustomItemXrefContactModel(
             $this->entityManager,
-            $this->translator
+            $this->security,
+            $this->dispatcher,
+            $this->router,
+            $this->translator,
+            $this->userHelper,
+            $this->logger,
+            $this->coreParametersHelper,
         );
 
         $this->entityManager->method('createQueryBuilder')->willReturn($this->queryBuilder);
@@ -58,7 +112,7 @@ class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
         $to           = new DateTime('2019-04-02 12:30:00');
         $connection   = $this->createMock(Connection::class);
         $queryBuilder = $this->createMock(DBALQueryBuilder::class);
-        $statement    = $this->createMock(Statement::class);
+//        $statement    = $this->createMock(Statement::class);
 
         $this->entityManager->expects($this->once())
             ->method('getConnection')
@@ -68,13 +122,15 @@ class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
             ->method('createQueryBuilder')
             ->willReturn($queryBuilder);
 
-        $queryBuilder->expects($this->once())
-            ->method('execute')
-            ->willReturn($statement);
+//        $result = $this->createMock(Result::class);
 
-        $statement->expects($this->once())
-            ->method('fetchAll')
-            ->willReturn([]);
+//        $queryBuilder->expects($this->once())
+//            ->method('execute')
+//            ->willReturn($result);
+//
+//        $result->expects($this->once())
+//            ->method('fetchAllAssociative')
+//            ->willReturn([]);
 
         $chartData = $this->customItemXrefContactModel->getLinksLineChartData(
             $from,

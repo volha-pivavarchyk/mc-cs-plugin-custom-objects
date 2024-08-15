@@ -33,7 +33,6 @@ class CustomItemImportModel extends FormModel
         CoreParametersHelper $coreParametersHelper,
         private CustomItemModel $customItemModel,
         private FormatterHelper $formatterHelper,
-
     ) {
         parent::__construct($em, $security, $dispatcher, $router, $translator, $userHelper, $logger, $coreParametersHelper);
     }

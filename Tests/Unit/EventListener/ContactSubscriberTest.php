@@ -176,7 +176,7 @@ class ContactSubscriberTest extends \PHPUnit\Framework\TestCase
                     'id'         => 444,
                 ],
                 'contactId'       => 333,
-                '@CustomObjects/SubscribedEvents/Timeline/link.html.twig',
+                'contentTemplate' => '@CustomObjects/SubscribedEvents/Timeline/link.html.twig',
             ]);
 
         $this->subscriber->onTimelineGenerate($this->leadTimelineEvent);

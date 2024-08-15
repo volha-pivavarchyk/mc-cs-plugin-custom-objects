@@ -118,7 +118,7 @@ class CustomItemTabSubscriberTest extends TestCase
             ->method('addTemplate')
             ->withConsecutive(
                 [
-                    'CustomObjectsBundle:SubscribedEvents/Tab:link.html.twig',
+                    '@CustomObjects/SubscribedEvents/Tab/link.html.twig',
                     [
                         'count' => 13,
                         'title' => 'Object A',
@@ -126,7 +126,7 @@ class CustomItemTabSubscriberTest extends TestCase
                     ],
                 ],
                 [
-                    'CustomObjectsBundle:SubscribedEvents/Tab:modal.html.twig',
+                    '@CustomObjects/SubscribedEvents/Tab/modal.html.twig',
                 ]
             );
 
@@ -169,7 +169,7 @@ class CustomItemTabSubscriberTest extends TestCase
 
         $this->customContentEvent->expects($this->once())
             ->method('addTemplate')
-            ->with('CustomObjectsBundle:SubscribedEvents/Tab:modal.html.twig');
+            ->with('@CustomObjects/SubscribedEvents/Tab/modal.html.twig');
 
         $this->customObjectModel->expects($this->once())
             ->method('getMasterCustomObjects')
@@ -236,7 +236,7 @@ class CustomItemTabSubscriberTest extends TestCase
         $this->customContentEvent->expects($this->once())
             ->method('addTemplate')
             ->with(
-                'CustomObjectsBundle:SubscribedEvents/Tab:content.html.twig',
+                '@CustomObjects/SubscribedEvents/Tab/content.html.twig',
                 [
                     'customObjectId'    => 555,
                     'currentEntityId'   => 45,

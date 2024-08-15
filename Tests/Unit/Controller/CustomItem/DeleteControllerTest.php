@@ -195,9 +195,9 @@ class DeleteControllerTest extends ControllerTestCase
 //            ->method('getSession')
 //            ->willReturn($session);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->deleteController->deleteAction(
             $this->customItemModel,

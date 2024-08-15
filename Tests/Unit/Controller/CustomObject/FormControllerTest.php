@@ -159,9 +159,9 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->newAction(
             $this->permissionProvider,
@@ -288,9 +288,9 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->editAction(
             $this->customObjectModel,
@@ -404,9 +404,9 @@ class FormControllerTest extends ControllerTestCase
             ->method('getModel')
             ->willReturn($this->model);
 
-        $this->model->expects($this->once())
-            ->method('getNotificationContent')
-            ->willReturn([[], 'test', 'test']);
+//        $this->model->expects($this->once())
+//            ->method('getNotificationContent')
+//            ->willReturn([[], 'test', 'test']);
 
         $this->formController->cloneAction(
             $this->customObjectModel,

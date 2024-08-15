@@ -7,6 +7,7 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManager;
@@ -177,11 +178,14 @@ class CustomFieldValueModelTest extends \PHPUnit\Framework\TestCase
             ->with('THE TEXT FIELD SQL QUERY UNION ALL THE NUMBER FIELD SQL QUERY')
             ->willReturn($this->statement);
 
-        $this->statement->expects($this->once())
-            ->method('execute');
+        $result = $this->createMock(Result::class);
 
         $this->statement->expects($this->once())
-            ->method('fetchAll')
+            ->method('execute')
+            ->willReturn($result);
+
+        $result->expects($this->once())
+            ->method('fetchAssociative')
             ->willReturn([[
                 'custom_field_id' => 44,
                 'custom_item_id'  => 33,

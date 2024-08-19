@@ -6,7 +6,8 @@
     {{ date }}
 {% elseif customFieldType in fieldTypes %}
 {# TODO: Transform to string #}
-    {{ '%s'|format(fieldValue.getCustomField().getTypeObject()|escape)|raw }}
+{#    {{ '%s'|format(fieldValue.getCustomField().getTypeObject()|escape)|raw }}#}
+    {{ '%s'|format(fieldValue.getValue()|first|escape)|raw }}
 {% elseif fieldValue.getValue() is iterable %}
     {{ fieldValue.getValue()|join(', ') }}
 {% else %}

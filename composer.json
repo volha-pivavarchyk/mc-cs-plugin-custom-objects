@@ -31,9 +31,7 @@
     "require": {
         "php": ">=7.4",
         "ext-mbstring": "*",
-        "mautic/core-lib": "^4.3"
-    },
-    "require-dev": {
+        "mautic/core-lib": "^4.3",
         "theofidry/alice-data-fixtures": "^1.1"
     },
     "scripts": {

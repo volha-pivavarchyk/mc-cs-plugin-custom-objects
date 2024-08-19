@@ -108,7 +108,7 @@ class CustomItemListControllerShownFieldTest extends MauticMysqlTestCase
         $this->em->flush();
 
         $crawler      = $this->client->request(Request::METHOD_GET, sprintf('/s/custom/object/%s/item?filterEntityId=%s&filterEntityType=%s', $customObjectAnimal->getId(), $relatedObject->getId(), $type));
-        $tableCrawler = $crawler->filterXPath(sprintf('//h3[contains(text(), "%s")]/following::table[1]', $customObjectAnimal->getNameSingular()));
+        $tableCrawler = $crawler->filterXPath(sprintf('//h1[contains(text(), "%s")]/following::table[1]', $customObjectAnimal->getNameSingular()));
         Assert::assertSame(1, $tableCrawler->count());
 
         $headRowCrawler = $tableCrawler->filterXPath('.//thead/tr');
@@ -134,6 +134,7 @@ class CustomItemListControllerShownFieldTest extends MauticMysqlTestCase
         $this->assertCellValue(5, $fieldValueBirthDate->getValue()->format('F j, Y'), $cellCrawler);
         $this->assertCellValue(6, $fieldValueInoculation->getValue()->format('F j, Y g:i a T'), $cellCrawler);
         $this->assertCellValue(7, $optionDiseaseFever->getValue(), $cellCrawler);
+//        $this->assertCellValue(7, 'multiselect', $cellCrawler);
     }
 
     private function createCustomObject(string $singular, string $plural): CustomObject

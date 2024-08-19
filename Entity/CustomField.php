@@ -417,6 +417,15 @@ class CustomField extends FormEntity implements UniqueEntityInterface, UuidInter
             'attr'       => ['class' => 'form-control'],
         ];
 
+        if ('datetime' === $this->getType()) {
+            $fieldOptions = array_merge(
+                $fieldOptions,
+                [
+                    'html5'  => false,
+                ]
+            );
+        }
+
         if ($placeholder) {
             $fieldOptions['attr']['data-placeholder'] = $placeholder;
         }

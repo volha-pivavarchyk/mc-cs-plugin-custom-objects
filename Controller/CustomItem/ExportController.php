@@ -37,7 +37,10 @@ class ExportController extends AbstractFormController
             CustomItemEvents::ON_CUSTOM_ITEM_SCHEDULE_EXPORT
         );
 
-        $this->addFlash('custom.item.export.being.prepared', ['%user_email%' => $this->user->getEmail()]);
+        $this->addFlashMessage(
+            'custom.item.export.being.prepared',
+            ['%user_email%' => $this->user->getEmail()]
+        );
         $response['message'] = 'Custom Item export scheduled.';
         $response['flashes'] = $this->getFlashContent();
 

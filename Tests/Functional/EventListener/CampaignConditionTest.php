@@ -5,14 +5,36 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Functional\EventListener;
 
 use Mautic\CoreBundle\Test\MauticMysqlTestCase;
+use Mautic\CoreBundle\Test\Session\FixedMockFileSessionStorage;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Tests\Functional\DataFixtures\Traits\CustomObjectsTrait;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class CampaignConditionTest extends MauticMysqlTestCase
 {
     use CustomObjectsTrait;
+
+    protected function setUp(): void
+    {
+        // Disable API just for specific test.
+        $this->configParams['api_enabled'] = 'testDisabledApi' !== $this->getName();
+
+        static::getContainer()->set(
+            'session',
+            new Session(
+                new class() extends FixedMockFileSessionStorage {
+//                    public function start()
+//                    {
+//                        Assert::fail('Session cannot be started during API call. It must be stateless.');
+//                    }
+                }
+            )
+        );
+
+        parent::setUp();
+    }
 
     public function testConditionForm(): void
     {

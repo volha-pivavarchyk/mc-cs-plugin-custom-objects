@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Form\Type;
 
 use MauticPlugin\CustomObjectsBundle\Model\CustomFieldModel;
+use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -31,14 +32,18 @@ class CampaignConditionFieldValueType extends AbstractType
      */
     protected $translator;
 
+    private CustomObjectModel $customObjectModel;
+
     public function __construct(
         CustomFieldModel $customFieldModel,
+        CustomObjectModel $customObjectModel,
         CustomItemRouteProvider $routeProvider,
         TranslatorInterface $translator
     ) {
-        $this->customFieldModel = $customFieldModel;
-        $this->routeProvider    = $routeProvider;
-        $this->translator       = $translator;
+        $this->customFieldModel  = $customFieldModel;
+        $this->customObjectModel = $customObjectModel;
+        $this->routeProvider     = $routeProvider;
+        $this->translator        = $translator;
     }
 
     /**
@@ -46,8 +51,9 @@ class CampaignConditionFieldValueType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $fields  = $this->customFieldModel->fetchCustomFieldsForObject($options['customObject']);
-        $choices = [];
+        $customObject = $this->customObjectModel->fetchEntity($options['customObjectId']);
+        $fields       = $this->customFieldModel->fetchCustomFieldsForObject($customObject);
+        $choices      = [];
         foreach ($fields as $field) {
             $choices[$field->getLabel()] = $field->getId();
         }
@@ -110,7 +116,7 @@ class CampaignConditionFieldValueType extends AbstractType
         $builder->add(
             'customObjectId',
             HiddenType::class,
-            ['data' => $options['customObject']->getId()]
+            ['data' => $options['customObjectId']]
         );
     }
 
@@ -119,6 +125,6 @@ class CampaignConditionFieldValueType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setRequired(['customObject']);
+        $resolver->setRequired(['customObjectId']);
     }
 }

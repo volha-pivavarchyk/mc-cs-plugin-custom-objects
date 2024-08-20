@@ -67,7 +67,7 @@ class CustomFieldValueModelTest extends \PHPUnit\Framework\TestCase
     {
         $customFields = new ArrayCollection([$this->customField]);
 
-        $this->customItem->expects($this->once())
+        $this->customItem->expects($this->any())
             ->method('getCustomObject')
             ->willReturn($this->customObject);
 
@@ -181,11 +181,11 @@ class CustomFieldValueModelTest extends \PHPUnit\Framework\TestCase
         $result = $this->createMock(Result::class);
 
         $this->statement->expects($this->once())
-            ->method('execute')
+            ->method('executeQuery')
             ->willReturn($result);
 
         $result->expects($this->once())
-            ->method('fetchAssociative')
+            ->method('fetchAllAssociative')
             ->willReturn([[
                 'custom_field_id' => 44,
                 'custom_item_id'  => 33,

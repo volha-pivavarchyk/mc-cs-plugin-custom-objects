@@ -83,6 +83,10 @@ class QueryFilterHelperTest extends MauticMysqlTestCase
                 'type'     => 'custom_object',
                 'operator' => 'like',
                 'value'    => 'love',
+                'filter'     => '500',
+                'properties' => [
+                    'filter' => '500',
+                ],
             ]
         );
 
@@ -105,6 +109,7 @@ class QueryFilterHelperTest extends MauticMysqlTestCase
                 'object'     => 'custom_object',
                 'type'       => 'int',
                 'operator'   => 'gt',
+                'filter'     => '500',
                 'properties' => [
                     'filter' => '500',
                 ],

@@ -25,7 +25,7 @@ class LinkControllerTest extends ControllerTestCase
     private const ENTITY_TYPE = 'contact';
 
     private $customItemModel;
-//    private $flashBag;
+
     private $permissionProvider;
 
     /**
@@ -38,7 +38,6 @@ class LinkControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->customItemModel    = $this->createMock(CustomItemModel::class);
-//        $this->flashBag           = $this->createMock(FlashBag::class);
         $this->permissionProvider = $this->createMock(CustomItemPermissionProvider::class);
         $this->linkController     = new LinkController();
         $this->addSymfonyDependencies($this->linkController);

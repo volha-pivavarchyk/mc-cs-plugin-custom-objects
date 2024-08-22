@@ -12,15 +12,14 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomItemModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class LookupControllerTest extends ControllerTestCase
 {
     private const OBJECT_ID = 22;
 
     private $customItemModel;
+
     private $permissionProvider;
-//    private $flashBag;
 
     /**
      * @var LookupController
@@ -32,9 +31,7 @@ class LookupControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->customItemModel    = $this->createMock(CustomItemModel::class);
-//        $this->requestStack       = $this->createMock(RequestStack::class);
         $this->permissionProvider = $this->createMock(CustomItemPermissionProvider::class);
-//        $this->flashBag           = $this->createMock(FlashBag::class);
         $this->request            = $this->createMock(Request::class);
         $this->lookupController   = new LookupController();
 

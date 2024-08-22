@@ -25,10 +25,6 @@ class CampaignConditionTest extends MauticMysqlTestCase
             'session',
             new Session(
                 new class() extends FixedMockFileSessionStorage {
-//                    public function start()
-//                    {
-//                        Assert::fail('Session cannot be started during API call. It must be stateless.');
-//                    }
                 }
             )
         );

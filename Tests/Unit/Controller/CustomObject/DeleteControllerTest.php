@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomObject;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Mautic\CoreBundle\Service\FlashBag;
-use Mautic\CoreBundle\Translation\Translator;
 use Mautic\LeadBundle\Entity\LeadList;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomObject\DeleteController;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
@@ -18,12 +16,9 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DeleteControllerTest extends ControllerTestCase
 {
@@ -31,23 +26,13 @@ class DeleteControllerTest extends ControllerTestCase
 
     private $customObjectModel;
     private $sessionProvider;
-//    private $flashBag;
-    private $permissionProvider;
 
-//    /**
-//     * @var EventDispatcherInterface
-//     */
-//    private $eventDispatcher;
+    private $permissionProvider;
 
     /**
      * @var DeleteController
      */
     private $deleteController;
-
-//    /**
-//     * @var TranslatorInterface
-//     */
-//    private $translator;
 
     /**
      * @var int
@@ -59,14 +44,12 @@ class DeleteControllerTest extends ControllerTestCase
     {
         parent::setUp();
 
-        $this->sessionProviderFactory   = $this->createMock(SessionProviderFactory::class);
-        $this->customObjectModel  = $this->createMock(CustomObjectModel::class);
-        $this->sessionProvider    = $this->createMock(SessionProvider::class);
-//        $this->flashBag           = $this->createMock(FlashBag::class);
-        $this->permissionProvider = $this->createMock(CustomObjectPermissionProvider::class);
-        $this->request            = $this->createMock(Request::class);
-//        $this->eventDispatcher    = $this->createMock(EventDispatcherInterface::class);
-//        $this->requestStack       = $this->createMock(RequestStack::class);
+        $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
+        $this->customObjectModel      = $this->createMock(CustomObjectModel::class);
+        $this->sessionProvider        = $this->createMock(SessionProvider::class);
+        $this->permissionProvider     = $this->createMock(CustomObjectPermissionProvider::class);
+        $this->request                = $this->createMock(Request::class);
+
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
             ->willReturn($this->request);
@@ -83,9 +66,6 @@ class DeleteControllerTest extends ControllerTestCase
             $this->requestStack,
             $this->security
         );
-//        $this->translator         = $this->createMock(Translator::class);
-//        $this->deleteController->setTranslator($this->translator);
-//        $this->deleteController->setSecurity($this->security);
 
         $this->addSymfonyDependencies($this->deleteController);
 

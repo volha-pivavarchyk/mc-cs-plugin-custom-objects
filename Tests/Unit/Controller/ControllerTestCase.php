@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Mautic\CoreBundle\Controller\CommonController;
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\CoreBundle\Factory\ModelFactory;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
@@ -162,9 +161,5 @@ class ControllerTestCase extends \PHPUnit\Framework\TestCase
         $requestStack->method('getCurrentRequest')->willReturn($request);
 
         $controller->setContainer($this->container);
-//
-//        if ($controller instanceof CommonController) {
-//            $controller->setCoreParametersHelper($this->createMock(CoreParametersHelper::class));
-//        }
     }
 }

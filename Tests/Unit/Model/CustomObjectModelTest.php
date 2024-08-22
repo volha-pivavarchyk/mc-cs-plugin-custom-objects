@@ -7,8 +7,6 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder as QueryBuilderDbal;
 use Doctrine\DBAL\Statement;
 use Doctrine\ORM\AbstractQuery;
@@ -37,7 +35,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomObjectModelTest extends TestCase
 {
@@ -624,10 +621,6 @@ class CustomObjectModelTest extends TestCase
             ->method('trans')
             ->with('custom.object.created.items')
             ->willReturn('Items Created');
-
-//        $this->statement->expects($this->once())
-//            ->method('fetchAll')
-//            ->willReturn([]);
 
         $chartData = $this->customObjectModel->getItemsLineChartData(
             $from,

@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 class SaveController extends AbstractFormController
 {
     public function saveAction(
-//        Request $request,
         FormFactoryInterface $formFactory,
         FlashBag $flashBag,
         CustomItemModel $customItemModel,

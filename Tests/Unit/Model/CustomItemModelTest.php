@@ -424,7 +424,6 @@ class CustomItemModelTest extends TestCase
         $this->dbalQueryBuilder->expects($this->once())
             ->method('execute')
             ->willReturn($result);
-//            ->willReturn($this->statement);
 
         $this->dbalQueryBuilder->expects($this->once())
             ->method('setParameter')

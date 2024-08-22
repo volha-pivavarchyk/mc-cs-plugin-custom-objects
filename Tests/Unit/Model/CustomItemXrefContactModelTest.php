@@ -6,9 +6,7 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Model;
 
 use DateTime;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
-use Doctrine\DBAL\Result;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
@@ -22,7 +20,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
 {
@@ -112,7 +109,6 @@ class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
         $to           = new DateTime('2019-04-02 12:30:00');
         $connection   = $this->createMock(Connection::class);
         $queryBuilder = $this->createMock(DBALQueryBuilder::class);
-//        $statement    = $this->createMock(Statement::class);
 
         $this->entityManager->expects($this->once())
             ->method('getConnection')
@@ -121,16 +117,6 @@ class CustomItemXrefContactModelTest extends \PHPUnit\Framework\TestCase
         $connection->expects($this->once())
             ->method('createQueryBuilder')
             ->willReturn($queryBuilder);
-
-//        $result = $this->createMock(Result::class);
-
-//        $queryBuilder->expects($this->once())
-//            ->method('execute')
-//            ->willReturn($result);
-//
-//        $result->expects($this->once())
-//            ->method('fetchAllAssociative')
-//            ->willReturn([]);
 
         $chartData = $this->customItemXrefContactModel->getLinksLineChartData(
             $from,

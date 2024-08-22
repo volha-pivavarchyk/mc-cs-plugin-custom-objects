@@ -11,7 +11,6 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class CancelControllerTest extends ControllerTestCase
 {
@@ -33,7 +32,6 @@ class CancelControllerTest extends ControllerTestCase
         $this->sessionProvider   = $this->createMock(SessionProvider::class);
         $this->routeProvider     = $this->createMock(CustomObjectRouteProvider::class);
         $this->customObjectModel = $this->createMock(CustomObjectModel::class);
-//        $this->requestStack      = $this->createMock(RequestStack::class);
 
         $this->cancelController = new CancelController(
             $this->managerRegistry,

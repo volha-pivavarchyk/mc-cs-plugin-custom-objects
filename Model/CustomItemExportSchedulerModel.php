@@ -14,7 +14,6 @@ use Mautic\CoreBundle\Model\AbstractCommonModel;
 use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\CoreBundle\Translation\Translator;
 use Mautic\EmailBundle\Helper\MailHelper;
-use MauticPlugin\CustomObjectsBundle\CustomItemEvents;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItemExportScheduler;
@@ -199,10 +198,6 @@ class CustomItemExportSchedulerModel extends AbstractCommonModel
 
                     $rowData   = $savedRow;
                     $rowData[] = implode(',', $results);
-
-//                    if ($this->dispatcher->hasListeners(CustomItemEvents::ON_PROCESSING_FILE)) {
-//                        $this->dispatcher->dispatch(CustomItemEvents::ON_PROCESSING_FILE);
-//                    }
 
                     fputcsv($handler, $rowData);
                     $customItemAdded = true;

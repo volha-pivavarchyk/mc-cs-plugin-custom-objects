@@ -141,9 +141,7 @@ class CampaignSubscriber implements EventSubscriberInterface
                 'eventName'       => CustomItemEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
                 'formType'        => CampaignConditionFieldValueType::class,
                 'formTheme'       => '@MauticForm/FormTheme/FieldValueCondition/_campaignevent_form_field_value_widget.html.twig',
-//                'formTheme'       => 'CustomObjectsBundle:FormTheme\FieldValueCondition',
                 'formTypeOptions' => ['customObjectId' => $customObject->getId()],
-//                'formTypeOptions' => ['customObject' => $customObject],
             ]);
         }
     }

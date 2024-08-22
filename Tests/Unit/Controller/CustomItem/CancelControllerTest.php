@@ -13,7 +13,6 @@ use MauticPlugin\CustomObjectsBundle\Provider\SessionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class CancelControllerTest extends ControllerTestCase
 {
@@ -38,7 +37,6 @@ class CancelControllerTest extends ControllerTestCase
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->request                = $this->createMock(Request::class);
-//        $this->requestStack           = $this->createMock(RequestStack::class);
 
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')

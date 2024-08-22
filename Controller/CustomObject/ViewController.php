@@ -13,13 +13,11 @@ use MauticPlugin\CustomObjectsBundle\Model\CustomObjectModel;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomObjectRouteProvider;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ViewController extends CommonController
 {
     public function viewAction(
-//        Request $request,
         FormFactoryInterface $formFactory,
         CustomObjectModel $customObjectModel,
         AuditLogModel $auditLogModel,

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomItem;
 
 use AllowDynamicProperties;
-use Mautic\CoreBundle\Service\FlashBag;
-use Mautic\CoreBundle\Translation\Translator;
 use Mautic\UserBundle\Entity\User;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomItem\SaveController;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
@@ -26,7 +24,6 @@ use Symfony\Component\Form\ClickableInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AllowDynamicProperties]
@@ -52,11 +49,6 @@ class SaveControllerTest extends ControllerTestCase
      * @var MockObject|CustomObjectModel
      */
     private $customObjectModel;
-
-//    /**
-//     * @var MockObject|FlashBag
-//     */
-//    private $flashBag;
 
     /**
      * @var MockObject|CustomItemPermissionProvider
@@ -95,11 +87,9 @@ class SaveControllerTest extends ControllerTestCase
         $this->formFactory            = $this->createMock(FormFactoryInterface::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->customObjectModel      = $this->createMock(CustomObjectModel::class);
-//        $this->flashBag               = $this->createMock(FlashBag::class);
         $this->permissionProvider     = $this->createMock(CustomItemPermissionProvider::class);
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->lockFlashMessageHelper = $this->createMock(LockFlashMessageHelper::class);
-//        $this->requestStack           = $this->createMock(RequestStack::class);
         $this->request                = new Request();
         $this->customItem             = $this->createMock(CustomItem::class);
         $this->form                   = $this->createMock(FormInterface::class);
@@ -111,7 +101,6 @@ class SaveControllerTest extends ControllerTestCase
         $this->userHelper->expects($this->any())->method('getUser')
             ->willReturn($userMock);
 
-//        $this->translator             = $this->createMock(Translator::class);
         $this->saveController         = new SaveController(
             $this->managerRegistry,
             $this->mauticFactory,
@@ -124,7 +113,6 @@ class SaveControllerTest extends ControllerTestCase
             $this->requestStack,
             $this->security
         );
-//        $this->saveController->setTranslator($this->translator);
 
         $this->addSymfonyDependencies($this->saveController);
 
@@ -148,7 +136,6 @@ class SaveControllerTest extends ControllerTestCase
             ->method('canCreate');
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -177,7 +164,6 @@ class SaveControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -286,7 +272,6 @@ class SaveControllerTest extends ControllerTestCase
         Assert::assertSame(Request::METHOD_GET, $this->request->getMethod());
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -379,7 +364,6 @@ class SaveControllerTest extends ControllerTestCase
             ->willReturn('someRedirectUrl');
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -413,7 +397,6 @@ class SaveControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -474,7 +457,6 @@ class SaveControllerTest extends ControllerTestCase
             ->method('save');
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -572,7 +554,6 @@ class SaveControllerTest extends ControllerTestCase
             ->method('save');
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -601,20 +582,12 @@ class SaveControllerTest extends ControllerTestCase
             ->with($this->customItem)
             ->willReturn(true);
 
-//        $userMock = $this->createMock(User::class);
-//        $userMock->method('isAdmin')
-//            ->willReturn(true);
-//
-//        $this->userHelper->expects($this->any())->method('getUser')
-//            ->willReturn($userMock);
-
         $this->routeProvider->expects($this->once())
             ->method('buildViewRoute')
             ->with(static::OBJECT_ID, static::ITEM_ID)
             ->willReturn('https://redirect.url');
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,
@@ -720,7 +693,6 @@ class SaveControllerTest extends ControllerTestCase
         Assert::assertSame(Request::METHOD_GET, $this->request->getMethod());
 
         $this->saveController->saveAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->flashBag,
             $this->customItemModel,

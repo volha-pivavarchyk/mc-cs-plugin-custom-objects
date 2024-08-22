@@ -35,8 +35,6 @@ class DeleteControllerTest extends MauticMysqlTestCase
         $crawler = $this->client->request(Request::METHOD_GET, '/s/custom/object');
         $this->assertStringContainsString('Electronics', $crawler->filterXPath('//*[@id="custom-objects-table"]/tbody/tr[1]/td[2]/div/a')->text());
         $this->assertStringContainsString('Products', $crawler->filterXPath('//*[@id="custom-objects-table"]/tbody/tr[2]/td[2]/div/a')->text());
-//        $this->assertStringContainsString('Products', $crawler->filterXPath('//*[@id="custom-objects-table"]/tbody/tr[1]/td[2]/div/a')->text());
-//        $this->assertStringContainsString('Electronics', $crawler->filterXPath('//*[@id="custom-objects-table"]/tbody/tr[2]/td[2]/div/a')->text());
 
         // Delete the Child Custom Object
         $this->client->request(Request::METHOD_POST, sprintf('/s/custom/object/delete/%s', $childObject->getId()));

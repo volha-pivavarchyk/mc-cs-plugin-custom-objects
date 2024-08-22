@@ -134,7 +134,6 @@ class CustomItemListControllerShownFieldTest extends MauticMysqlTestCase
         $this->assertCellValue(5, $fieldValueBirthDate->getValue()->format('F j, Y'), $cellCrawler);
         $this->assertCellValue(6, $fieldValueInoculation->getValue()->format('F j, Y g:i a T'), $cellCrawler);
         $this->assertCellValue(7, $optionDiseaseFever->getValue(), $cellCrawler);
-//        $this->assertCellValue(7, 'multiselect', $cellCrawler);
     }
 
     private function createCustomObject(string $singular, string $plural): CustomObject

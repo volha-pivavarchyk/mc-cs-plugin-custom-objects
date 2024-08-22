@@ -7,7 +7,6 @@ namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomObject;
 use AllowDynamicProperties;
 use Mautic\CoreBundle\Form\Type\DateRangeType;
 use Mautic\CoreBundle\Model\AuditLogModel;
-use Mautic\CoreBundle\Translation\Translator;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomObject\ViewController;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
@@ -55,8 +54,6 @@ class ViewControllerTest extends ControllerTestCase
         $this->form               = $this->createMock(FormInterface::class);
         $this->customObject       = $this->createMock(CustomObject::class);
 
-//        $this->translator         = $this->createMock(Translator::class);
-
         $this->viewController     = new ViewController(
             $this->managerRegistry,
             $this->mauticFactory,
@@ -69,8 +66,6 @@ class ViewControllerTest extends ControllerTestCase
             $this->requestStack,
             $this->security
         );
-//        $this->viewController->setTranslator($this->translator);
-//        $this->viewController->setSecurity($this->security);
 
         $this->addSymfonyDependencies($this->viewController);
 
@@ -98,7 +93,6 @@ class ViewControllerTest extends ControllerTestCase
             ->willReturn([]);
 
         $this->viewController->viewAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->customObjectModel,
             $this->auditLog,
@@ -128,7 +122,6 @@ class ViewControllerTest extends ControllerTestCase
         $this->expectException(AccessDeniedHttpException::class);
 
         $this->viewController->viewAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->customObjectModel,
             $this->auditLog,
@@ -194,7 +187,6 @@ class ViewControllerTest extends ControllerTestCase
             ->with('customObject', self::OBJECT_ID, '2019-01-04 10:20:30', 10, 'customObjects');
 
         $this->viewController->viewAction(
-//            $this->requestStack,
             $this->formFactory,
             $this->customObjectModel,
             $this->auditLog,

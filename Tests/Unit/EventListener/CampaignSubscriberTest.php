@@ -384,7 +384,6 @@ class CampaignSubscriberTest extends TestCase
         $this->queryBuilder->expects($this->once())
             ->method('execute')
             ->willReturn($this->result);
-//            ->willReturn($this->statement);
 
         $this->queryFilterFactory->expects($this->once())
             ->method('configureQueryBuilderFromSegmentFilter')
@@ -418,7 +417,6 @@ class CampaignSubscriberTest extends TestCase
             ->willReturn($this->customField);
 
         $this->result->expects($this->once())
-//        $this->statement->expects($this->once())
             ->method('fetchOne')
             ->willReturn(false);
 
@@ -442,7 +440,6 @@ class CampaignSubscriberTest extends TestCase
         $this->queryBuilder->expects($this->once())
             ->method('execute')
             ->willReturn($this->result);
-//            ->willReturn($this->statement);
 
         $this->queryFilterFactory->expects($this->once())
             ->method('configureQueryBuilderFromSegmentFilter')
@@ -478,10 +475,6 @@ class CampaignSubscriberTest extends TestCase
         $this->campaignExecutionEvent->expects($this->once())
             ->method('setChannel')
             ->with('customItem', 4344);
-
-//        $this->statement->expects($this->once())
-//            ->method('fetchOne')
-//            ->willReturn('4344');
 
         $this->result->expects($this->once())
             ->method('fetchOne')

@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomItem;
 
 use AllowDynamicProperties;
-use Mautic\CoreBundle\Factory\ModelFactory;
 use Mautic\CoreBundle\Model\NotificationModel;
-use Mautic\CoreBundle\Security\Permissions\CorePermissions;
-use Mautic\CoreBundle\Service\FlashBag;
-use Mautic\CoreBundle\Translation\Translator;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomItem\DeleteController;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
@@ -22,8 +18,6 @@ use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AllowDynamicProperties]
@@ -35,7 +29,6 @@ class DeleteControllerTest extends ControllerTestCase
 
     private $customItemModel;
     private $sessionProvider;
-//    private $flashBag;
     private $permissionProvider;
     private $routeProvider;
 
@@ -51,19 +44,14 @@ class DeleteControllerTest extends ControllerTestCase
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
         $this->customItemModel        = $this->createMock(CustomItemModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
-//        $this->flashBag               = $this->createMock(FlashBag::class);
         $this->permissionProvider     = $this->createMock(CustomItemPermissionProvider::class);
         $this->routeProvider          = $this->createMock(CustomItemRouteProvider::class);
         $this->request                = $this->createMock(Request::class);
-//        $this->requestStack           = $this->createMock(RequestStack::class);
 
         $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
             ->willReturn($this->request);
 
-//        $this->translator             = $this->createMock(Translator::class);
-//        $this->security               = $this->createMock(CorePermissions::class);
-//        $this->modelFactory           = $this->createMock(ModelFactory::class);
         $this->model                  = $this->createMock(NotificationModel::class);
 
         $this->deleteController       = new DeleteController(
@@ -78,9 +66,6 @@ class DeleteControllerTest extends ControllerTestCase
             $this->requestStack,
             $this->security
         );
-//        $this->deleteController->setTranslator($this->translator);
-//        $this->deleteController->setSecurity($this->security);
-//        $this->deleteController->setModelFactory($this->modelFactory);
 
         $this->addSymfonyDependencies($this->deleteController);
 
@@ -185,19 +170,6 @@ class DeleteControllerTest extends ControllerTestCase
         $this->modelFactory->expects($this->once())
             ->method('getModel')
             ->willReturn($this->model);
-
-//        $session = $this->createMock(SessionInterface::class);
-//        $session->expects($this->once())
-//            ->method('get')
-//            ->willReturn('test');
-
-//        $this->request->expects($this->exactly(2))
-//            ->method('getSession')
-//            ->willReturn($session);
-
-//        $this->model->expects($this->once())
-//            ->method('getNotificationContent')
-//            ->willReturn([[], 'test', 'test']);
 
         $this->deleteController->deleteAction(
             $this->customItemModel,

@@ -17,7 +17,6 @@ use MauticPlugin\CustomObjectsBundle\Provider\SessionProviderFactory;
 use MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\ControllerTestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AllowDynamicProperties]
@@ -40,7 +39,6 @@ class ListControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->sessionProviderFactory = $this->createMock(SessionProviderFactory::class);
-//        $this->requestStack           = $this->createMock(RequestStack::class);
         $this->customObjectModel      = $this->createMock(CustomObjectModel::class);
         $this->sessionProvider        = $this->createMock(SessionProvider::class);
         $this->permissionProvider     = $this->createMock(CustomObjectPermissionProvider::class);

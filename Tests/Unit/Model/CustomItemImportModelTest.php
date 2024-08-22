@@ -28,7 +28,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomItemImportModelTest extends \PHPUnit\Framework\TestCase
 {
@@ -187,11 +186,6 @@ class CustomItemImportModelTest extends \PHPUnit\Framework\TestCase
         $this->customItemModel->expects($this->never())
             ->method('fetchEntity');
 
-//        $this->formatterHelper->expects($this->once())
-//            ->method('simpleCsvToArray')
-//            ->with('3262739,3262738,3262737')
-//            ->willReturn([3262739, 3262738, 3262737]);
-
         $this->customObject->expects($this->exactly(3))
             ->method('getCustomFields')
             ->willReturn(new ArrayCollection([$this->descriptionField, $this->dateField]));
@@ -226,11 +220,6 @@ class CustomItemImportModelTest extends \PHPUnit\Framework\TestCase
         $this->import->expects($this->exactly(2))
             ->method('getMatchedFields')
             ->willReturn(self::MAPPED_FIELDS);
-
-//        $this->formatterHelper->expects($this->once())
-//            ->method('simpleCsvToArray')
-//            ->with('3262739,3262738,3262737')
-//            ->willReturn([3262739, 3262738, 3262737]);
 
         $this->customObject->expects($this->exactly(1))
             ->method('getCustomFields')
@@ -284,11 +273,6 @@ class CustomItemImportModelTest extends \PHPUnit\Framework\TestCase
             ->with(User::class, 222)
             ->willReturn(222);
 
-//        $this->formatterHelper->expects($this->once())
-//            ->method('simpleCsvToArray')
-//            ->with('3262739,3262738,3262737')
-//            ->willReturn([3262739, 3262738, 3262737]);
-
         $this->customItemModel->expects($this->exactly(3))
             ->method('linkEntity')
             ->withConsecutive(
@@ -325,11 +309,6 @@ class CustomItemImportModelTest extends \PHPUnit\Framework\TestCase
             ->method('fetchEntity')
             ->with(555)
             ->will($this->throwException(new NotFoundException()));
-
-//        $this->formatterHelper->expects($this->once())
-//            ->method('simpleCsvToArray')
-//            ->with('3262739,3262738,3262737')
-//            ->willReturn([3262739, 3262738, 3262737]);
 
         $this->customItemModel->expects($this->exactly(3))
             ->method('linkEntity')

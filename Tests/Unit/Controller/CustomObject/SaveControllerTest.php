@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Controller\CustomObject;
 
 use AllowDynamicProperties;
-use Mautic\CoreBundle\Service\FlashBag;
-use Mautic\CoreBundle\Translation\Translator;
 use MauticPlugin\CustomObjectsBundle\Controller\CustomObject\SaveController;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
@@ -27,7 +25,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AllowDynamicProperties]
@@ -41,7 +38,6 @@ class SaveControllerTest extends ControllerTestCase
     private $customFieldTypeProvider;
     private $paramsToStringTransformer;
     private $optionsToStringTransformer;
-//    private $flashBag;
     private $permissionProvider;
     private $routeProvider;
     private $lockFlashMessageHelper;
@@ -60,10 +56,8 @@ class SaveControllerTest extends ControllerTestCase
         $this->formFactory                = $this->createMock(FormFactoryInterface::class);
         $this->customObjectModel          = $this->createMock(CustomObjectModel::class);
         $this->customFieldModel           = $this->createMock(CustomFieldModel::class);
-//        $this->flashBag                   = $this->createMock(FlashBag::class);
         $this->permissionProvider         = $this->createMock(CustomObjectPermissionProvider::class);
         $this->routeProvider              = $this->createMock(CustomObjectRouteProvider::class);
-//        $this->requestStack               = $this->createMock(RequestStack::class);
         $this->customFieldTypeProvider    = $this->createMock(CustomFieldTypeProvider::class);
         $this->paramsToStringTransformer  = $this->createMock(ParamsToStringTransformer::class);
         $this->optionsToStringTransformer = $this->createMock(OptionsToStringTransformer::class);
@@ -71,8 +65,6 @@ class SaveControllerTest extends ControllerTestCase
         $this->request                    = $this->createMock(Request::class);
         $this->customObject               = $this->createMock(CustomObject::class);
         $this->form                       = $this->createMock(FormInterface::class);
-
-//        $this->translator                 = $this->createMock(Translator::class);
 
         $this->saveController             = new SaveController(
             $this->managerRegistry,
@@ -86,7 +78,6 @@ class SaveControllerTest extends ControllerTestCase
             $this->requestStack,
             $this->security
         );
-//        $this->saveController->setTranslator($this->translator);
 
         $this->addSymfonyDependencies($this->saveController);
 

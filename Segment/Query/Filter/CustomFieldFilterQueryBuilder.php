@@ -45,10 +45,7 @@ class CustomFieldFilterQueryBuilder extends BaseFilterQueryBuilder
 
         $tableAlias = 'cfwq_'.(int) $filter->getField();
 
-        $unionQueryContainer = $this->filterHelper->createValueQuery(
-            $tableAlias,
-            $filter
-        );
+        $unionQueryContainer = $this->filterHelper->createValueQuery($tableAlias, $filter, true);
 
         foreach ($unionQueryContainer as $segmentQueryBuilder) {
             $segmentQueryBuilder->andWhere(
@@ -61,6 +58,8 @@ class CustomFieldFilterQueryBuilder extends BaseFilterQueryBuilder
             case 'neq':
             case 'notLike':
             case '!multiselect':
+            case '!between':
+            case 'notBetween':
                 $queryBuilder->addLogic(
                     $queryBuilder->expr()->notExists($unionQueryContainer->getSQL()),
                     $filter->getGlue()

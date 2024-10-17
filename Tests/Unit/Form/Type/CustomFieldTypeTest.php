@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Tests\Unit\Form\Type;
 
-use Mautic\CoreBundle\Form\Type\FormButtonsType;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomFieldFactory;
@@ -161,9 +160,9 @@ class CustomFieldTypeTest extends \PHPUnit\Framework\TestCase
                         'label' => 'custom.field.is_unique_identifier.label',
                         'attr'  => [
                             'data-toggle-button' => true,
-                            'tooltip' => 'custom.field.help.is_unique_identifier'
+                            'tooltip'            => 'custom.field.help.is_unique_identifier',
                         ],
-                    ]
+                    ],
                 ]
             );
 

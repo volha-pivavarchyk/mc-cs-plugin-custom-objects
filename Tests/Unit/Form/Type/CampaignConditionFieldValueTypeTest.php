@@ -115,7 +115,7 @@ final class CampaignConditionFieldValueTypeTest extends TestCase
                             'class' => 'form-control',
                         ],
                         'choice_attr' => [
-                            42 => [
+                            'Cheese' => [
                                 'data-operators'  => '{"=":"a","!=":"b"}',
                                 'data-options'    => '[]',
                                 'data-field-type' => 'int',

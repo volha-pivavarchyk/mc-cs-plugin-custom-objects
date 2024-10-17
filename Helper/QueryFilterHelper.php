@@ -367,7 +367,7 @@ class QueryFilterHelper
             $segmentFilterFieldType     = $filter['type'] ?: $this->queryFilterFactory
                 ->getCustomFieldTypeById($segmentFilterFieldId);
             $dataTable                  = $this->queryFilterFactory->getTableNameFromType($segmentFilterFieldType);
-            $segmentMergedFilter        = $filter['filter'];
+            $segmentMergedFilter        = $segmentFilter;
             $segmentFilterFieldOperator = (string) $filter['operator'];
 
             $alias                      = $customItemXrefContactAlias.'_'.$segmentFilterFieldId.'_'.$filter['type'];

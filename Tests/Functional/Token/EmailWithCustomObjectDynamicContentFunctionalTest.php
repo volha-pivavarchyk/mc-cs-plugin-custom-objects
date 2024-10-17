@@ -155,7 +155,7 @@ class EmailWithCustomObjectDynamicContentFunctionalTest extends MauticMysqlTestC
             ], [
                 'nexonempty@acquia.com',
                 $this->buildDynamicContentArray([['nexon-text', '', 'empty']]),
-                'Default Dynamic Content',
+                'Custom Object Dynamic Content',
             ], [
                 'nexonnotempty@acquia.com',
                 $this->buildDynamicContentArray([['nexon-text', '', '!empty']]),

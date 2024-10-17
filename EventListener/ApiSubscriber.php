@@ -120,7 +120,7 @@ class ApiSubscriber implements EventSubscriberInterface
             throw new InvalidArgumentException('Custom Object Plugin is disabled');
         }
 
-        if (1 !== preg_match('~^'.preg_quote(LeadApiController::class, '~').'::(new|edit)(Entity|Entities)Action$~i', $request->attributes->get('_controller'))) {
+        if (1 !== preg_match('~^'.preg_quote(LeadApiController::class, '~').'(::|:)(new|edit)(Entity|Entities)Action$~i', $request->attributes->get('_controller'))) {
             throw new InvalidArgumentException('Not a API request we care about');
         }
 

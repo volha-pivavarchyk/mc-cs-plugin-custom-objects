@@ -32,7 +32,7 @@ class QueryFilterFactoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->prefix = MAUTIC_TABLE_PREFIX;
+        $this->prefix = MAUTIC_TABLE_PREFIX ?? '___';
 
         $this->segmentFilter = $this->createMock(ContactSegmentFilter::class);
         $this->segmentFilter

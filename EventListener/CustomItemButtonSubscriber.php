@@ -6,13 +6,13 @@ namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Mautic\CoreBundle\CoreEvents;
 use Mautic\CoreBundle\Event\CustomButtonEvent;
-use Mautic\CoreBundle\Templating\Helper\ButtonHelper;
+use Mautic\CoreBundle\Twig\Helper\ButtonHelper;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomItemButtonSubscriber implements EventSubscriberInterface
 {
@@ -57,8 +57,8 @@ class CustomItemButtonSubscriber implements EventSubscriberInterface
             case CustomItemRouteProvider::ROUTE_LIST:
                 try {
                     $customObjectId   = $this->getCustomObjectIdFromEvent($event);
-                    $filterEntityId   = $event->getRequest()->query->get('filterEntityId', false);
-                    $filterEntityType = $event->getRequest()->query->get('filterEntityType', false);
+                    $filterEntityId   = $event->getRequest()->query->get('filterEntityId');
+                    $filterEntityType = $event->getRequest()->query->get('filterEntityType');
                     $loadedInTab      = (bool) $filterEntityId;
                     if ($loadedInTab && in_array($filterEntityType, ['contact', 'customItem'], true)) {
                         $customItem = $event->getItem();
@@ -295,7 +295,7 @@ class CustomItemButtonSubscriber implements EventSubscriberInterface
         return [
             'attr' => [
                 'href'        => '#',
-                'onclick'     => "CustomObjects.linkCustomItemWithEntity(this, event, ${customObjectId}, '${entityType}', ${entityId}, 'custom-object-${customObjectId}', ".($relationshipObjectId ?: 'null').');',
+                'onclick'     => "CustomObjects.linkCustomItemWithEntity(this, event, {$customObjectId}, '{$entityType}', {$entityId}, 'custom-object-{$customObjectId}', ".($relationshipObjectId ?: 'null').');',
                 'data-action' => $action,
                 'data-toggle' => '',
             ],
@@ -317,7 +317,7 @@ class CustomItemButtonSubscriber implements EventSubscriberInterface
         return [
             'attr' => [
                 'href'        => '#',
-                'onclick'     => "CustomObjects.unlinkCustomItemFromEntity(this, event, ${customObjectId}, '${entityType}', ${entityId}, 'custom-object-${customObjectId}');",
+                'onclick'     => "CustomObjects.unlinkCustomItemFromEntity(this, event, {$customObjectId}, '{$entityType}', {$entityId}, 'custom-object-{$customObjectId}');",
                 'data-action' => $this->routeProvider->buildUnlinkRoute($customItemId, $entityType, $entityId),
                 'data-toggle' => '',
             ],

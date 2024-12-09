@@ -192,9 +192,7 @@ class CustomFieldValueModel
         $query     = implode(' UNION ALL ', $queries->toArray());
         $statement = $this->entityManager->getConnection()->prepare($query);
 
-        $statement->execute();
-
-        return new ArrayCollection($statement->fetchAll());
+        return new ArrayCollection($statement->executeQuery()->fetchAllAssociative());
     }
 
     private function buildQueriesForUnion(CustomItem $customItem, Collection $customFields): Collection
@@ -288,7 +286,7 @@ class CustomFieldValueModel
             $types[$table]  = Connection::PARAM_INT_ARRAY;
         }
 
-        return $this->entityManager->getConnection()->fetchAll(implode(' UNION ALL ', $queries), $params, $types);
+        return $this->entityManager->getConnection()->fetchAllAssociative(implode(' UNION ALL ', $queries), $params, $types);
     }
 
     /**
@@ -298,7 +296,7 @@ class CustomFieldValueModel
     private function transformItemsListDataResult(array $result): array
     {
         return array_reduce($result, function (array $result, array $row) {
-            $itemId = $row['custom_item_id'];
+            $itemId  = $row['custom_item_id'];
             $fieldId = $row['custom_field_id'];
 
             if (!isset($result[$itemId])) {

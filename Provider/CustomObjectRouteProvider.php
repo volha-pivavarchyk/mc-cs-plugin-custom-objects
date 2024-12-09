@@ -56,9 +56,6 @@ class CustomObjectRouteProvider
         return $this->router->generate(static::ROUTE_NEW);
     }
 
-    /**
-     * @param int $id
-     */
     public function buildEditRoute(?int $id = null): string
     {
         return $this->router->generate(static::ROUTE_EDIT, ['objectId' => $id]);

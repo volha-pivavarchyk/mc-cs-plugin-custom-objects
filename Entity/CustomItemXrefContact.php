@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Entity;
 
-use DateTimeImmutable;
-use DateTimeInterface;
-use DateTimeZone;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\LeadBundle\Entity\Lead;
@@ -29,15 +26,15 @@ class CustomItemXrefContact implements CustomItemXrefInterface
     private $customItem;
 
     /**
-     * @var DateTimeInterface
+     * @var \DateTimeInterface
      */
     private $dateAdded;
 
-    public function __construct(CustomItem $customItem, Lead $contact, ?DateTimeInterface $dateAdded = null)
+    public function __construct(CustomItem $customItem, Lead $contact, ?\DateTimeInterface $dateAdded = null)
     {
         $this->customItem = $customItem;
         $this->contact    = $contact;
-        $this->dateAdded  = $dateAdded ?: new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        $this->dateAdded  = $dateAdded ?: new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public static function loadMetadata(ORM\ClassMetadata $metadata): void
@@ -60,7 +57,7 @@ class CustomItemXrefContact implements CustomItemXrefInterface
             ->fetchExtraLazy()
             ->build();
 
-        $builder->createField('dateAdded', Type::DATETIME)
+        $builder->createField('dateAdded', Types::DATETIME_MUTABLE)
             ->columnName('date_added')
             ->build();
     }
@@ -90,7 +87,7 @@ class CustomItemXrefContact implements CustomItemXrefInterface
     }
 
     /**
-     * @return DateTimeInterface
+     * @return \DateTimeInterface
      */
     public function getDateAdded()
     {

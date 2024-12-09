@@ -10,7 +10,7 @@ use MauticPlugin\CustomObjectsBundle\Entity\CustomFieldValueInterface;
 use MauticPlugin\CustomObjectsBundle\Exception\UndefinedTransformerException;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractCustomFieldType implements CustomFieldTypeInterface
 {
@@ -110,8 +110,8 @@ abstract class AbstractCustomFieldType implements CustomFieldTypeInterface
     {
         $type = $this->getSymfonyFormFieldType();
 
-        return ChoiceType::class === $type ||
-            is_subclass_of($this->getSymfonyFormFieldType(), ChoiceType::class);
+        return ChoiceType::class === $type
+            || is_subclass_of($this->getSymfonyFormFieldType(), ChoiceType::class);
     }
 
     /**

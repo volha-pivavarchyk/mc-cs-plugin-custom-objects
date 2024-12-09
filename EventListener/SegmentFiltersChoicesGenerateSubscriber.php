@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Criteria;
 use Mautic\LeadBundle\Entity\OperatorListTrait;
 use Mautic\LeadBundle\Event\LeadListFiltersChoicesEvent;
 use Mautic\LeadBundle\LeadEvents;
+use Mautic\LeadBundle\Provider\TypeOperatorProviderInterface;
 use MauticPlugin\CustomObjectsBundle\CustomFieldType\HiddenType;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
@@ -15,7 +16,7 @@ use MauticPlugin\CustomObjectsBundle\Provider\ConfigProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomFieldTypeProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomObjectRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentFiltersChoicesGenerateSubscriber implements EventSubscriberInterface
 {
@@ -41,16 +42,20 @@ class SegmentFiltersChoicesGenerateSubscriber implements EventSubscriberInterfac
      */
     private $fieldTypeProvider;
 
+    private TypeOperatorProviderInterface $typeOperatorProvider;
+
     public function __construct(
         CustomObjectRepository $customObjectRepository,
         TranslatorInterface $translator,
         ConfigProvider $configProvider,
-        CustomFieldTypeProvider $fieldTypeProvider
+        CustomFieldTypeProvider $fieldTypeProvider,
+        TypeOperatorProviderInterface $typeOperatorProvider
     ) {
-        $this->customObjectRepository = $customObjectRepository;
-        $this->translator             = $translator;
-        $this->configProvider         = $configProvider;
-        $this->fieldTypeProvider      = $fieldTypeProvider;
+        $this->customObjectRepository  = $customObjectRepository;
+        $this->translator              = $translator;
+        $this->configProvider          = $configProvider;
+        $this->fieldTypeProvider       = $fieldTypeProvider;
+        $this->typeOperatorProvider    = $typeOperatorProvider;
     }
 
     /**
@@ -79,21 +84,31 @@ class SegmentFiltersChoicesGenerateSubscriber implements EventSubscriberInterfac
                     [
                         'label'      => $customObject->getName().' '.$this->translator->trans('custom.item.name.label'),
                         'properties' => ['type' => 'text'],
-                        'operators'  => $this->getOperatorsForFieldType('text'),
+                        'operators'  => $this->typeOperatorProvider->getOperatorsForFieldType('text'),
                         'object'     => $customObject->getId(),
                     ]
                 );
 
                 /** @var CustomField $customField */
                 foreach ($customObject->getCustomFields()->getIterator() as $customField) {
-                    if ($customField->getType() === $fieldTypes[HiddenType::NAME]) { // We don't want to show hidden types in filter list
+                    if ($customField->getType() === $fieldTypes[HiddenType::NAME]) {
+                        // We don't want to show hidden types in filter list
                         continue;
                     }
 
-                    $allowedOperators = $customField->getTypeObject()->getOperators();
-                    $availableOperators = array_flip($this->getOperatorsForFieldType($customField->getType()));
-                    $operators = array_intersect_key($availableOperators, $allowedOperators);
-                    $operators = array_flip($operators);
+                    if (method_exists($this->typeOperatorProvider, 'getContext')
+                        && 'segment' === $this->typeOperatorProvider->getContext()
+                        && method_exists($customField->getTypeObject(), 'getOperatorsForSegment')
+                    ) {
+                        $allowedOperators = $customField->getTypeObject()->getOperatorsForSegment();
+                    } else {
+                        $allowedOperators = $customField->getTypeObject()->getOperators();
+                    }
+
+                    $typeOperators      = $this->typeOperatorProvider->getOperatorsForFieldType($customField->getType());
+                    $availableOperators = array_flip($typeOperators);
+                    $operators          = array_intersect_key($availableOperators, $allowedOperators);
+                    $operators          = array_flip($operators);
 
                     $event->addChoice(
                         'custom_object',

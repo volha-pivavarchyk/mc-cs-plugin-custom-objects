@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\EventListener;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
@@ -16,7 +16,6 @@ use Mautic\LeadBundle\Segment\Query\QueryBuilder as SegmentQueryBuilder;
 use MauticPlugin\CustomObjectsBundle\CustomItemEvents;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomItem;
-use MauticPlugin\CustomObjectsBundle\Exception\InvalidArgumentException;
 use MauticPlugin\CustomObjectsBundle\Exception\InvalidSegmentFilterException;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
 use MauticPlugin\CustomObjectsBundle\Form\Type\CampaignActionLinkType;
@@ -31,7 +30,7 @@ use MauticPlugin\CustomObjectsBundle\Repository\DbalQueryTrait;
 use MauticPlugin\CustomObjectsBundle\Segment\Query\Filter\QueryFilterFactory;
 use MauticPlugin\CustomObjectsBundle\Segment\Query\UnionQueryContainer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CampaignSubscriber implements EventSubscriberInterface
 {
@@ -140,8 +139,8 @@ class CampaignSubscriber implements EventSubscriberInterface
                 'description'     => $this->translator->trans('custom.item.events.field.value_descr', ['%customObject%' => $customObject->getNameSingular()]),
                 'eventName'       => CustomItemEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
                 'formType'        => CampaignConditionFieldValueType::class,
-                'formTheme'       => 'CustomObjectsBundle:FormTheme\FieldValueCondition',
-                'formTypeOptions' => ['customObject' => $customObject],
+                'formTheme'       => '@MauticForm/FormTheme/FieldValueCondition/_campaignevent_form_field_value_widget.html.twig',
+                'formTypeOptions' => ['customObjectId' => $customObject->getId()],
             ]);
         }
     }
@@ -182,9 +181,7 @@ class CampaignSubscriber implements EventSubscriberInterface
 
     /**
      * @throws NotFoundException
-     * @throws DBALException
-     * @throws InvalidArgumentException
-     * @throws InvalidSegmentFilterException
+     * @throws InvalidSegmentFilterException|Exception
      */
     public function onCampaignTriggerCondition(CampaignExecutionEvent $event): void
     {
@@ -221,14 +218,14 @@ class CampaignSubscriber implements EventSubscriberInterface
         );
 
         if ($innerQueryBuilder instanceof UnionQueryContainer) {
-            $this->applyParamsToMultipleQueries($innerQueryBuilder, $queryAlias, $contact, $operator);
+            $this->applyParamsToMultipleQueries($innerQueryBuilder, $queryAlias, $contact);
         } else {
-            $this->applyParamsToQuery($innerQueryBuilder, $queryAlias, $contact, $operator);
+            $this->applyParamsToQuery($innerQueryBuilder, $queryAlias, $contact);
         }
 
         $queryBuilder = $this->buildOuterQuery($innerQueryBuilder, $queryAlias);
 
-        $customItemId = $this->executeSelect($queryBuilder)->fetchColumn();
+        $customItemId = $this->executeSelect($queryBuilder)->fetchOne();
 
         if ($customItemId) {
             $event->setChannel('customItem', $customItemId);
@@ -238,14 +235,14 @@ class CampaignSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function applyParamsToMultipleQueries(UnionQueryContainer $unionQueryContainer, string $queryAlias, Lead $contact, string $operator): void
+    private function applyParamsToMultipleQueries(UnionQueryContainer $unionQueryContainer, string $queryAlias, Lead $contact): void
     {
         foreach ($unionQueryContainer as $segmentQueryBuilder) {
-            $this->applyParamsToQuery($segmentQueryBuilder, $queryAlias, $contact, $operator);
+            $this->applyParamsToQuery($segmentQueryBuilder, $queryAlias, $contact);
         }
     }
 
-    private function applyParamsToQuery(SegmentQueryBuilder $innerQueryBuilder, string $queryAlias, Lead $contact, string $operator): void
+    private function applyParamsToQuery(SegmentQueryBuilder $innerQueryBuilder, string $queryAlias, Lead $contact): void
     {
         $innerQueryBuilder->select($queryAlias.'_value.custom_item_id');
         $this->queryFilterHelper->addContactIdRestriction($innerQueryBuilder, $queryAlias, (int) $contact->getId());

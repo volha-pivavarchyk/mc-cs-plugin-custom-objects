@@ -8,7 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\OneToOne;
@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
  *     },
  *     itemOperations={
  *          "get"={"security"="'custom_objects:custom_objects:view'"},
- *          "put"={"security"="'custom_objects:custom_objects:edit'"},
  *          "patch"={"security"="'custom_objects:custom_objects:edit'"},
  *          "delete"={"security"="'custom_objects:custom_objects:delete'"}
  *     },
@@ -51,7 +50,9 @@ class CustomObject extends FormEntity implements UniqueEntityInterface
 
     /**
      * @var int|null
+     *
      * @Groups({"custom_object:read"})
+     *
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
@@ -66,66 +67,82 @@ class CustomObject extends FormEntity implements UniqueEntityInterface
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $alias;
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $nameSingular;
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $namePlural;
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $description;
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $language;
 
     /**
      * @var Category|null
+     *
      * @Assert\Valid
      **/
     private $category;
 
     /**
      * @var ArrayCollection
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $customFields;
 
     /**
      * @var int|null
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
      */
     private $type = self::TYPE_MASTER;
 
     /**
      * @var CustomObject|null
+     *
      * @OneToOne(targetEntity="CustomObject")
+     *
      * @JoinColumn(name="master_object", referencedColumnName="id")
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
+     *
      * @ApiProperty(readableLink=false, writableLink=false)
      */
     private $masterObject;
 
     /**
      * @var CustomObject|null
+     *
      * @OneToOne(targetEntity="CustomObject")
+     *
      * @JoinColumn(name="relationship_object", referencedColumnName="id", onDelete="SET NULL")
+     *
      * @Groups({"custom_object:read", "custom_object:write"})
+     *
      * @ApiProperty(readableLink=false, writableLink=false)
      */
     private $relationshipObject;
@@ -165,12 +182,12 @@ class CustomObject extends FormEntity implements UniqueEntityInterface
 
         $builder->addId();
         $builder->addCategory();
-        $builder->addField('alias', Type::STRING);
-        $builder->addNamedField('nameSingular', Type::STRING, 'name_singular');
-        $builder->addNamedField('namePlural', Type::STRING, 'name_plural');
-        $builder->addNullableField('description', Type::STRING, 'description');
-        $builder->addNullableField('language', Type::STRING, 'lang');
-        $builder->addNullableField('type', Type::INTEGER);
+        $builder->addField('alias', Types::STRING);
+        $builder->addNamedField('nameSingular', Types::STRING, 'name_singular');
+        $builder->addNamedField('namePlural', Types::STRING, 'name_plural');
+        $builder->addNullableField('description', Types::STRING, 'description');
+        $builder->addNullableField('language', Types::STRING, 'lang');
+        $builder->addNullableField('type', Types::INTEGER);
 
         $builder->createOneToOne('relationshipObject', CustomObject::class)
             ->addJoinColumn('relationship_object', 'id', true, false, 'SET NULL')
@@ -390,7 +407,7 @@ class CustomObject extends FormEntity implements UniqueEntityInterface
             }
         }
 
-        throw new NotFoundException("Custom field with order index '${order}' not found.");
+        throw new NotFoundException('Custom field with order index '.$order.' not found.');
     }
 
     public function getPublishedFields(): Collection
@@ -423,10 +440,9 @@ class CustomObject extends FormEntity implements UniqueEntityInterface
     public function getUniqueIdentifierFields(): ?ArrayCollection
     {
         return $this->customFields->filter(
-            static fn(CustomField $customField) => $customField->getIsUniqueIdentifier()
+            static fn (CustomField $customField) => $customField->getIsUniqueIdentifier()
         );
     }
-
 
     /**
      * Called when the custom fields are loaded from the database.

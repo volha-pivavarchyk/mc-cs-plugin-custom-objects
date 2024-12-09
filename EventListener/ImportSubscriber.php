@@ -10,6 +10,7 @@ use Mautic\LeadBundle\Event\ImportMappingEvent;
 use Mautic\LeadBundle\Event\ImportProcessEvent;
 use Mautic\LeadBundle\Event\ImportValidateEvent;
 use Mautic\LeadBundle\LeadEvents;
+use MauticPlugin\CustomObjectsBundle\DTO\ImportLogDTO;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 use MauticPlugin\CustomObjectsBundle\Exception\ForbiddenException;
 use MauticPlugin\CustomObjectsBundle\Exception\NotFoundException;
@@ -20,9 +21,9 @@ use MauticPlugin\CustomObjectsBundle\Provider\CustomItemPermissionProvider;
 use MauticPlugin\CustomObjectsBundle\Provider\CustomItemRouteProvider;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomFieldRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImportSubscriber implements EventSubscriberInterface
 {
@@ -162,7 +163,7 @@ class ImportSubscriber implements EventSubscriberInterface
         if (empty($matchedFields)) {
             $form->addError(
                 new FormError(
-                    $this->translator->trans('mautic.lead.import.matchfields', [], 'validators')
+                    $this->translator->trans('mautic.lead.import.matchfields', [], 'validators') ?? ''
                 )
             );
 
@@ -187,8 +188,13 @@ class ImportSubscriber implements EventSubscriberInterface
             $customObjectId = $this->getCustomObjectId($event->import->getObject());
             $this->permissionProvider->canCreate($customObjectId);
             $customObject = $this->customObjectModel->fetchEntity($customObjectId);
-            $merged       = $this->customItemImportModel->import($event->import, $event->rowData, $customObject);
+            $importLogDto = new ImportLogDTO();
+            $merged       = $this->customItemImportModel->import($event->import, $event->rowData, $customObject, $importLogDto);
             $event->setWasMerged($merged);
+
+            if ($importLogDto->hasWarning()) {
+                $event->addWarning($importLogDto->getWarningsAsString());
+            }
         } catch (NotFoundException $e) {
             // Not a Custom Object import or the custom object doesn't exist anymore. Move on.
         }
@@ -223,7 +229,7 @@ class ImportSubscriber implements EventSubscriberInterface
      *
      * @param mixed[] $matchedFields
      */
-    private function handleValidateRequired(Form $form, int $customObjectId, array $matchedFields): void
+    private function handleValidateRequired(FormInterface $form, int $customObjectId, array $matchedFields): void
     {
         $requiredFields = $this->customFieldRepository->getRequiredCustomFieldsForCustomObject($customObjectId);
 

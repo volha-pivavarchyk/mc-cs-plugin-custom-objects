@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Entity;
 
-use DateTimeImmutable;
-use DateTimeInterface;
-use DateTimeZone;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemXrefCustomItemRepository;
-use UnexpectedValueException;
 
 /**
  * As the {custom item} - {custom item} table can store the IDs both ways (higher - lower, lower - higher)
@@ -36,17 +32,17 @@ class CustomItemXrefCustomItem implements CustomItemXrefInterface
     private $customItemHigher;
 
     /**
-     * @var DateTimeInterface
+     * @var \DateTimeInterface
      */
     private $dateAdded;
 
     /**
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
-    public function __construct(CustomItem $customItemA, CustomItem $customItemB, ?DateTimeInterface $dateAdded = null)
+    public function __construct(CustomItem $customItemA, CustomItem $customItemB, ?\DateTimeInterface $dateAdded = null)
     {
         if ($customItemA->getId() && $customItemA->getId() === $customItemB->getId()) {
-            throw new UnexpectedValueException('It is not possible to link identical custom item.');
+            throw new \UnexpectedValueException('It is not possible to link identical custom item.');
         }
 
         if ($customItemA->getId() < $customItemB->getId()) {
@@ -57,7 +53,7 @@ class CustomItemXrefCustomItem implements CustomItemXrefInterface
             $this->customItemHigher = $customItemA;
         }
 
-        $this->dateAdded = $dateAdded ?: new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        $this->dateAdded = $dateAdded ?: new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public static function loadMetadata(ORM\ClassMetadata $metadata): void
@@ -80,7 +76,7 @@ class CustomItemXrefCustomItem implements CustomItemXrefInterface
             ->fetchExtraLazy()
             ->build();
 
-        $builder->createField('dateAdded', Type::DATETIME)
+        $builder->createField('dateAdded', Types::DATETIME_MUTABLE)
             ->columnName('date_added')
             ->build();
     }
@@ -118,7 +114,7 @@ class CustomItemXrefCustomItem implements CustomItemXrefInterface
     }
 
     /**
-     * @return DateTimeInterface
+     * @return \DateTimeInterface
      */
     public function getDateAdded()
     {

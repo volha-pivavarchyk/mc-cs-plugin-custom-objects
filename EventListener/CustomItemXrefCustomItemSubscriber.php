@@ -17,7 +17,6 @@ use MauticPlugin\CustomObjectsBundle\Event\CustomItemXrefEntityDiscoveryEvent;
 use MauticPlugin\CustomObjectsBundle\Event\CustomItemXrefEntityEvent;
 use MauticPlugin\CustomObjectsBundle\Repository\CustomItemRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use UnexpectedValueException;
 
 class CustomItemXrefCustomItemSubscriber implements EventSubscriberInterface
 {
@@ -81,7 +80,7 @@ class CustomItemXrefCustomItemSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      * @throws ORMException
      */
     public function onEntityLinkDiscovery(CustomItemXrefEntityDiscoveryEvent $event): void

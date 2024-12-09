@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\CustomObjectsBundle\Migrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Mautic\CoreBundle\Exception\SchemaException;
+use Doctrine\DBAL\Schema\SchemaException;
 use Mautic\IntegrationsBundle\Migration\AbstractMigration;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomObject;
 
@@ -24,8 +24,8 @@ class Version_0_0_11 extends AbstractMigration
         $tableCustomObject = $this->concatPrefix($this->table);
 
         try {
-            return !$schema->getTable($tableCustomObject)->hasColumn('type') ||
-                !$schema->getTable($tableCustomObject)->hasColumn('master_object');
+            return !$schema->getTable($tableCustomObject)->hasColumn('type')
+                || !$schema->getTable($tableCustomObject)->hasColumn('master_object');
         } catch (SchemaException $e) {
             return false;
         }

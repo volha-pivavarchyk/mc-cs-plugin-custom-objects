@@ -129,7 +129,7 @@ class CustomFieldType extends AbstractType
             [
                 'data_class'         => CustomField::class,
                 'empty_data'         => function (FormInterface $form) {
-                    $type = $form->get('type')->getData();
+                    $type         = $form->get('type')->getData();
                     $customObject = $form->get('customObject')->getData();
 
                     return $this->customFieldFactory->create($type, $customObject);
@@ -199,8 +199,8 @@ class CustomFieldType extends AbstractType
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
             /** @var CustomField $customField */
             $customField = $event->getData();
-            $form = $event->getForm();
-            $hasChoices = $customField->getTypeObject()->hasChoices();
+            $form        = $event->getForm();
+            $hasChoices  = $customField->getTypeObject()->hasChoices();
 
             $this->createDefaultValueInput($form, $customField);
 
@@ -260,7 +260,7 @@ class CustomFieldType extends AbstractType
             ]
         );
 
-        $builder->setAction($options['action']);
+        $builder->setAction($options['action'] ?? '');
     }
 
     /**
@@ -270,9 +270,9 @@ class CustomFieldType extends AbstractType
     private function buildPanelFormFields(FormBuilderInterface $builder): void
     {
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
-            /** @var CustomField $customField */
+            /** @var ?CustomField $customField */
             $customField = $event->getData();
-            $form = $event->getForm();
+            $form        = $event->getForm();
 
             if (!$customField) {
                 // Custom field is new without data fetched from DB
@@ -368,7 +368,7 @@ class CustomFieldType extends AbstractType
             // Set proper type object when creating new custom field
             /** @var CustomField $customField */
             $customField = $event->getData();
-            $form = $event->getForm();
+            $form        = $event->getForm();
 
             if (!$customField->getTypeObject() && $customField->getType()) {
                 $customField->setTypeObject($this->customFieldTypeProvider->getType($customField->getType()));

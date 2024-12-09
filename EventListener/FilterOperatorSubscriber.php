@@ -121,9 +121,9 @@ class FilterOperatorSubscriber implements EventSubscriberInterface
             );
         } elseif ($event->operatorIsOneOf(self::NOT_IN_CUSTOM_OBJECTS)) {
             $queryBuilder           = $event->getQueryBuilder();
-            $subQueryBuilder        = $queryBuilder->getConnection()->createQueryBuilder();
-            $expr                   = $subQueryBuilder->expr();
-            $customItemQueryBuilder = $subQueryBuilder->select('ci.name')
+            // $subQueryBuilder        = $queryBuilder->getConnection()->createQueryBuilder();
+            $expr                   = $queryBuilder->expr();
+            $customItemQueryBuilder = $queryBuilder->select('ci.name')
                 ->from(MAUTIC_TABLE_PREFIX.'custom_item', 'ci')
                 ->andWhere($expr->eq('ci.custom_object_id', $customObjectId))
                 ->andWhere($expr->eq('ci.is_published', 1));

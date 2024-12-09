@@ -8,7 +8,6 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
@@ -42,6 +41,7 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
  *     denormalizationContext={"groups"={"custom_item:write"}, "swagger_definition_name"="Write"}
  * )
  */
+#[\AllowDynamicProperties]
 class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInterface
 {
     use UpsertTrait;
@@ -50,7 +50,9 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
     /**
      * @var int|null
+     *
      * @Groups({"custom_item:read"})
+     *
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
@@ -65,7 +67,9 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_item:read", "custom_item:write"})
+     *
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
@@ -81,8 +85,11 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
     /**
      * @var CustomObject
+     *
      * @ManyToOne(targetEntity="CustomObject")
+     *
      * @JoinColumn(name="custom_object_id", referencedColumnName="id")
+     *
      * @Groups({"custom_item:read", "custom_item:write"})
      */
     private $customObject;
@@ -94,7 +101,9 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
     /**
      * @var string|null
+     *
      * @Groups({"custom_item:read", "custom_item:write"})
+     *
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
@@ -109,9 +118,13 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
     /**
      * @var Category|null
+     *
      * @ManyToOne(targetEntity="Category")
+     *
      * @JoinColumn(name="category_id", referencedColumnName="id")
+     *
      * @ApiProperty(readableLink=false, writableLink=false)
+     *
      * @Groups({"custom_item:read", "custom_item:write"})
      **/
     private $category;
@@ -123,6 +136,7 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
     /**
      * @var array
+     *
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
@@ -149,6 +163,7 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
      *         }
      *     }
      * )
+     *
      * @Groups({"custom_item:read", "custom_item:write"})
      */
     private $fieldValues;
@@ -225,8 +240,8 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
 
         $builder->addBigIntIdField();
         $builder->addCategory();
-        $builder->addField('name', Type::STRING);
-        $builder->addNullableField('language', Type::STRING, 'lang');
+        $builder->addField('name', Types::STRING);
+        $builder->addNullableField('language', Types::STRING, 'lang');
     }
 
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
@@ -242,6 +257,7 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
     {
         foreach ($data as $property => $value) {
             $camelCaseProperty          = lcfirst(ucwords($property, '_'));
+            // $this->__set($camelCaseProperty, $value);
             $this->{$camelCaseProperty} = $value;
         }
     }
@@ -450,7 +466,16 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
                 $this->createNewCustomFieldValueByFieldId((int) $value['id'], $value['value']);
             }
         }
-        $this->setDefaultValuesForMissingFields();
+
+        /**
+         * We could have done it in CustomItemDataPersister::persist() by
+         * injecting Symfony\Component\HttpFoundation\RequestStack and get request method.
+         * Since, CustomItem entity has multiple public methods which could lead to BC break.
+         * Hence, we are using $_SERVER here to get the request method type.
+         */
+        if ('PATCH' !== $_SERVER['REQUEST_METHOD']) {
+            $this->setDefaultValuesForMissingFields();
+        }
     }
 
     /**
@@ -649,7 +674,7 @@ class CustomItem extends FormEntity implements UniqueEntityInterface, UpsertInte
             $uniqueIdentifierFieldAlias              = $uniqueIdentifierField->getAlias();
             $uniqueHash[$uniqueIdentifierFieldAlias] = $this->findCustomFieldValueForFieldAlias($uniqueIdentifierFieldAlias)->getValue();
         }
-        //To prevent creation of duplicates (in case of multiple unique ID fields) due to the order of key-values in the array
+        // To prevent creation of duplicates (in case of multiple unique ID fields) due to the order of key-values in the array
         // Eg. {id => 1, name => "Jay"} and {name => "Jay", id => 1} are duplicates
         ksort($uniqueHash);
 

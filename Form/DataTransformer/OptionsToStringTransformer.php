@@ -25,7 +25,7 @@ class OptionsToStringTransformer implements DataTransformerInterface
     private $customFieldModel;
 
     /**
-     * @var CustomField[];
+     * @var CustomField[]
      */
     private $customFieldCache = [];
 

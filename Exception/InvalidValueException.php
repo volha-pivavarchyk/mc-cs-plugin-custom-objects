@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\CustomObjectsBundle\Exception;
 
-use Exception;
 use MauticPlugin\CustomObjectsBundle\Entity\CustomField;
 
-class InvalidValueException extends Exception
+class InvalidValueException extends \Exception
 {
     /**
      * @var CustomField|null

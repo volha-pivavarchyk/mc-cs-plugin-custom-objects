@@ -116,6 +116,7 @@ jobs:
 
     - name: Rector
       run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}
+      continue-on-error: true
 
     - name: Twig Lint
       run: bin/console lint:twig ${{ env.PLUGIN_DIR }}

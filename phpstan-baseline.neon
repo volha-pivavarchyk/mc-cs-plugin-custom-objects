@@ -610,6 +610,11 @@ parameters:
 			path: Tests/Unit/Helper/CustomFieldQueryBuilder/CalculatorTest.php
 
 		-
+			message: "#^Constant MAUTIC_TABLE_PREFIX not found.$#"
+			count: 1
+			path: Tests/Unit/Helper/QueryFilterFactoryTest.php
+
+		-
 			message: """
 				#^Call to deprecated method setMethods\\(\\) of class PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\:
 				https\\://github\\.com/sebastianbergmann/phpunit/pull/3687$#

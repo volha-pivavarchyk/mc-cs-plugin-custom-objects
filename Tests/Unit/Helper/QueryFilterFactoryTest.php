@@ -26,13 +26,15 @@ class QueryFilterFactoryTest extends TestCase
      */
     private $segmentFilter;
 
-    private ?string $prefix = '';
+    private string $prefix = '';
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->prefix = MAUTIC_TABLE_PREFIX ?? '___';
+        defined('MAUTIC_TABLE_PREFIX') || define('MAUTIC_TABLE_PREFIX', '___');
+
+        $this->prefix = MAUTIC_TABLE_PREFIX;
 
         $this->segmentFilter = $this->createMock(ContactSegmentFilter::class);
         $this->segmentFilter
@@ -197,7 +199,6 @@ SQL;
     {
         // Remove line breaks
         $string = preg_replace('/[\r\n]+/', ' ', $string);
-
         // Remove multi-spaces
         return preg_replace('!\s+!', ' ', $string);
     }

@@ -197,6 +197,7 @@ SQL;
     {
         // Remove line breaks
         $string = preg_replace('/[\r\n]+/', ' ', $string);
+
         // Remove multi-spaces
         return preg_replace('!\s+!', ' ', $string);
     }

@@ -204,6 +204,11 @@ class CustomItemExportSchedulerModel extends AbstractCommonModel
     private function addExportFileHeaderToCsvFile(array $customFields): void
     {
         $header  = $this->getCSVHeader($customFields);
+        dump('================================================');
+        $ifExists = file_exists($this->filePath);
+        dump($ifExists);
+        $isWritable = is_writable(dirname($this->filePath));
+        dump($isWritable);
         $handler = @fopen($this->filePath, 'ab+');
         dump('================================================');
         dump($this->filePath);

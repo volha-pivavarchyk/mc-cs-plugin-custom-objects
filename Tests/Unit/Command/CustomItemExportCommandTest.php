@@ -29,7 +29,7 @@ class CustomItemExportCommandTest extends CustomObjectTestCase
         $this->createMockData();
     }
 
-    public function testCustomItemExport(): void
+    public function testCustomItemExport1(): void
     {
         $this->client->enableProfiler();
 
@@ -53,6 +53,7 @@ class CustomItemExportCommandTest extends CustomObjectTestCase
     private function getCustomItemExportCommandTester()
     {
         $kernel      = self::$kernel;
+        dump($kernel->getProjectDir());
         $application = new Application($kernel);
         $application->setAutoExit(false);
         $command       = $application->find('mautic:custom_items:scheduled_export');

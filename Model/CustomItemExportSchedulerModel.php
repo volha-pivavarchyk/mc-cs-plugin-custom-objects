@@ -205,6 +205,10 @@ class CustomItemExportSchedulerModel extends AbstractCommonModel
     {
         $header  = $this->getCSVHeader($customFields);
         $handler = @fopen($this->filePath, 'ab+');
+        dump('================================================');
+        dump($customFields);
+        dump($this->filePath);
+        dump($handler);
         fputcsv($handler, $header);
         fclose($handler);
     }

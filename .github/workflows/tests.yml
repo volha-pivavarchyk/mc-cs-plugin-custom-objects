@@ -121,6 +121,9 @@ jobs:
     - name: Twig Lint
       run: bin/console lint:twig ${{ env.PLUGIN_DIR }}
 
+    - name: Create writable directory
+      run: mkdir -p ./media/files/temp && chmod -R 777 ./media/files/temp
+
     - name: Run PHPUNIT tests
       env:
         DB_PORT: ${{ job.services.database.ports[3306] }}

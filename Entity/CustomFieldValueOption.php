@@ -19,7 +19,9 @@ class CustomFieldValueOption extends AbstractCustomFieldValue
      * @var int|null
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="integer")
+     *
      * @ORM\GeneratedValue
      */
     private $id;

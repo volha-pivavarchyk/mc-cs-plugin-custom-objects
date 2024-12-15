@@ -14,7 +14,13 @@ use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 class CustomFieldValueOption extends AbstractCustomFieldValue
 {
     /**
+     * The identifier of the record, used by Doctrine ORM.
+     *
      * @var int|null
+     *
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
      */
     private $id;
 

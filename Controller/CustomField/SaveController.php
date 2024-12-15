@@ -176,7 +176,7 @@ class SaveController extends CommonController
      *
      * @see \Symfony\Component\Form\Exception\TransformationFailedException
      *
-     * @param string[] $customFieldPost
+     * @param mixed[] $customFieldPost
      */
     private function recreateOptionsFromPost(array $customFieldPost, CustomField $customField): void
     {
